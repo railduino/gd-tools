@@ -10,7 +10,7 @@ import (
 var generateDependsFlag = cli.StringSliceFlag{
 	Name:    "depends",
 	Aliases: []string{"d"},
-	Usage:   T("project-flag-depends"),
+	Usage:   T("generate-flag-depends"),
 }
 
 // Registered project kinds (eg. traefik, wordpress, nextcloud, mail_host)

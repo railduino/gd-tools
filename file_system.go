@@ -18,32 +18,18 @@ type Mount struct {
 }
 
 type SystemConfig struct {
-	Version   string   `json:"version"`    // eg. v1.0.0
-	TimeZone  string   `json:"time_zone"`  // eg. Europe/Berlin
-	SwapSpace int      `json:"swap_space"` // size in GByte (or 0)
-	HostName  string   `json:"host_name"`  // hostname (default FQDN)
-	Packages  []string `json:"packages"`   // Required DEB packages
-	Mounts    []Mount  `json:"mounts"`     // Mounted filesystem (can grow)
-	SshPort   string   `json:"ssh_port"`   // unsually 'OpenSSH'
+	Version    string   `json:"version"`     // eg. v1.0.0
+	TimeZone   string   `json:"time_zone"`   // eg. Europe/Berlin
+	SwapSpace  int      `json:"swap_space"`  // size in GByte (or 0)
+	HostName   string   `json:"host_name"`   // hostname (default FQDN)
+	DomainName string   `json:"domain_name"` // derived from FQDN
+	SshPort    string   `json:"ssh_port"`    // unsually 'OpenSSH'
+	SysAdmin   string   `json:"sys_admin"`   // try to read from ~/.gitconfig
+	Packages   []string `json:"packages"`    // Required DEB packages
+	Mounts     []Mount  `json:"mounts"`      // Mounted filesystem (can grow)
 }
 
-func FileSystemCheck() error {
-	rootDir, err := GetProjectRoot(MainOnProd())
-	if err != nil {
-		return err
-	}
-
-	systemFile := filepath.Join(rootDir, SystemConfigFile)
-	_, err = os.Stat(systemFile)
-	if err != nil {
-		msg := T("file-err-missing-system")
-		return fmt.Errorf(msg)
-	}
-
-	return nil
-}
-
-func FileSystemRead(basePath string) (*SystemConfig, error) {
+func FileSystemRead() (*SystemConfig, error) {
 	rootDir, err := GetProjectRoot(MainOnProd())
 	if err != nil {
 		return nil, err

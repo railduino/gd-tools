@@ -28,20 +28,13 @@ var commandSystem = &cli.Command{
 }
 
 func runSystem(c *cli.Context) error {
-	if prod := MainOnProd(); !prod {
-		dir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		if _, err := FileSystemRead(dir); err != nil {
-			return err
-		}
-		return ShellEditor(SystemConfigFile)
-	}
-
-	systemConfig, err := FileSystemRead("/etc/gd-tools")
+	systemConfig, err := FileSystemRead()
 	if err != nil {
 		return err
+	}
+
+	if prod := MainOnProd(); !prod {
+		return ShellEditor(SystemConfigFile)
 	}
 
 	dryRun := c.Bool("dry")

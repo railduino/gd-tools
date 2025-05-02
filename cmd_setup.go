@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/urfave/cli/v2"
+	"golang.org/x/net/publicsuffix"
+	"gopkg.in/ini.v1"
 )
 
 func init() {
@@ -68,7 +70,25 @@ func runSetup(c *cli.Context) error {
 		return fmt.Errorf(msg)
 	}
 	dstPath := c.Args().First()
-	hostname := filepath.Base(dstPath)
+
+	// By convention the directory is the hostname
+	hostName := filepath.Base(dstPath)
+	domainName, err := publicsuffix.EffectiveTLDPlusOne(hostName)
+	if err != nil {
+		return err
+	}
+
+	// try to get the sysadmin from .gitconfig
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	gitConfigPath := filepath.Join(homeDir, ".gitconfig")
+	cfg, err := ini.Load(gitConfigPath)
+	if err != nil {
+		return err
+	}
+	sysAdmin := cfg.Section("user").Key("email").String()
 
 	if _, err := os.Stat(dstPath); err == nil {
 		msg := Tf("setup-err-host-exist", dstPath)
@@ -89,13 +109,15 @@ func runSetup(c *cli.Context) error {
 		return err
 	}
 	systemConfig := SystemConfig{
-		Version:   version,
-		TimeZone:  strings.TrimSpace(string(timezone)),
-		SwapSpace: 0,
-		HostName:  hostname,
-		Packages:  defaultPackages,
-		Mounts:    defaultMounts,
-		SshPort:   "OpenSSH",
+		Version:    version,
+		TimeZone:   strings.TrimSpace(string(timezone)),
+		SwapSpace:  0,
+		HostName:   hostName,
+		DomainName: domainName,
+		SshPort:    "OpenSSH",
+		SysAdmin:   sysAdmin,
+		Packages:   defaultPackages,
+		Mounts:     defaultMounts,
 	}
 	if err := systemConfig.Save(); err != nil {
 		return err
@@ -111,8 +133,8 @@ func runSetup(c *cli.Context) error {
 		return err
 	}
 
-	sync_user := "root@" + hostname
-	sync_excl := "--exclude=logs --exclude=deploy.json"
+	sync_user := fmt.Sprintf("root@%s", hostName)
+	sync_excl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
 	sync_cmds := []string{
 		fmt.Sprintf("rsync -avz %s %s/ %s:/etc/gd-tools", sync_excl, dstPath, sync_user),
 		fmt.Sprintf("rsync -avz %s/ %s:/usr/local/bin", myself, sync_user),

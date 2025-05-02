@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-02 11:12+0200\n"
+"POT-Creation-Date: 2025-05-02 12:59+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -62,7 +62,7 @@ msgstr ""
 "TODO Genaueres steht dann hier."
 
 #: cmd_generate.go:13
-msgid "project-flag-depends"
+msgid "generate-flag-depends"
 msgstr "erstellt Abhängigkeit von Projekt"
 
 #: cmd_generate.go:36
@@ -167,11 +167,11 @@ msgstr ""
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_setup.go:58
+#: cmd_setup.go:60
 msgid "setup-cmd-usage"
 msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
 
-#: cmd_setup.go:59
+#: cmd_setup.go:61
 msgid "setup-cmd-describe"
 msgstr ""
 "Der Befehl 'setup' legt die Basis für einen produktiven Server\n"
@@ -180,23 +180,23 @@ msgstr ""
 "Beispiel:\n"
 "  gd-tools setup ~/gd-servers/www.example.com"
 
-#: cmd_setup.go:67
+#: cmd_setup.go:69
 msgid "setup-err-missing-host"
 msgstr "es wurde kein Name für den Server angegeben"
 
-#: cmd_setup.go:74
+#: cmd_setup.go:94
 msgid "setup-err-host-exist"
 msgstr "der Server '%s' existiert bereits, Ausführung verweigert"
 
-#: cmd_setup.go:78
+#: cmd_setup.go:98
 msgid "setup-step-mkdir"
 msgstr "Step: legt das Verzeichnis für den Server an"
 
-#: cmd_setup.go:86
+#: cmd_setup.go:106
 msgid "setup-step-system"
 msgstr "Step: erzeugt die JSON-Dateien für die Umgebung"
 
-#: cmd_setup.go:104
+#: cmd_setup.go:126
 msgid "setup-step-deploy"
 msgstr "Step: erzeugt das Deployment Skript"
 
@@ -212,31 +212,31 @@ msgstr ""
 "In der Entwicklungsumgebung wird die Datei system.json editiert.\n"
 "Auf dem Produktions-System wird die Umgebung für gd-tools eingerichtet."
 
-#: cmd_system.go:79
+#: cmd_system.go:72
 msgid "system-timezone-okay"
 msgstr "die Zeitzone %s ist bereits gesetzt"
 
-#: cmd_system.go:82
+#: cmd_system.go:75
 msgid "system-timezone-update"
 msgstr "die Zeitzone wird auf %s gesetzt"
 
-#: cmd_system.go:90
+#: cmd_system.go:83
 msgid "system-swapfile-zero"
 msgstr "es wird kein Swap-File angefordert"
 
-#: cmd_system.go:97
+#: cmd_system.go:90
 msgid "system-swapfile-exist"
 msgstr "das Swap-File %s existiert bereits"
 
-#: cmd_system.go:114
+#: cmd_system.go:107
 msgid "system-swapfile-fstab"
 msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
 
-#: cmd_system.go:129
+#: cmd_system.go:122
 msgid "system-hostname-okay"
 msgstr "der FQDN ist bereits auf %s gesetzt"
 
-#: cmd_system.go:134
+#: cmd_system.go:127
 msgid "system-hostname-update"
 msgstr "der FQDN wird auf %s gesetzt"
 
@@ -244,34 +244,46 @@ msgstr "der FQDN wird auf %s gesetzt"
 msgid "file-err-missing-deploy"
 msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
-#: file_system.go:39 file_system.go:56
+#: file_system.go:42
 msgid "file-err-missing-system"
 msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
 
-#: generate_traefik.go:28
+#: generate_traefik.go:24
+msgid "traefik-flag-status-host"
+msgstr "filtert Projekte nach ihrem Status"
+
+#: generate_traefik.go:29
+msgid "traefik-flag-status-user"
+msgstr "filtert Projekte nach ihrem Status"
+
+#: generate_traefik.go:34
+msgid "traefik-flag-status-pswd"
+msgstr "filtert Projekte nach ihrem Status"
+
+#: generate_traefik.go:43
 msgid "install-traefik-usage"
 msgstr "installiert einen Traefik Reverse Proxy Container"
 
-#: generate_traefik.go:29
+#: generate_traefik.go:44
 msgid "install-traefik-describe"
 msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
-#: generate_traefik.go:39
+#: generate_traefik.go:57
 msgid "install-err-missing-prefix"
 msgstr "das Swap-File %s existiert bereits"
 
-#: generate_traefik.go:57
+#: generate_traefik.go:76
 msgid "gen-create-dir"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_traefik.go:62
+#: generate_traefik.go:81
 msgid "gen-create-config"
 msgstr "legt die Datei 'config.json' an"
 
-#: generate_traefik.go:79
+#: generate_traefik.go:98
 msgid "gen-create-compose"
 msgstr "legt die Datei 'compose.yaml' an"
 
