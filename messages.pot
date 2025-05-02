@@ -1,0 +1,302 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-02 12:05+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cmd_delete.go:17
+msgid "delete-flag-force"
+msgstr ""
+
+#: cmd_delete.go:22
+msgid "delete-cmd-usage"
+msgstr ""
+
+#: cmd_delete.go:23
+msgid "delete-cmd-describe"
+msgstr ""
+
+#: cmd_delete.go:42
+msgid "delete-err-no-arg"
+msgstr ""
+
+#: cmd_delete.go:50
+msgid "delete-err-not-found"
+msgstr ""
+
+#: cmd_delete.go:56
+msgid "delete-err-not-dir"
+msgstr ""
+
+#: cmd_delete.go:61
+msgid "delete-err-no-force"
+msgstr ""
+
+#: cmd_deploy.go:13
+msgid "deploy-cmd-usage"
+msgstr ""
+
+#: cmd_deploy.go:14
+msgid "deploy-cmd-describe"
+msgstr ""
+
+#: cmd_enable.go:13
+msgid "enable-cmd-usage"
+msgstr ""
+
+#: cmd_enable.go:14
+msgid "enable-cmd-describe"
+msgstr ""
+
+#: cmd_generate.go:13
+msgid "project-flag-depends"
+msgstr ""
+
+#: cmd_generate.go:36
+msgid "generate-cmd-usage"
+msgstr ""
+
+#: cmd_generate.go:37
+msgid "generate-cmd-describe"
+msgstr ""
+
+#: cmd_generate.go:43
+msgid "generate-cmd-list-kinds"
+msgstr ""
+
+#: cmd_git.go:16
+msgid "git-cmd-usage"
+msgstr ""
+
+#: cmd_git.go:17
+msgid "git-cmd-describe"
+msgstr ""
+
+#: cmd_hash.go:13
+msgid "hash-cmd-usage"
+msgstr ""
+
+#: cmd_hash.go:14
+msgid "hash-cmd-describe"
+msgstr ""
+
+#: cmd_hash.go:19
+msgid "usage-command-hash-crc32"
+msgstr ""
+
+#: cmd_links.go:19
+msgid "links-flag-dir"
+msgstr ""
+
+#: cmd_links.go:24
+msgid "links-cmd-usage"
+msgstr ""
+
+#: cmd_links.go:25
+msgid "links-cmd-describe"
+msgstr ""
+
+#: cmd_list.go:16
+msgid "list-flag-status"
+msgstr ""
+
+#: cmd_list.go:22
+msgid "list-cmd-usage"
+msgstr ""
+
+#: cmd_list.go:23
+msgid "list-cmd-describe"
+msgstr ""
+
+#: cmd_list.go:44
+msgid "list-status-unknown"
+msgstr ""
+
+#: cmd_login.go:17
+msgid "login-cmd-usage"
+msgstr ""
+
+#: cmd_login.go:18
+msgid "login-cmd-describe"
+msgstr ""
+
+#: cmd_login.go:30
+msgid "err-missing-json"
+msgstr ""
+
+#: cmd_secret.go:17
+msgid "secret-cmd-usage"
+msgstr ""
+
+#: cmd_secret.go:18
+msgid "secret-cmd-describe"
+msgstr ""
+
+#: cmd_setup.go:58
+msgid "setup-cmd-usage"
+msgstr ""
+
+#: cmd_setup.go:59
+msgid "setup-cmd-describe"
+msgstr ""
+
+#: cmd_setup.go:67
+msgid "setup-err-missing-host"
+msgstr ""
+
+#: cmd_setup.go:74
+msgid "setup-err-host-exist"
+msgstr ""
+
+#: cmd_setup.go:78
+msgid "setup-step-mkdir"
+msgstr ""
+
+#: cmd_setup.go:86
+msgid "setup-step-system"
+msgstr ""
+
+#: cmd_setup.go:104
+msgid "setup-step-deploy"
+msgstr ""
+
+#: cmd_system.go:22
+msgid "system-cmd-usage"
+msgstr ""
+
+#: cmd_system.go:23
+msgid "system-cmd-describe"
+msgstr ""
+
+#: cmd_system.go:79
+msgid "system-timezone-okay"
+msgstr ""
+
+#: cmd_system.go:82
+msgid "system-timezone-update"
+msgstr ""
+
+#: cmd_system.go:90
+msgid "system-swapfile-zero"
+msgstr ""
+
+#: cmd_system.go:97
+msgid "system-swapfile-exist"
+msgstr ""
+
+#: cmd_system.go:114
+msgid "system-swapfile-fstab"
+msgstr ""
+
+#: cmd_system.go:129
+msgid "system-hostname-okay"
+msgstr ""
+
+#: cmd_system.go:134
+msgid "system-hostname-update"
+msgstr ""
+
+#: file_deploy.go:25 file_deploy.go:42
+msgid "file-err-missing-deploy"
+msgstr ""
+
+#: file_system.go:39 file_system.go:56
+msgid "file-err-missing-system"
+msgstr ""
+
+#: generate_traefik.go:28
+msgid "install-traefik-usage"
+msgstr ""
+
+#: generate_traefik.go:29
+msgid "install-traefik-describe"
+msgstr ""
+
+#: generate_traefik.go:39
+msgid "install-err-missing-prefix"
+msgstr ""
+
+#: generate_traefik.go:57
+msgid "gen-create-dir"
+msgstr ""
+
+#: generate_traefik.go:62
+msgid "gen-create-config"
+msgstr ""
+
+#: generate_traefik.go:79
+msgid "gen-create-compose"
+msgstr ""
+
+#: main.go:26
+msgid "main-flag-commands"
+msgstr ""
+
+#: main.go:31
+msgid "main-flag-dry-run"
+msgstr ""
+
+#: main.go:38
+msgid "usage-main-app"
+msgstr ""
+
+#: main.go:56
+msgid "app-action-commands"
+msgstr ""
+
+#: project.go:147
+msgid "install-err-project-exist"
+msgstr ""
+
+#: project.go:152
+msgid "install-err-single-exist"
+msgstr ""
+
+#: utils_secret.go:21
+msgid "secret-err-unknown-mode"
+msgstr ""
+
+#: utils_secret.go:28
+msgid "secret-err-empty"
+msgstr ""
+
+#: utils_shell.go:19
+msgid "exec-dry-running"
+msgstr ""
+
+#: utils_shell.go:23
+msgid "exec-now-running"
+msgstr ""
+
+#: utils_shell.go:92
+msgid "exec-err-missing"
+msgstr ""
+
+#: utils_shell.go:97
+msgid "exec-err-invalid"
+msgstr ""
+
+#: yaml_depends.go:34
+msgid "yaml-err-invalid-depends"
+msgstr ""
+
+#: yaml_kvlist.go:38
+msgid "yaml-err-invalid-kvlist"
+msgstr ""
+
+#: yaml_kvlist.go:46
+msgid "yaml-err-unexpected-kvlist"
+msgstr ""

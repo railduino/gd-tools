@@ -1,0 +1,6 @@
+[gd-tools/messages]
+file_filter = locales/<lang>/LC_MESSAGES/messages.po
+source_file = messages.pot
+source_lang = de
+translation_format = po
+

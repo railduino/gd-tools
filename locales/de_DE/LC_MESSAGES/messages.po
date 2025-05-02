@@ -1,0 +1,336 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: go-docker-tools 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-02 11:12+0200\n"
+"Language: de_DE\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: cmd_delete.go:17
+msgid "delete-flag-force"
+msgstr "erzwingt das Löschen ohne Nachfrage"
+
+#: cmd_delete.go:22
+msgid "delete-cmd-usage"
+msgstr "löscht ein bestehendes Projekt"
+
+#: cmd_delete.go:23
+msgid "delete-cmd-describe"
+msgstr ""
+"Der Befehl 'delete' dient dazu, ein vorhandenes Projekt zu löschen\n"
+"\n"
+"Vor dem Löschen sollte das Projekt auf dem Server 'down' sein.\n"
+"Sonst wird nach einem 'deploy' die 'compose.yaml' nicht mehr gefunden."
+
+#: cmd_delete.go:42
+msgid "delete-err-no-arg"
+msgstr "kein Projekt zum Löschen angegeben"
+
+#: cmd_delete.go:50
+msgid "delete-err-not-found"
+msgstr "Projekt '%s' wurde nicht gefunden"
+
+#: cmd_delete.go:56
+msgid "delete-err-not-dir"
+msgstr "das Ziel '%s' ist kein Verzeichnis"
+
+#: cmd_delete.go:61
+msgid "delete-err-no-force"
+msgstr "zur Sicherheit muss --force angegeben werden"
+
+#: cmd_deploy.go:13
+msgid "deploy-cmd-usage"
+msgstr "aktualisiert das Produktions-System"
+
+#: cmd_deploy.go:14
+msgid "deploy-cmd-describe"
+msgstr ""
+"Der Befehl 'deploy' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_enable.go:13
+msgid "enable-cmd-usage"
+msgstr "erteilt Startfreigabe für Projekt oder Service"
+
+#: cmd_enable.go:14
+msgid "enable-cmd-describe"
+msgstr ""
+"Der Befehl 'enable' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_generate.go:13
+msgid "project-flag-depends"
+msgstr "erstellt Abhängigkeit von Projekt"
+
+#: cmd_generate.go:36
+msgid "generate-cmd-usage"
+msgstr "erzeugt ein neues Projekt einer bestimmten Art"
+
+#: cmd_generate.go:37
+msgid "generate-cmd-describe"
+msgstr ""
+"Der Befehl 'generate' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_generate.go:43
+msgid "generate-cmd-list-kinds"
+msgstr "Die folgenden Projekt-Arten sind implementiert:"
+
+#: cmd_git.go:16
+msgid "git-cmd-usage"
+msgstr "füllt das (bestehende, leere) Server-Repository"
+
+#: cmd_git.go:17
+msgid "git-cmd-describe"
+msgstr ""
+"Der Befehl 'git' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_hash.go:13
+msgid "hash-cmd-usage"
+msgstr "erzeugt eine Prüfsumme"
+
+#: cmd_hash.go:14
+msgid "hash-cmd-describe"
+msgstr ""
+"Der Befehl 'hash' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_hash.go:19
+msgid "usage-command-hash-crc32"
+msgstr ""
+
+#: cmd_links.go:19
+msgid "links-flag-dir"
+msgstr "zeigt die Kommandos, ohne sie auszuführen"
+
+#: cmd_links.go:24
+msgid "links-cmd-usage"
+msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
+
+#: cmd_links.go:25
+msgid "links-cmd-describe"
+msgstr ""
+"Der Befehl 'system' ist verantwortlich für das Setup des Host-Systems.\n"
+"\n"
+"In der Entwicklungsumgebung wird die Datei system.json editiert.\n"
+"In der Produktionsumgebung wird das System für gd-tools eingerichtet."
+
+#: cmd_list.go:16
+msgid "list-flag-status"
+msgstr "filtert Projekte nach ihrem Status"
+
+#: cmd_list.go:22
+msgid "list-cmd-usage"
+msgstr "listet die bestehenden Projekte auf"
+
+#: cmd_list.go:23
+msgid "list-cmd-describe"
+msgstr ""
+"Der Befehl 'list' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_list.go:44
+msgid "list-status-unknown"
+msgstr "dieser Status ist nicht bekannt"
+
+#: cmd_login.go:17
+msgid "login-cmd-usage"
+msgstr "meldet sich auf dem Produktions-System an"
+
+#: cmd_login.go:18
+msgid "login-cmd-describe"
+msgstr ""
+"Der Befehl 'login' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_login.go:30
+msgid "err-missing-json"
+msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
+
+#: cmd_secret.go:17
+msgid "secret-cmd-usage"
+msgstr "erzeugt einen geheimen Schlüssel"
+
+#: cmd_secret.go:18
+msgid "secret-cmd-describe"
+msgstr ""
+"Der Befehl 'secret' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_setup.go:58
+msgid "setup-cmd-usage"
+msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
+
+#: cmd_setup.go:59
+msgid "setup-cmd-describe"
+msgstr ""
+"Der Befehl 'setup' legt die Basis für einen produktiven Server\n"
+"\n"
+"TODO Genaueres steht dann hier.\n"
+"Beispiel:\n"
+"  gd-tools setup ~/gd-servers/www.example.com"
+
+#: cmd_setup.go:67
+msgid "setup-err-missing-host"
+msgstr "es wurde kein Name für den Server angegeben"
+
+#: cmd_setup.go:74
+msgid "setup-err-host-exist"
+msgstr "der Server '%s' existiert bereits, Ausführung verweigert"
+
+#: cmd_setup.go:78
+msgid "setup-step-mkdir"
+msgstr "Step: legt das Verzeichnis für den Server an"
+
+#: cmd_setup.go:86
+msgid "setup-step-system"
+msgstr "Step: erzeugt die JSON-Dateien für die Umgebung"
+
+#: cmd_setup.go:104
+msgid "setup-step-deploy"
+msgstr "Step: erzeugt das Deployment Skript"
+
+#: cmd_system.go:22
+msgid "system-cmd-usage"
+msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
+
+#: cmd_system.go:23
+msgid "system-cmd-describe"
+msgstr ""
+"Der Befehl 'system' ist verantwortlich für das Setup des Host-Systems.\n"
+"\n"
+"In der Entwicklungsumgebung wird die Datei system.json editiert.\n"
+"Auf dem Produktions-System wird die Umgebung für gd-tools eingerichtet."
+
+#: cmd_system.go:79
+msgid "system-timezone-okay"
+msgstr "die Zeitzone %s ist bereits gesetzt"
+
+#: cmd_system.go:82
+msgid "system-timezone-update"
+msgstr "die Zeitzone wird auf %s gesetzt"
+
+#: cmd_system.go:90
+msgid "system-swapfile-zero"
+msgstr "es wird kein Swap-File angefordert"
+
+#: cmd_system.go:97
+msgid "system-swapfile-exist"
+msgstr "das Swap-File %s existiert bereits"
+
+#: cmd_system.go:114
+msgid "system-swapfile-fstab"
+msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
+
+#: cmd_system.go:129
+msgid "system-hostname-okay"
+msgstr "der FQDN ist bereits auf %s gesetzt"
+
+#: cmd_system.go:134
+msgid "system-hostname-update"
+msgstr "der FQDN wird auf %s gesetzt"
+
+#: file_deploy.go:25 file_deploy.go:42
+msgid "file-err-missing-deploy"
+msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
+
+#: file_system.go:39 file_system.go:56
+msgid "file-err-missing-system"
+msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
+
+#: generate_traefik.go:28
+msgid "install-traefik-usage"
+msgstr "installiert einen Traefik Reverse Proxy Container"
+
+#: generate_traefik.go:29
+msgid "install-traefik-describe"
+msgstr ""
+"Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+"\n"
+"TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+
+#: generate_traefik.go:39
+msgid "install-err-missing-prefix"
+msgstr "das Swap-File %s existiert bereits"
+
+#: generate_traefik.go:57
+msgid "gen-create-dir"
+msgstr "legt das Projekt-Verzeichnis an"
+
+#: generate_traefik.go:62
+msgid "gen-create-config"
+msgstr "legt die Datei 'config.json' an"
+
+#: generate_traefik.go:79
+msgid "gen-create-compose"
+msgstr "legt die Datei 'compose.yaml' an"
+
+#: main.go:26
+msgid "main-flag-commands"
+msgstr "zeigt eine Liste der erkannten Befehle"
+
+#: main.go:31
+msgid "main-flag-dry-run"
+msgstr "zeigt die Kommandos, ohne sie auszuführen"
+
+#: main.go:38
+msgid "usage-main-app"
+msgstr "Toolset zur Verwaltung von Docker-Projekten unter Debian/Ubuntu Linux"
+
+#: main.go:56
+msgid "app-action-commands"
+msgstr "Die folgenden Befehle werden erkannt:"
+
+#: project.go:147
+msgid "install-err-project-exist"
+msgstr ""
+
+#: project.go:152
+msgid "install-err-single-exist"
+msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
+
+#: utils_secret.go:21
+msgid "secret-err-unknown-mode"
+msgstr "zur Sicherheit muss --force angegeben werden"
+
+#: utils_secret.go:28
+msgid "secret-err-empty"
+msgstr ""
+
+#: utils_shell.go:19
+msgid "exec-dry-running"
+msgstr "[dry] %s"
+
+#: utils_shell.go:23
+msgid "exec-now-running"
+msgstr "[run] %s"
+
+#: utils_shell.go:92
+msgid "exec-err-missing"
+msgstr "da fehlt etwas"
+
+#: utils_shell.go:97
+msgid "exec-err-invalid"
+msgstr "da ist etwas ungültig"
+
+#: yaml_depends.go:34
+msgid "yaml-err-invalid-depends"
+msgstr "ungültige Abhängigkeit erkannt"
+
+#: yaml_kvlist.go:38
+msgid "yaml-err-invalid-kvlist"
+msgstr "ungültige Liste erkannt"
+
+#: yaml_kvlist.go:46
+msgid "yaml-err-unexpected-kvlist"
+msgstr "hier wird keine Liste erwartet"
