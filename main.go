@@ -5,13 +5,14 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
 
 type CommandWrapper struct {
 	Cmd    *cli.Command
-	Policy string // "prodOnly", "devOnly", "any"
+	Policy string // "prod", "dev", "any"
 }
 
 var (
@@ -55,7 +56,7 @@ func main() {
 		Action: func(c *cli.Context) error {
 			fmt.Println(T("app-action-commands"))
 			for _, wrapper := range commandSet {
-				if isCommandVisible(wrapper.Policy) {
+				if CheckEnv(wrapper.Policy) {
 					fmt.Printf("  %-20s %s\n", wrapper.Cmd.Name, wrapper.Cmd.Usage)
 				}
 			}
@@ -87,26 +88,26 @@ func AddSubCommand(cmd *cli.Command, policy string) {
 func visibleCommands() []*cli.Command {
 	var cmds []*cli.Command
 	for _, wrapper := range commandSet {
-		if isCommandVisible(wrapper.Policy) {
+		if CheckEnv(wrapper.Policy) {
 			cmds = append(cmds, wrapper.Cmd)
 		}
 	}
 	return cmds
 }
 
-func isCommandVisible(policy string) bool {
-	euid := os.Geteuid()
-
-	switch policy {
-	case "prodOnly":
-		return euid == 0
-	case "devOnly":
-		return euid != 0
-	default:
-		return true
+func ReadEnv() string {
+	data, err := os.ReadFile("/etc/gd-tools-env")
+	if err != nil {
+		return "unknown"
 	}
+
+	return strings.TrimSpace(string(data))
 }
 
-func MainOnProd() bool {
-	return os.Geteuid() == 0
+func CheckEnv(wanted string) bool {
+	if wanted == "any" {
+		return true
+	}
+
+	return ReadEnv() == wanted
 }

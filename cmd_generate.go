@@ -19,7 +19,7 @@ var generateKinds []*cli.Command
 var generateCommand *cli.Command = commandGenerate
 
 func init() {
-	AddSubCommand(commandGenerate, "devOnly")
+	AddSubCommand(commandGenerate, "dev")
 }
 
 func RegisterProjectKind(cmd *cli.Command) {

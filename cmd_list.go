@@ -28,7 +28,7 @@ var commandList = &cli.Command{
 }
 
 func runListProjects(c *cli.Context) error {
-	projects, err := ProjectLoadAll(MainOnProd())
+	projects, err := ProjectLoadAll()
 	if err != nil {
 		return err
 	}

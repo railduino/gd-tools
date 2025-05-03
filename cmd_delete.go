@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddSubCommand(commandDelete, "devOnly")
+	AddSubCommand(commandDelete, "dev")
 }
 
 var deleteFlagForce = cli.BoolFlag{

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	AddSubCommand(commandLogin, "devOnly")
+	AddSubCommand(commandLogin, "dev")
 }
 
 var commandLogin = &cli.Command{

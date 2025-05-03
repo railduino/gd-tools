@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	AddSubCommand(commandEnable, "devOnly")
+	AddSubCommand(commandEnable, "dev")
 }
 
 var commandEnable = &cli.Command{

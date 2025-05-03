@@ -54,3 +54,9 @@ init:
 zip:
 	tar -c -v -z -f /tmp/gd-tools.tgz Makefile *.go templates locales
 
+env:
+	echo "Setting environment marker"
+	sudo sh -c 'echo "dev" > /etc/gd-tools-env'
+	sudo chmod 0444 /etc/gd-tools-env
+	sudo chown root:root /etc/gd-tools-env
+

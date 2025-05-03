@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 07:47+0200\n"
+"POT-Creation-Date: 2025-05-03 17:04+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -35,12 +35,16 @@ msgstr ""
 msgid "delete-err-no-force"
 msgstr ""
 
-#: cmd_deploy.go:13
+#: cmd_deploy.go:20
 msgid "deploy-cmd-usage"
 msgstr ""
 
-#: cmd_deploy.go:14
+#: cmd_deploy.go:21
 msgid "deploy-cmd-describe"
+msgstr ""
+
+#: cmd_deploy.go:60 utils_shell.go:19 utils_shell.go:111
+msgid "exec-dry-running"
 msgstr ""
 
 #: cmd_enable.go:13
@@ -155,7 +159,7 @@ msgstr ""
 msgid "setup-err-missing-host"
 msgstr ""
 
-#: cmd_setup.go:94
+#: cmd_setup.go:47
 msgid "setup-err-host-exist"
 msgstr ""
 
@@ -168,6 +172,10 @@ msgid "setup-step-system"
 msgstr ""
 
 #: cmd_setup.go:126
+msgid "setup-step-prepare"
+msgstr ""
+
+#: cmd_setup.go:149
 msgid "setup-step-deploy"
 msgstr ""
 
@@ -251,27 +259,27 @@ msgstr ""
 msgid "gen-create-compose"
 msgstr ""
 
-#: main.go:26
+#: main.go:27
 msgid "main-flag-commands"
 msgstr "Available commands:"
 
-#: main.go:31
+#: main.go:32
 msgid "main-flag-dry-run"
 msgstr ""
 
-#: main.go:38
+#: main.go:39
 msgid "usage-main-app"
 msgstr "Toolset for managing Docker based projects under Debian/Ubuntu Linux"
 
-#: main.go:56
+#: main.go:57
 msgid "app-action-commands"
 msgstr "Available commands:"
 
-#: project.go:163
+#: project.go:160
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:168
+#: project.go:165
 msgid "install-err-unique-exist"
 msgstr ""
 
@@ -281,10 +289,6 @@ msgstr ""
 
 #: utils_secret.go:28
 msgid "secret-err-empty"
-msgstr ""
-
-#: utils_shell.go:19 utils_shell.go:111
-msgid "exec-dry-running"
 msgstr ""
 
 #: utils_shell.go:23

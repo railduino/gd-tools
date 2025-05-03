@@ -28,47 +28,44 @@ type Project struct {
 	Compose []byte
 }
 
-func GetProjectRoot(prod bool) (string, error) {
-	if prod {
-		if MainOnProd() {
-			if env := os.Getenv("GD_PROJECT_ROOT"); env != "" {
-				return env, nil
-			}
+func GetProjectRoot(env string) (string, error) {
+	if env == "dev" {
+		dir, err := os.Getwd()
+		if err != nil {
+			return "", err
 		}
-		return ProdProjectRoot, nil
+		return dir, nil
 	}
 
-	curDir, err := os.Getwd()
-	if err != nil {
-		return "", err
+	if env := os.Getenv("GD_PROJECT_ROOT"); env != "" {
+		return env, nil
 	}
 
-	return curDir, nil
+	return ProdProjectRoot, nil
 }
 
-func GetDataRoot(prod bool, subdir string) (string, error) {
-	if prod {
-		baseDir := ProdDataRoot
-		if MainOnProd() {
-			if env := os.Getenv("GD_DATA_ROOT"); env != "" {
-				baseDir = env
-			}
+func GetDataRoot(env, subdir string) (string, error) {
+	if env == "dev" {
+		dir, err := os.Getwd()
+		if err != nil {
+			return "", err
 		}
-		if subdir == "" {
-			return baseDir, nil
-		}
-		return filepath.Join(baseDir, subdir), nil
+		return filepath.Join(dir, subdir), nil
 	}
 
-	if _, err := os.Getwd(); err != nil {
-		return "", err
+	baseDir := ProdDataRoot
+	if env := os.Getenv("GD_DATA_ROOT"); env != "" {
+		baseDir = env
+	}
+	if subdir == "" {
+		return baseDir, nil
 	}
 
-	return subdir, nil
+	return filepath.Join(baseDir, subdir), nil
 }
 
-func ProjectLoadAll(prod bool) ([]*Project, error) {
-	rootDir, err := GetProjectRoot(prod)
+func ProjectLoadAll() ([]*Project, error) {
+	rootDir, err := GetProjectRoot(ReadEnv())
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +122,8 @@ func (p *Project) GetName() string {
 	return strings.Join(parts, "-")
 }
 
-func (p *Project) GetPath(prod bool) (string, error) {
-	rootDir, err := GetProjectRoot(prod)
+func (p *Project) GetPath() (string, error) {
+	rootDir, err := GetProjectRoot(ReadEnv())
 	if err != nil {
 		return "", err
 	}
@@ -134,8 +131,8 @@ func (p *Project) GetPath(prod bool) (string, error) {
 	return filepath.Join(rootDir, p.GetName()), nil
 }
 
-func (p *Project) GetDataPath(prod bool) (string, error) {
-	rootDir, err := GetDataRoot(prod, "volumes")
+func (p *Project) GetDataPath(env string) (string, error) {
+	rootDir, err := GetDataRoot(env, "volumes")
 	if err != nil {
 		return "", err
 	}
@@ -143,8 +140,8 @@ func (p *Project) GetDataPath(prod bool) (string, error) {
 	return filepath.Join(rootDir, p.GetName()), nil
 }
 
-func (p *Project) GetLogsPath(prod bool) (string, error) {
-	rootDir, err := GetDataRoot(prod, "logs")
+func (p *Project) GetLogsPath(env string) (string, error) {
+	rootDir, err := GetDataRoot(env, "logs")
 	if err != nil {
 		return "", err
 	}
@@ -153,7 +150,7 @@ func (p *Project) GetLogsPath(prod bool) (string, error) {
 }
 
 func (p *Project) CheckConflict(unique bool) error {
-	projects, err := ProjectLoadAll(false)
+	projects, err := ProjectLoadAll()
 	if err != nil {
 		return err
 	}
@@ -174,7 +171,7 @@ func (p *Project) CheckConflict(unique bool) error {
 }
 
 func (p *Project) ConfigPath() string {
-	projectDir, _ := p.GetPath(MainOnProd())
+	projectDir, _ := p.GetPath()
 
 	return filepath.Join(projectDir, "config.json")
 }
@@ -206,7 +203,7 @@ func (p *Project) SaveConfig() error {
 }
 
 func (p *Project) ComposePath() string {
-	projectDir, _ := p.GetPath(MainOnProd())
+	projectDir, _ := p.GetPath()
 
 	return filepath.Join(projectDir, "compose.yaml")
 }

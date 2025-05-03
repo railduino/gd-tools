@@ -30,7 +30,7 @@ type SystemConfig struct {
 }
 
 func FileSystemRead() (*SystemConfig, error) {
-	rootDir, err := GetProjectRoot(MainOnProd())
+	rootDir, err := GetProjectRoot(ReadEnv())
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,7 @@ func runSystem(c *cli.Context) error {
 		return err
 	}
 
-	if prod := MainOnProd(); !prod {
+	if CheckEnv("dev") {
 		return ShellEditor(SystemConfigFile)
 	}
 

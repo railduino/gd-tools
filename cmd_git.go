@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	AddSubCommand(commandGit, "devOnly")
+	AddSubCommand(commandGit, "dev")
 }
 
 var commandGit = &cli.Command{

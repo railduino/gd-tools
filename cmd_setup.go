@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	AddSubCommand(commandSetup, "devOnly")
+	AddSubCommand(commandSetup, "dev")
 }
 
 var setupFlagHetzner = cli.StringFlag{
@@ -43,6 +43,11 @@ func runSetup(c *cli.Context) error {
 	}
 	dstPath := c.Args().First()
 
+	if _, err := os.Stat(dstPath); err == nil {
+		msg := Tf("setup-err-host-exist", dstPath)
+		return fmt.Errorf(msg)
+	}
+
 	// by convention the directory is the hostname
 	hostName := filepath.Base(dstPath)
 	domainName, err := publicsuffix.EffectiveTLDPlusOne(hostName)
@@ -51,15 +56,15 @@ func runSetup(c *cli.Context) error {
 	}
 
 	// collect default DEB packages
-	packages, err := TemplateLines("packages.txt")
+	packages, err := TemplateLines("packages.txt", "#")
 	if err != nil {
 		return err
 	}
 
-	// check for mounted filesystems
+	// check for filesystems to be mounted
 	// N.B. mounts given here are mutually exclusive
 	var mounts []Mount
-	mountpoint, err := GetDataRoot(true, "")
+	mountpoint, err := GetDataRoot("prod", "")
 	if err != nil {
 		return err
 	}
@@ -90,11 +95,6 @@ func runSetup(c *cli.Context) error {
 		}
 	}
 
-	if _, err := os.Stat(dstPath); err == nil {
-		msg := Tf("setup-err-host-exist", dstPath)
-		return fmt.Errorf(msg)
-	}
-
 	fmt.Println(T("setup-step-mkdir"))
 	if err := os.MkdirAll(dstPath, 0755); err != nil {
 		return err
@@ -123,30 +123,54 @@ func runSetup(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("setup-step-deploy"))
-	myExec, err := os.Executable()
+	fmt.Println(T("setup-step-prepare"))
+	prepareName := "prepare-gd-tools.sh"
+	projectRoot, err := GetProjectRoot("prod")
 	if err != nil {
 		return err
 	}
-	myExec, err = filepath.EvalSymlinks(myExec)
+	dataRoot, err := GetDataRoot("prod", "")
+	if err != nil {
+		return err
+	}
+	prepareData := struct {
+		Dirs []string
+	}{
+		[]string{projectRoot, dataRoot},
+	}
+	prepareScript, err := TemplateParse(prepareName, prepareData)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(prepareName, prepareScript, 0644); err != nil {
+		return err
+	}
+
+	fmt.Println(T("setup-step-deploy"))
+	execPath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	execPath, err = filepath.EvalSymlinks(execPath)
 	if err != nil {
 		return err
 	}
 
-	syncRoot, err := GetProjectRoot(true)
-	if err != nil {
-		return err
-	}
-	syncUser := fmt.Sprintf("root@%s", hostName)
+	var deployCmds []string
+	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
 	syncExcl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
-	syncCmds := []string{
-		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, syncUser, syncRoot),
-		fmt.Sprintf("rsync -avz %s/ %s:/usr/local/bin", myExec, syncUser),
-		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools", syncUser),
+	syncProg := "--chown=gd-tools:gd-tools --chmod=0755"
+	userCmds := []string{
+		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, toolUser, projectRoot),
+		fmt.Sprintf("rsync -avz %s %s %s:/usr/local/bin", syncProg, execPath, toolUser),
+		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools", toolUser),
+	}
+	for _, cmd := range userCmds {
+		deployCmds = append(deployCmds, cmd)
 	}
 
 	deployScript := DeployScript{
-		Commands: syncCmds,
+		Commands: deployCmds,
 	}
 	if err := deployScript.Save(); err != nil {
 		return err

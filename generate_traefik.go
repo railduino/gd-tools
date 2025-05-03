@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	_ "path/filepath"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 )
@@ -99,11 +99,11 @@ func runGenerateTraefik(c *cli.Context) error {
 	statusHost := fmt.Sprintf("status.%s", systemConfig.DomainName)
 	statusUser := fmt.Sprintf("admin@%s", systemConfig.DomainName)
 
-	dataDir, err := project.GetDataPath(true)
+	dataDir, err := project.GetDataPath("prod")
 	if err != nil {
 		return err
 	}
-	logsDir, err := project.GetLogsPath(true)
+	logsDir, err := project.GetLogsPath("prod")
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,8 @@ func runGenerateTraefik(c *cli.Context) error {
 		LogsDir:        logsDir,
 	}
 
-	project.Compose, err = TemplateParse("traefik", "compose.yaml", composeData)
+	composePath := filepath.Join("traefik", "compose.yaml")
+	project.Compose, err = TemplateParse(composePath, composeData)
 	if err != nil {
 		return err
 	}

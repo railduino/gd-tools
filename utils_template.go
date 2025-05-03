@@ -13,8 +13,8 @@ import (
 //go:embed templates
 var templateFS embed.FS
 
-func TemplateParse(subdir, name string, data interface{}) ([]byte, error) {
-	path := filepath.Join("templates", subdir, name)
+func TemplateLoad(name string) ([]byte, error) {
+	path := filepath.Join("templates", name)
 
 	content, err := os.ReadFile(path)
 	if err != nil {
@@ -26,6 +26,15 @@ func TemplateParse(subdir, name string, data interface{}) ([]byte, error) {
 		} else {
 			return nil, err // any other error
 		}
+	}
+
+	return content, nil
+}
+
+func TemplateParse(name string, data interface{}) ([]byte, error) {
+	content, err := TemplateLoad(name)
+	if err != nil {
+		return nil, err
 	}
 
 	tmpl, err := template.New(name).Parse(string(content))
@@ -41,18 +50,10 @@ func TemplateParse(subdir, name string, data interface{}) ([]byte, error) {
 	return result.Bytes(), nil
 }
 
-func TemplateLines(name string) ([]string, error) {
-	path := filepath.Join("templates", name)
-	content, err := os.ReadFile(path)
+func TemplateLines(name, comment string) ([]string, error) {
+	content, err := TemplateLoad(name)
 	if err != nil {
-		if os.IsNotExist(err) {
-			content, err = templateFS.ReadFile(path)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, err // any other error
-		}
+		return nil, err
 	}
 
 	reader := bytes.NewReader(content)
@@ -60,7 +61,7 @@ func TemplateLines(name string) ([]string, error) {
 	var lines []string
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		if line == "" || strings.HasPrefix(line, "#") {
+		if line == "" || strings.HasPrefix(line, comment) {
 			continue
 		}
 		lines = append(lines, line)
