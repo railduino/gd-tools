@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/urfave/cli/v2"
 	"golang.org/x/net/publicsuffix"
@@ -15,53 +14,26 @@ func init() {
 	AddSubCommand(commandSetup, "devOnly")
 }
 
-var defaultPackages = []string{
-	"openssh-server",
-	"xauth",
-	"git",
-	"rsync",
-	"file",
-	"tree",
-	"unzip",
-	"bzip2",
-	"curl",
-	"wget",
-	"vim",
-	"jq",
-	"plocate",
-	"apt-transport-https",
-	"software-properties-common",
-	"ca-certificates",
-	"gnupg2",
-	"lsb-release",
-	"dirmngr",
-	"docker-ce",
-	"docker-ce-cli",
-	"containerd.io",
-	"docker-buildx-plugin",
-	"docker-compose-plugin",
+var setupFlagHetzner = cli.StringFlag{
+	Name:  "hetzner",
+	Usage: T("setup-flag-hetzner"),
 }
 
-var defaultMounts = []Mount{
-	{
-		Provider:   "Hetzner",
-		Identifier: "1234567890",
-		Mountpoint: "/var/gd-tools",
-	},
-	{
-		Provider:   "RAID",
-		Identifier: "UUID-1234-5678-ABCD",
-		Mountpoint: "/var/gd-tools",
-	},
+var setupFlagRAID = cli.StringFlag{
+	Name:  "raid",
+	Usage: T("setup-flag-raid"),
 }
 
 var commandSetup = &cli.Command{
 	Name:        "setup",
 	Usage:       T("setup-cmd-usage"),
 	Description: T("setup-cmd-describe"),
-	Flags:       []cli.Flag{},
-	ArgsUsage:   "<hostname>",
-	Action:      runSetup,
+	Flags: []cli.Flag{
+		&setupFlagHetzner,
+		&setupFlagRAID,
+	},
+	ArgsUsage: "<hostname>",
+	Action:    runSetup,
 }
 
 func runSetup(c *cli.Context) error {
@@ -71,24 +43,52 @@ func runSetup(c *cli.Context) error {
 	}
 	dstPath := c.Args().First()
 
-	// By convention the directory is the hostname
+	// by convention the directory is the hostname
 	hostName := filepath.Base(dstPath)
 	domainName, err := publicsuffix.EffectiveTLDPlusOne(hostName)
 	if err != nil {
 		return err
 	}
 
-	// try to get the sysadmin from .gitconfig
+	// collect default DEB packages
+	packages, err := TemplateLines("packages.txt")
+	if err != nil {
+		return err
+	}
+
+	// check for mounted filesystems
+	// N.B. mounts given here are mutually exclusive
+	var mounts []Mount
+	mountpoint, err := GetDataRoot(true, "")
+	if err != nil {
+		return err
+	}
+	if volume := c.String("hetzner"); volume != "" {
+		mount := Mount{
+			Provider:   "Hetzner",
+			Identifier: volume,
+			Mountpoint: mountpoint,
+		}
+		mounts = append(mounts, mount)
+	} else if uuid := c.String("raid"); uuid != "" {
+		mount := Mount{
+			Provider:   "RAID",
+			Identifier: uuid,
+			Mountpoint: mountpoint,
+		}
+		mounts = append(mounts, mount)
+	}
+
+	// get the sysadmin email from .gitconfig if possible
+	sysAdmin := fmt.Sprintf("admin@%s", domainName)
 	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
+	if err == nil {
+		gitConfigPath := filepath.Join(homeDir, ".gitconfig")
+		cfg, err := ini.Load(gitConfigPath)
+		if err == nil {
+			sysAdmin = cfg.Section("user").Key("email").String()
+		}
 	}
-	gitConfigPath := filepath.Join(homeDir, ".gitconfig")
-	cfg, err := ini.Load(gitConfigPath)
-	if err != nil {
-		return err
-	}
-	sysAdmin := cfg.Section("user").Key("email").String()
 
 	if _, err := os.Stat(dstPath); err == nil {
 		msg := Tf("setup-err-host-exist", dstPath)
@@ -104,45 +104,49 @@ func runSetup(c *cli.Context) error {
 	}
 
 	fmt.Println(T("setup-step-system"))
-	timezone, err := os.ReadFile("/etc/timezone")
+	timeZone, err := FileGetLine("/etc/timezone")
 	if err != nil {
 		return err
 	}
 	systemConfig := SystemConfig{
 		Version:    version,
-		TimeZone:   strings.TrimSpace(string(timezone)),
+		TimeZone:   timeZone,
 		SwapSpace:  0,
 		HostName:   hostName,
 		DomainName: domainName,
 		SshPort:    "OpenSSH",
 		SysAdmin:   sysAdmin,
-		Packages:   defaultPackages,
-		Mounts:     defaultMounts,
+		Packages:   packages,
+		Mounts:     mounts,
 	}
 	if err := systemConfig.Save(); err != nil {
 		return err
 	}
 
 	fmt.Println(T("setup-step-deploy"))
-	myself, err := os.Executable()
+	myExec, err := os.Executable()
 	if err != nil {
 		return err
 	}
-	myself, err = filepath.EvalSymlinks(myself)
+	myExec, err = filepath.EvalSymlinks(myExec)
 	if err != nil {
 		return err
 	}
 
-	sync_user := fmt.Sprintf("root@%s", hostName)
-	sync_excl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
-	sync_cmds := []string{
-		fmt.Sprintf("rsync -avz %s %s/ %s:/etc/gd-tools", sync_excl, dstPath, sync_user),
-		fmt.Sprintf("rsync -avz %s/ %s:/usr/local/bin", myself, sync_user),
-		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools update", sync_user),
+	syncRoot, err := GetProjectRoot(true)
+	if err != nil {
+		return err
+	}
+	syncUser := fmt.Sprintf("root@%s", hostName)
+	syncExcl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
+	syncCmds := []string{
+		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, syncUser, syncRoot),
+		fmt.Sprintf("rsync -avz %s/ %s:/usr/local/bin", myExec, syncUser),
+		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools update", syncUser),
 	}
 
 	deployScript := DeployScript{
-		Commands: sync_cmds,
+		Commands: syncCmds,
 	}
 	if err := deployScript.Save(); err != nil {
 		return err

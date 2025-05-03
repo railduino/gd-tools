@@ -64,15 +64,18 @@ func runSystem(c *cli.Context) error {
 }
 
 func systemTimeZone(dryRun bool, zone string) error {
-	curr, err := FileGetContent("/etc/timezone")
+	currZone, err := FileGetLine("/etc/timezone")
 	if err != nil {
 		return err
 	}
-	if curr == zone {
-		fmt.Println(Tf("system-timezone-okay", zone))
+	if currZone == zone {
+		msg := Tf("system-timezone-okay", zone)
+		fmt.Println(msg)
 		return nil
 	}
-	fmt.Println(Tf("system-timezone-update", zone))
+
+	msg := Tf("system-timezone-update", zone)
+	fmt.Println(msg)
 
 	set_timezone := fmt.Sprintf("timedatectl set-timezone %s", zone)
 	return ShellCmd(dryRun, set_timezone)
@@ -113,12 +116,11 @@ func systemSwapFile(dryRun bool, size int) error {
 }
 
 func systemHostName(dryRun bool, name string) error {
-	content, err := os.ReadFile("/etc/hostname")
+	currName, err := FileGetLine("/etc/hostname")
 	if err != nil {
 		return err
 	}
-
-	if curr := strings.TrimSpace(string(content)); curr == name {
+	if currName == name {
 		msg := Tf("system-hostname-okay", name)
 		fmt.Println(msg)
 		return nil

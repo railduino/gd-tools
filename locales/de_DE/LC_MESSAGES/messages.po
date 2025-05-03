@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-02 12:59+0200\n"
+"POT-Creation-Date: 2025-05-03 07:12+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -167,11 +167,19 @@ msgstr ""
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_setup.go:60
+#: cmd_setup.go:19
+msgid "setup-flag-hetzner"
+msgstr ""
+
+#: cmd_setup.go:24
+msgid "setup-flag-raid"
+msgstr ""
+
+#: cmd_setup.go:29
 msgid "setup-cmd-usage"
 msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
 
-#: cmd_setup.go:61
+#: cmd_setup.go:30
 msgid "setup-cmd-describe"
 msgstr ""
 "Der Befehl 'setup' legt die Basis für einen produktiven Server\n"
@@ -180,7 +188,7 @@ msgstr ""
 "Beispiel:\n"
 "  gd-tools setup ~/gd-servers/www.example.com"
 
-#: cmd_setup.go:69
+#: cmd_setup.go:41
 msgid "setup-err-missing-host"
 msgstr "es wurde kein Name für den Server angegeben"
 
@@ -216,27 +224,27 @@ msgstr ""
 msgid "system-timezone-okay"
 msgstr "die Zeitzone %s ist bereits gesetzt"
 
-#: cmd_system.go:75
+#: cmd_system.go:77
 msgid "system-timezone-update"
 msgstr "die Zeitzone wird auf %s gesetzt"
 
-#: cmd_system.go:83
+#: cmd_system.go:86
 msgid "system-swapfile-zero"
 msgstr "es wird kein Swap-File angefordert"
 
-#: cmd_system.go:90
+#: cmd_system.go:93
 msgid "system-swapfile-exist"
 msgstr "das Swap-File %s existiert bereits"
 
-#: cmd_system.go:107
+#: cmd_system.go:110
 msgid "system-swapfile-fstab"
 msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
 
-#: cmd_system.go:122
+#: cmd_system.go:124
 msgid "system-hostname-okay"
 msgstr "der FQDN ist bereits auf %s gesetzt"
 
-#: cmd_system.go:127
+#: cmd_system.go:129
 msgid "system-hostname-update"
 msgstr "der FQDN wird auf %s gesetzt"
 
@@ -303,12 +311,12 @@ msgstr "Toolset zur Verwaltung von Docker-Projekten unter Debian/Ubuntu Linux"
 msgid "app-action-commands"
 msgstr "Die folgenden Befehle werden erkannt:"
 
-#: project.go:147
+#: project.go:163
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:152
-msgid "install-err-single-exist"
+#: project.go:168
+msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
 
 #: utils_secret.go:21

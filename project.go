@@ -29,20 +29,42 @@ type Project struct {
 }
 
 func GetProjectRoot(prod bool) (string, error) {
-	rootPath := ProdProjectRoot
 	if prod {
-		if env := os.Getenv("GD_PROJECT_ROOT"); env != "" {
-			return env, nil
+		if MainOnProd() {
+			if env := os.Getenv("GD_PROJECT_ROOT"); env != "" {
+				return env, nil
+			}
 		}
 		return ProdProjectRoot, nil
 	}
 
-	var err error
-	rootPath, err = os.Getwd()
+	curDir, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	return rootPath, nil
+
+	return curDir, nil
+}
+
+func GetDataRoot(prod bool, subdir string) (string, error) {
+	if prod {
+		baseDir := ProdDataRoot
+		if MainOnProd() {
+			if env := os.Getenv("GD_DATA_ROOT"); env != "" {
+				baseDir = env
+			}
+		}
+		if subdir == "" {
+			return baseDir, nil
+		}
+		return filepath.Join(baseDir, subdir), nil
+	}
+
+	if _, err := os.Getwd(); err != nil {
+		return "", err
+	}
+
+	return subdir, nil
 }
 
 func ProjectLoadAll(prod bool) ([]*Project, error) {
@@ -112,31 +134,25 @@ func (p *Project) GetPath(prod bool) (string, error) {
 	return filepath.Join(rootDir, p.GetName()), nil
 }
 
-func (p *Project) GetVolumePath(prod bool) string {
-	if prod {
-		base := ProdDataRoot
-		if env := os.Getenv("GD_DATA_ROOT"); env != "" {
-			base = env
-		}
-		return filepath.Join(base, "volumes", p.GetName())
+func (p *Project) GetDataPath(prod bool) (string, error) {
+	rootDir, err := GetDataRoot(prod, "volumes")
+	if err != nil {
+		return "", err
 	}
 
-	return "volumes"
+	return filepath.Join(rootDir, p.GetName()), nil
 }
 
-func (p *Project) GetLogsPath(prod bool) string {
-	if prod {
-		base := ProdDataRoot
-		if env := os.Getenv("GD_DATA_ROOT"); env != "" {
-			base = env
-		}
-		return filepath.Join(base, "logs", p.GetName())
+func (p *Project) GetLogsPath(prod bool) (string, error) {
+	rootDir, err := GetDataRoot(prod, "logs")
+	if err != nil {
+		return "", err
 	}
 
-	return "logs"
+	return filepath.Join(rootDir, p.GetName()), nil
 }
 
-func (p *Project) CheckConflict(single bool) error {
+func (p *Project) CheckConflict(unique bool) error {
 	projects, err := ProjectLoadAll(false)
 	if err != nil {
 		return err
@@ -148,8 +164,8 @@ func (p *Project) CheckConflict(single bool) error {
 			return fmt.Errorf(msg)
 		}
 
-		if single && check.Kind == p.Kind {
-			msg := T("install-err-single-exist")
+		if unique && check.Kind == p.Kind {
+			msg := T("install-err-unique-exist")
 			return fmt.Errorf(msg)
 		}
 	}

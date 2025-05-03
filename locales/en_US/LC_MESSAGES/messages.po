@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-02 12:59+0200\n"
+"POT-Creation-Date: 2025-05-03 07:12+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -135,15 +135,23 @@ msgstr ""
 msgid "secret-cmd-describe"
 msgstr ""
 
-#: cmd_setup.go:60
+#: cmd_setup.go:19
+msgid "setup-flag-hetzner"
+msgstr ""
+
+#: cmd_setup.go:24
+msgid "setup-flag-raid"
+msgstr ""
+
+#: cmd_setup.go:29
 msgid "setup-cmd-usage"
 msgstr ""
 
-#: cmd_setup.go:61
+#: cmd_setup.go:30
 msgid "setup-cmd-describe"
 msgstr ""
 
-#: cmd_setup.go:69
+#: cmd_setup.go:41
 msgid "setup-err-missing-host"
 msgstr ""
 
@@ -175,27 +183,27 @@ msgstr ""
 msgid "system-timezone-okay"
 msgstr ""
 
-#: cmd_system.go:75
+#: cmd_system.go:77
 msgid "system-timezone-update"
 msgstr ""
 
-#: cmd_system.go:83
+#: cmd_system.go:86
 msgid "system-swapfile-zero"
 msgstr ""
 
-#: cmd_system.go:90
+#: cmd_system.go:93
 msgid "system-swapfile-exist"
 msgstr ""
 
-#: cmd_system.go:107
+#: cmd_system.go:110
 msgid "system-swapfile-fstab"
 msgstr ""
 
-#: cmd_system.go:122
+#: cmd_system.go:124
 msgid "system-hostname-okay"
 msgstr ""
 
-#: cmd_system.go:127
+#: cmd_system.go:129
 msgid "system-hostname-update"
 msgstr ""
 
@@ -259,12 +267,12 @@ msgstr "Toolset for managing Docker based projects under Debian/Ubuntu Linux"
 msgid "app-action-commands"
 msgstr "Available commands:"
 
-#: project.go:147
+#: project.go:163
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:152
-msgid "install-err-single-exist"
+#: project.go:168
+msgid "install-err-unique-exist"
 msgstr ""
 
 #: utils_secret.go:21

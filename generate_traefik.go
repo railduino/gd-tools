@@ -19,17 +19,17 @@ type TraefikTemplateData struct {
 	LogsDir        string `json:"-"`
 }
 
-var traefikHostFlag = cli.StringFlag{
+var traefikFlagHost = cli.StringFlag{
 	Name:  "host",
 	Usage: T("traefik-flag-status-host"),
 }
 
-var traefikUserFlag = cli.StringFlag{
+var traefikFlagUser = cli.StringFlag{
 	Name:  "user",
 	Usage: T("traefik-flag-status-user"),
 }
 
-var traefikPswdFlag = cli.StringFlag{
+var traefikFlagPswd = cli.StringFlag{
 	Name:  "pswd",
 	Usage: T("traefik-flag-status-pswd"),
 }
@@ -44,9 +44,9 @@ var commandGenerateTraefik = &cli.Command{
 	Description: T("install-traefik-describe"),
 	Flags: []cli.Flag{
 		&generateDependsFlag,
-		&traefikHostFlag,
-		&traefikUserFlag,
-		&traefikPswdFlag,
+		&traefikFlagHost,
+		&traefikFlagUser,
+		&traefikFlagPswd,
 	},
 	Action: runGenerateTraefik,
 }
@@ -99,6 +99,15 @@ func runGenerateTraefik(c *cli.Context) error {
 	statusHost := fmt.Sprintf("status.%s", systemConfig.DomainName)
 	statusUser := fmt.Sprintf("admin@%s", systemConfig.DomainName)
 
+	dataDir, err := project.GetDataPath(true)
+	if err != nil {
+		return err
+	}
+	logsDir, err := project.GetLogsPath(true)
+	if err != nil {
+		return err
+	}
+
 	composeData := TraefikTemplateData{
 		TraefikVersion: "v2",
 		EmailUser:      systemConfig.SysAdmin,
@@ -106,11 +115,11 @@ func runGenerateTraefik(c *cli.Context) error {
 		StatusHost:     statusHost,
 		StatusUser:     statusUser,
 		StatusPswd:     "TODO",
-		DataDir:        project.GetVolumePath(true),
-		LogsDir:        project.GetLogsPath(true),
+		DataDir:        dataDir,
+		LogsDir:        logsDir,
 	}
 
-	project.Compose, err = TemplateLoad("traefik", "compose.yaml", composeData)
+	project.Compose, err = TemplateParse("traefik", "compose.yaml", composeData)
 	if err != nil {
 		return err
 	}

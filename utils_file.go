@@ -29,7 +29,7 @@ func FileCopy(src, dst string, mode int) error {
 	return out.Chmod(fs.FileMode(mode))
 }
 
-func FileGetContent(path string) (string, error) {
+func FileGetLine(path string) (string, error) {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
