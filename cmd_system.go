@@ -279,8 +279,11 @@ func systemMountRAID(dryRun bool, id, target string) error {
 		return err
 	}
 
-	uuid := fmt.Sprintf("UUID=%s", id)
-	line := fmt.Sprintf("%s %s ext4 defaults,nofail 0 0", uuid, target)
+	uuid, err := ShellGetDeviceUUID(dryRun, id)
+	if err != nil {
+		return err
+	}
+	line := fmt.Sprintf("UUID=%s %s ext4 defaults,nofail 0 0", uuid, target)
 	if dryRun {
 		fmt.Printf("[dry] /etc/fstab: '%s'\n", line)
 	} else {

@@ -70,10 +70,10 @@ func runSetup(c *cli.Context) error {
 			Mountpoint: mountpoint,
 		}
 		mounts = append(mounts, mount)
-	} else if uuid := c.String("raid"); uuid != "" {
+	} else if device := c.String("raid"); device != "" {
 		mount := Mount{
 			Provider:   "RAID",
-			Identifier: uuid,
+			Identifier: device,
 			Mountpoint: mountpoint,
 		}
 		mounts = append(mounts, mount)
@@ -142,7 +142,7 @@ func runSetup(c *cli.Context) error {
 	syncCmds := []string{
 		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, syncUser, syncRoot),
 		fmt.Sprintf("rsync -avz %s/ %s:/usr/local/bin", myExec, syncUser),
-		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools update", syncUser),
+		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools", syncUser),
 	}
 
 	deployScript := DeployScript{

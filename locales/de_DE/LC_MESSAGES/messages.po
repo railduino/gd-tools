@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 07:12+0200\n"
+"POT-Creation-Date: 2025-05-03 07:47+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -327,7 +327,7 @@ msgstr "zur Sicherheit muss --force angegeben werden"
 msgid "secret-err-empty"
 msgstr ""
 
-#: utils_shell.go:19
+#: utils_shell.go:19 utils_shell.go:111
 msgid "exec-dry-running"
 msgstr "[dry] %s"
 
@@ -342,6 +342,18 @@ msgstr "da fehlt etwas"
 #: utils_shell.go:97
 msgid "exec-err-invalid"
 msgstr "da ist etwas ungültig"
+
+#: utils_shell.go:105
+msgid "uuid-err-missing-device"
+msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
+
+#: utils_shell.go:119
+msgid "uuid-err-failed"
+msgstr ""
+
+#: utils_shell.go:124
+msgid "uuid-err-empty"
+msgstr ""
 
 #: yaml_depends.go:34
 msgid "yaml-err-invalid-depends"

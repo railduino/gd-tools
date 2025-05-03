@@ -99,3 +99,30 @@ func shellPrepare(cmdStr string) (*exec.Cmd, error) {
 
 	return exec.Command(args[0], args[1:]...), nil
 }
+
+func ShellGetDeviceUUID(dryRun bool, device string) (string, error) {
+	if device == "" {
+		return "", fmt.Errorf(T("uuid-err-missing-device"))
+	}
+
+	cmdStr := fmt.Sprintf("blkid -s UUID -o value %s", device)
+
+	if dryRun {
+		fmt.Println(Tf("exec-dry-running", cmdStr))
+		return "DRY-RUN-UUID", nil
+	}
+
+	cmd := exec.Command("blkid", "-s", "UUID", "-o", "value", device)
+	cmd.Env = append(os.Environ(), "LANG=C")
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf(Tf("uuid-err-failed", err.Error()))
+	}
+
+	uuid := strings.TrimSpace(string(out))
+	if uuid == "" {
+		return "", fmt.Errorf(Tf("uuid-err-empty", device))
+	}
+
+	return uuid, nil
+}

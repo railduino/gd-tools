@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 07:12+0200\n"
+"POT-Creation-Date: 2025-05-03 07:47+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -283,7 +283,7 @@ msgstr ""
 msgid "secret-err-empty"
 msgstr ""
 
-#: utils_shell.go:19
+#: utils_shell.go:19 utils_shell.go:111
 msgid "exec-dry-running"
 msgstr ""
 
@@ -297,6 +297,18 @@ msgstr ""
 
 #: utils_shell.go:97
 msgid "exec-err-invalid"
+msgstr ""
+
+#: utils_shell.go:105
+msgid "uuid-err-missing-device"
+msgstr ""
+
+#: utils_shell.go:119
+msgid "uuid-err-failed"
+msgstr ""
+
+#: utils_shell.go:124
+msgid "uuid-err-empty"
 msgstr ""
 
 #: yaml_depends.go:34
