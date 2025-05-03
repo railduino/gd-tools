@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	SystemConfigFile = "system.json"
+	SystemConfigFile = "gd-tools-config.json"
 )
 
 type Mount struct {
@@ -20,9 +20,9 @@ type Mount struct {
 type SystemConfig struct {
 	Version    string   `json:"version"`     // eg. v1.0.0
 	TimeZone   string   `json:"time_zone"`   // eg. Europe/Berlin
-	SwapSpace  int      `json:"swap_space"`  // size in GByte (or 0)
 	HostName   string   `json:"host_name"`   // hostname (default FQDN)
 	DomainName string   `json:"domain_name"` // derived from FQDN
+	SwapSpace  int      `json:"swap_space"`  // size in GByte (or 0)
 	SshPort    string   `json:"ssh_port"`    // unsually 'OpenSSH'
 	SysAdmin   string   `json:"sys_admin"`   // try to read from ~/.gitconfig
 	Packages   []string `json:"packages"`    // Required DEB packages

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 18:24+0200\n"
+"POT-Creation-Date: 2025-05-03 23:02+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -41,10 +41,6 @@ msgstr ""
 
 #: cmd_deploy.go:21
 msgid "deploy-cmd-describe"
-msgstr ""
-
-#: cmd_deploy.go:73 utils_shell.go:19 utils_shell.go:111
-msgid "exec-dry-running"
 msgstr ""
 
 #: cmd_enable.go:13
@@ -171,43 +167,43 @@ msgstr ""
 msgid "setup-step-system"
 msgstr ""
 
-#: cmd_setup.go:126
-msgid "setup-step-deploy"
-msgstr ""
-
-#: cmd_system.go:22
+#: cmd_system.go:26
 msgid "system-cmd-usage"
 msgstr ""
 
-#: cmd_system.go:23
+#: cmd_system.go:27
 msgid "system-cmd-describe"
 msgstr ""
 
-#: cmd_system.go:72
+#: cmd_system.go:41
+msgid "system-only-root"
+msgstr ""
+
+#: cmd_system.go:90
 msgid "system-timezone-okay"
 msgstr ""
 
-#: cmd_system.go:77
+#: cmd_system.go:95
 msgid "system-timezone-update"
 msgstr ""
 
-#: cmd_system.go:86
+#: cmd_system.go:104
 msgid "system-swapfile-zero"
 msgstr ""
 
-#: cmd_system.go:93
+#: cmd_system.go:111
 msgid "system-swapfile-exist"
 msgstr ""
 
-#: cmd_system.go:110
+#: cmd_system.go:128
 msgid "system-swapfile-fstab"
 msgstr ""
 
-#: cmd_system.go:124
+#: cmd_system.go:142
 msgid "system-hostname-okay"
 msgstr ""
 
-#: cmd_system.go:129
+#: cmd_system.go:147
 msgid "system-hostname-update"
 msgstr ""
 
@@ -285,6 +281,10 @@ msgstr ""
 
 #: utils_secret.go:28
 msgid "secret-err-empty"
+msgstr ""
+
+#: utils_shell.go:19 utils_shell.go:111
+msgid "exec-dry-running"
 msgstr ""
 
 #: utils_shell.go:23

@@ -2,15 +2,19 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"runtime"
 	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/exp/slices"
 )
 
 func init() {
@@ -28,13 +32,24 @@ var commandSystem = &cli.Command{
 }
 
 func runSystem(c *cli.Context) error {
-	systemConfig, err := FileSystemRead()
+	if CheckEnv("dev") {
+		return ShellEditor(SystemConfigFile)
+	}
+
+	// must be "prod" - only root is allowed to run
+	if euid := os.Geteuid(); euid != 0 {
+		msg := T("system-only-root")
+		return fmt.Errorf(msg)
+	}
+
+	systemFile := filepath.Join("/etc", SystemConfigFile)
+	systemData, err := os.ReadFile(systemFile)
 	if err != nil {
 		return err
 	}
-
-	if CheckEnv("dev") {
-		return ShellEditor(SystemConfigFile)
+	var systemConfig SystemConfig
+	if err := json.Unmarshal(systemData, &systemConfig); err != nil {
+		return err
 	}
 
 	dryRun := c.Bool("dry")
@@ -57,6 +72,9 @@ func runSystem(c *cli.Context) error {
 		return err
 	}
 	if err := systemFirewall(dryRun, systemConfig.SshPort); err != nil {
+		return err
+	}
+	if err := systemUser(dryRun); err != nil {
 		return err
 	}
 
@@ -222,6 +240,10 @@ func systemPackages(dryRun bool, packages []string) error {
 }
 
 func systemMounts(dryRun bool, mounts []Mount) error {
+	if err := ShellCmd(dryRun, "mount -a"); err != nil {
+		return err
+	}
+
 	for _, mount := range mounts {
 		var err error
 		switch provider := strings.ToLower(mount.Provider); provider {
@@ -255,10 +277,9 @@ func systemMountHetzner(dryRun bool, id, target string) error {
 		return fmt.Errorf("Volume %s nicht gefunden: %v", legacy, err)
 	}
 
-	sed_cmd := fmt.Sprintf("s#%s#%s#", legacy, target)
 	cmds := []string{
 		"mkdir -p " + target,
-		"sed -i -e '" + sed_cmd + "' /etc/fstab",
+		fmt.Sprintf("sed -i -e s#%s#%s# /etc/fstab", legacy, target),
 		"systemctl daemon-reload",
 		"mount -a",
 		"rmdir " + legacy,
@@ -314,6 +335,52 @@ func systemFirewall(dryRun bool, sshPort string) error {
 		if err := ShellCmd(dryRun, "ufw enable"); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func systemUser(dryRun bool) error {
+	envFile := "/etc/gd-tools-env"
+	if err := os.WriteFile(envFile, []byte("prod\n"), 0o444); err != nil {
+		return err
+	}
+
+	gdUser, err := user.Lookup("gd-tools")
+	if err != nil {
+		userAdd := fmt.Sprintf("useradd -r -m -s /bin/bash gd-tools")
+		if err := ShellCmd(dryRun, userAdd); err != nil {
+			return err
+		}
+	}
+	gdUser, err = user.Lookup("gd-tools")
+	if err != nil {
+		return err
+	}
+
+	gdGroups, err := gdUser.GroupIds()
+	if err != nil {
+		return err
+	}
+	if ok := slices.Contains(gdGroups, "docker"); !ok {
+		groupAdd := fmt.Sprintf("usermod -aG docker gd-tools")
+		if err := ShellCmd(dryRun, groupAdd); err != nil {
+			return err
+		}
+	}
+
+	projectRoot, _ := GetProjectRoot("prod")
+	dataRoot, _ := GetDataRoot("prod", "volumes")
+	logsRoot, _ := GetDataRoot("prod", "logs")
+	sshCmds := []string{
+		"install -o gd-tools -g gd-tools -m 700 -d /home/gd-tools/.ssh",
+		"install -o gd-tools -g gd-tools -m 600 /root/.ssh/authorized_keys /home/gd-tools/.ssh",
+		"install -o gd-tools -g gd-tools -m 755 -d " + projectRoot,
+		"install -o gd-tools -g gd-tools -m 755 -d " + dataRoot,
+		"install -o gd-tools -g gd-tools -m 755 -d " + logsRoot,
+	}
+	if err := ShellCmds(dryRun, sshCmds); err != nil {
+		return err
 	}
 
 	return nil

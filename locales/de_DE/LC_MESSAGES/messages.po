@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 18:24+0200\n"
+"POT-Creation-Date: 2025-05-03 23:02+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -49,10 +49,6 @@ msgstr ""
 "Der Befehl 'deploy' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
-
-#: cmd_deploy.go:73 utils_shell.go:19 utils_shell.go:111
-msgid "exec-dry-running"
-msgstr "[dry] %s"
 
 #: cmd_enable.go:13
 msgid "enable-cmd-usage"
@@ -208,15 +204,11 @@ msgstr "Step: legt das Verzeichnis für den Server an"
 msgid "setup-step-system"
 msgstr "Step: erzeugt die JSON-Dateien für die Umgebung"
 
-#: cmd_setup.go:126
-msgid "setup-step-deploy"
-msgstr "Step: erzeugt das Deployment Skript"
-
-#: cmd_system.go:22
+#: cmd_system.go:26
 msgid "system-cmd-usage"
 msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
 
-#: cmd_system.go:23
+#: cmd_system.go:27
 msgid "system-cmd-describe"
 msgstr ""
 "Der Befehl 'system' ist verantwortlich für das Setup des Host-Systems.\n"
@@ -224,31 +216,35 @@ msgstr ""
 "In der Entwicklungsumgebung wird die Datei system.json editiert.\n"
 "Auf dem Produktions-System wird die Umgebung für gd-tools eingerichtet."
 
-#: cmd_system.go:72
+#: cmd_system.go:41
+msgid "system-only-root"
+msgstr "die Zeitzone %s ist bereits gesetzt"
+
+#: cmd_system.go:90
 msgid "system-timezone-okay"
 msgstr "die Zeitzone %s ist bereits gesetzt"
 
-#: cmd_system.go:77
+#: cmd_system.go:95
 msgid "system-timezone-update"
 msgstr "die Zeitzone wird auf %s gesetzt"
 
-#: cmd_system.go:86
+#: cmd_system.go:104
 msgid "system-swapfile-zero"
 msgstr "es wird kein Swap-File angefordert"
 
-#: cmd_system.go:93
+#: cmd_system.go:111
 msgid "system-swapfile-exist"
 msgstr "das Swap-File %s existiert bereits"
 
-#: cmd_system.go:110
+#: cmd_system.go:128
 msgid "system-swapfile-fstab"
 msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
 
-#: cmd_system.go:124
+#: cmd_system.go:142
 msgid "system-hostname-okay"
 msgstr "der FQDN ist bereits auf %s gesetzt"
 
-#: cmd_system.go:129
+#: cmd_system.go:147
 msgid "system-hostname-update"
 msgstr "der FQDN wird auf %s gesetzt"
 
@@ -331,6 +327,10 @@ msgstr "zur Sicherheit muss --force angegeben werden"
 msgid "secret-err-empty"
 msgstr ""
 
+#: utils_shell.go:19 utils_shell.go:111
+msgid "exec-dry-running"
+msgstr "[dry] %s"
+
 #: utils_shell.go:23
 msgid "exec-now-running"
 msgstr "[run] %s"
@@ -367,5 +367,14 @@ msgstr "ungültige Liste erkannt"
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
 
-#~ msgid "setup-step-prepare"
+#~ msgid "deploy-step-config"
+#~ msgstr "legt die Datei 'config.json' an"
+
+#~ msgid "deploy-step-projects"
+#~ msgstr "legt die Datei 'config.json' an"
+
+#~ msgid "setup-step-exec"
+#~ msgstr "Step: erzeugt das Deployment Skript"
+
+#~ msgid "setup-step-deploy"
 #~ msgstr "Step: erzeugt das Deployment Skript"

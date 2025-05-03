@@ -111,45 +111,15 @@ func runSetup(c *cli.Context) error {
 	systemConfig := SystemConfig{
 		Version:    version,
 		TimeZone:   timeZone,
-		SwapSpace:  0,
 		HostName:   hostName,
 		DomainName: domainName,
+		SwapSpace:  0,
 		SshPort:    "OpenSSH",
 		SysAdmin:   sysAdmin,
 		Packages:   packages,
 		Mounts:     mounts,
 	}
 	if err := systemConfig.Save(); err != nil {
-		return err
-	}
-
-	fmt.Println(T("setup-step-deploy"))
-	execPath, err := os.Executable()
-	if err != nil {
-		return err
-	}
-	execPath, err = filepath.EvalSymlinks(execPath)
-	if err != nil {
-		return err
-	}
-
-	var deployCmds []string
-	projectRoot, _ := GetProjectRoot("prod")
-	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
-	syncExcl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
-	syncProg := "--chown=gd-tools:gd-tools --chmod=0755"
-	userCmds := []string{
-		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, toolUser, projectRoot),
-		fmt.Sprintf("rsync -avz %s %s %s:/usr/local/bin", syncProg, execPath, toolUser),
-	}
-	for _, cmd := range userCmds {
-		deployCmds = append(deployCmds, cmd)
-	}
-
-	deployScript := DeployScript{
-		Commands: deployCmds,
-	}
-	if err := deployScript.Save(); err != nil {
 		return err
 	}
 

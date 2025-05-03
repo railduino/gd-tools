@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bytes"
+	_ "bytes"
 	"fmt"
 	"os"
-	"os/exec"
+	_ "os/exec"
 	"path/filepath"
-	"strings"
+	_ "strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -32,7 +32,9 @@ func runDeploy(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	rootUser := fmt.Sprintf("root@%s", filepath.Base(localPath))
+	hostName := filepath.Base(localPath)
+	rootUser := fmt.Sprintf("root@%s", hostName)
+	rsyncRoot := "rsync -avz --chown=root:root"
 
 	execPath, err := os.Executable()
 	if err != nil {
@@ -42,54 +44,24 @@ func runDeploy(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	execFlag := "-avz --chown=gd-tools:gd-tools --chmod=755"
-	execCopy := fmt.Sprintf("rsync %s %s %s:/usr/local/bin", execFlag, execPath, rootUser)
+	execCopy := fmt.Sprintf("%s --chmod=755 %s %s:/usr/local/bin", rsyncRoot, execPath, rootUser)
 	if err := ShellCmd(dryRun, execCopy); err != nil {
 		return err
 	}
 
-	prepareName := "prepare-gd-tools.sh"
-	projectRoot, err := GetProjectRoot("prod")
-	if err != nil {
-		return err
-	}
-	dataRoot, err := GetDataRoot("prod", "")
-	if err != nil {
-		return err
-	}
-	prepareData := struct {
-		Dirs []string
-	}{
-		[]string{projectRoot, dataRoot},
-	}
-	prepareScript, err := TemplateParse(prepareName, prepareData)
-	if err != nil {
+	configCopy := fmt.Sprintf("%s --chmod=400 %s %s:/etc", rsyncRoot, SystemConfigFile, rootUser)
+	if err := ShellCmd(dryRun, configCopy); err != nil {
 		return err
 	}
 
-	if dryRun {
-		prepareLines := strings.Split(string(prepareScript), "\n")
-		for _, line := range prepareLines {
-			fmt.Println(Tf("exec-dry-running", line))
-		}
-	} else {
-		cmd := exec.Command("ssh", rootUser, "bash")
-		cmd.Stdin = bytes.NewReader(prepareScript)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-	}
-
-	var cmds []string
-	deployScript, err := FileDeployRead()
-	if err != nil {
+	projectRoot, _ := GetProjectRoot("prod")
+	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
+	rsyncUser := "rsync -avz --chown=gd-tools:gd-tools"
+	rsyncExcl := "--exclude=logs --exclude=" + SystemConfigFile
+	projectCopy := fmt.Sprintf("%s %s %s/ %s:%s", rsyncUser, rsyncExcl, localPath, toolUser, projectRoot)
+	if err := ShellCmd(dryRun, projectCopy); err != nil {
 		return err
 	}
-	for _, line := range deployScript.Commands {
-		cmds = append(cmds, line)
-	}
 
-	return ShellCmds(dryRun, cmds)
+	return nil
 }
