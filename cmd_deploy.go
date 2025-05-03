@@ -32,10 +32,23 @@ func runDeploy(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	rootUser := fmt.Sprintf("root@%s", filepath.Base(localPath))
-	prepareName := "prepare-gd-tools.sh"
 
+	execPath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+	execPath, err = filepath.EvalSymlinks(execPath)
+	if err != nil {
+		return err
+	}
+	execFlag := "-avz --chown=gd-tools:gd-tools --chmod=755"
+	execCopy := fmt.Sprintf("rsync %s %s %s:/usr/local/bin", execFlag, execPath, rootUser)
+	if err := ShellCmd(dryRun, execCopy); err != nil {
+		return err
+	}
+
+	prepareName := "prepare-gd-tools.sh"
 	projectRoot, err := GetProjectRoot("prod")
 	if err != nil {
 		return err

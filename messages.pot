@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 17:05+0200\n"
+"POT-Creation-Date: 2025-05-03 18:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr ""
 msgid "deploy-cmd-describe"
 msgstr ""
 
-#: cmd_deploy.go:60 utils_shell.go:19 utils_shell.go:111
+#: cmd_deploy.go:73 utils_shell.go:19 utils_shell.go:111
 msgid "exec-dry-running"
 msgstr ""
 
@@ -182,10 +182,6 @@ msgid "setup-step-system"
 msgstr ""
 
 #: cmd_setup.go:126
-msgid "setup-step-prepare"
-msgstr ""
-
-#: cmd_setup.go:149
 msgid "setup-step-deploy"
 msgstr ""
 
@@ -281,7 +277,7 @@ msgstr ""
 msgid "usage-main-app"
 msgstr ""
 
-#: main.go:57
+#: main.go:59
 msgid "app-action-commands"
 msgstr ""
 

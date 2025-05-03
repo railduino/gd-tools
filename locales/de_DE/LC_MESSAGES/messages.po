@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 17:04+0200\n"
+"POT-Creation-Date: 2025-05-03 18:24+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -50,7 +50,7 @@ msgstr ""
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_deploy.go:60 utils_shell.go:19 utils_shell.go:111
+#: cmd_deploy.go:73 utils_shell.go:19 utils_shell.go:111
 msgid "exec-dry-running"
 msgstr "[dry] %s"
 
@@ -209,10 +209,6 @@ msgid "setup-step-system"
 msgstr "Step: erzeugt die JSON-Dateien für die Umgebung"
 
 #: cmd_setup.go:126
-msgid "setup-step-prepare"
-msgstr "Step: erzeugt das Deployment Skript"
-
-#: cmd_setup.go:149
 msgid "setup-step-deploy"
 msgstr "Step: erzeugt das Deployment Skript"
 
@@ -315,7 +311,7 @@ msgstr "zeigt die Kommandos, ohne sie auszuführen"
 msgid "usage-main-app"
 msgstr "Toolset zur Verwaltung von Docker-Projekten unter Debian/Ubuntu Linux"
 
-#: main.go:57
+#: main.go:59
 msgid "app-action-commands"
 msgstr "Die folgenden Befehle werden erkannt:"
 
@@ -370,3 +366,6 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "setup-step-prepare"
+#~ msgstr "Step: erzeugt das Deployment Skript"

@@ -40,11 +40,13 @@ func main() {
 		Flags:   []cli.Flag{&mainFlagCmds},
 		Before: func(c *cli.Context) error {
 			if c.Bool("commands") {
-				for i, wrapper := range commandSet {
-					if i > 0 {
-						fmt.Print(" ")
+				spacer := ""
+				for _, wrapper := range commandSet {
+					if CheckEnv(wrapper.Policy) {
+						fmt.Print(spacer)
+						fmt.Print(wrapper.Cmd.Name)
+						spacer = " "
 					}
-					fmt.Print(wrapper.Cmd.Name)
 				}
 				fmt.Println()
 				os.Exit(0)

@@ -123,29 +123,6 @@ func runSetup(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("setup-step-prepare"))
-	prepareName := "prepare-gd-tools.sh"
-	projectRoot, err := GetProjectRoot("prod")
-	if err != nil {
-		return err
-	}
-	dataRoot, err := GetDataRoot("prod", "")
-	if err != nil {
-		return err
-	}
-	prepareData := struct {
-		Dirs []string
-	}{
-		[]string{projectRoot, dataRoot},
-	}
-	prepareScript, err := TemplateParse(prepareName, prepareData)
-	if err != nil {
-		return err
-	}
-	if err := os.WriteFile(prepareName, prepareScript, 0644); err != nil {
-		return err
-	}
-
 	fmt.Println(T("setup-step-deploy"))
 	execPath, err := os.Executable()
 	if err != nil {
@@ -157,13 +134,13 @@ func runSetup(c *cli.Context) error {
 	}
 
 	var deployCmds []string
+	projectRoot, _ := GetProjectRoot("prod")
 	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
 	syncExcl := "--exclude=logs --exclude=secrets.json --exclude=deploy.json"
 	syncProg := "--chown=gd-tools:gd-tools --chmod=0755"
 	userCmds := []string{
 		fmt.Sprintf("rsync -avz %s %s/ %s:%s", syncExcl, dstPath, toolUser, projectRoot),
 		fmt.Sprintf("rsync -avz %s %s %s:/usr/local/bin", syncProg, execPath, toolUser),
-		fmt.Sprintf("ssh %s /usr/local/bin/gd-tools", toolUser),
 	}
 	for _, cmd := range userCmds {
 		deployCmds = append(deployCmds, cmd)
