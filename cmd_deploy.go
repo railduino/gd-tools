@@ -54,11 +54,10 @@ func runDeploy(c *cli.Context) error {
 		return err
 	}
 
-	projectRoot, _ := GetProjectRoot("prod")
 	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
 	rsyncUser := "rsync -avz --chown=gd-tools:gd-tools"
-	rsyncExcl := "--exclude=logs --exclude=" + SystemConfigFile
-	projectCopy := fmt.Sprintf("%s %s %s/ %s:%s", rsyncUser, rsyncExcl, localPath, toolUser, projectRoot)
+	rsyncExcl := "--exclude=logs --exclude=secrets.json --exclude=" + SystemConfigFile
+	projectCopy := fmt.Sprintf("%s %s %s/ %s:projects", rsyncUser, rsyncExcl, localPath, toolUser)
 	if err := ShellCmd(dryRun, projectCopy); err != nil {
 		return err
 	}

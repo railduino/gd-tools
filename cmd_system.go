@@ -369,13 +369,11 @@ func systemUser(dryRun bool) error {
 		}
 	}
 
-	projectRoot, _ := GetProjectRoot("prod")
 	dataRoot, _ := GetDataRoot("prod", "volumes")
 	logsRoot, _ := GetDataRoot("prod", "logs")
 	sshCmds := []string{
 		"install -o gd-tools -g gd-tools -m 700 -d /home/gd-tools/.ssh",
 		"install -o gd-tools -g gd-tools -m 600 /root/.ssh/authorized_keys /home/gd-tools/.ssh",
-		"install -o gd-tools -g gd-tools -m 755 -d " + projectRoot,
 		"install -o gd-tools -g gd-tools -m 755 -d " + dataRoot,
 		"install -o gd-tools -g gd-tools -m 755 -d " + logsRoot,
 	}

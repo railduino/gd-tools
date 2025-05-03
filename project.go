@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	ProdProjectRoot = "/etc/gd-tools"
-	ProdDataRoot    = "/var/gd-tools"
+	ProdDataRoot = "/var/gd-tools"
 )
 
 type Config struct {
@@ -28,20 +27,17 @@ type Project struct {
 	Compose []byte
 }
 
-func GetProjectRoot(env string) (string, error) {
-	if env == "dev" {
-		dir, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-		return dir, nil
+func GetProjectRoot() (string, error) {
+	localDir, err := os.Getwd()
+	if err != nil {
+		return "", err
 	}
 
-	if env := os.Getenv("GD_PROJECT_ROOT"); env != "" {
-		return env, nil
+	if CheckEnv("dev") {
+		return localDir, nil
 	}
 
-	return ProdProjectRoot, nil
+	return "projects", nil
 }
 
 func GetDataRoot(env, subdir string) (string, error) {
@@ -54,9 +50,6 @@ func GetDataRoot(env, subdir string) (string, error) {
 	}
 
 	baseDir := ProdDataRoot
-	if env := os.Getenv("GD_DATA_ROOT"); env != "" {
-		baseDir = env
-	}
 	if subdir == "" {
 		return baseDir, nil
 	}
@@ -65,7 +58,7 @@ func GetDataRoot(env, subdir string) (string, error) {
 }
 
 func ProjectLoadAll() ([]*Project, error) {
-	rootDir, err := GetProjectRoot(ReadEnv())
+	rootDir, err := GetProjectRoot()
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +116,7 @@ func (p *Project) GetName() string {
 }
 
 func (p *Project) GetPath() (string, error) {
-	rootDir, err := GetProjectRoot(ReadEnv())
+	rootDir, err := GetProjectRoot()
 	if err != nil {
 		return "", err
 	}

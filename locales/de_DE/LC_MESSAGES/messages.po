@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 23:02+0200\n"
+"POT-Creation-Date: 2025-05-04 01:36+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -141,31 +141,39 @@ msgstr ""
 msgid "list-status-unknown"
 msgstr "dieser Status ist nicht bekannt"
 
-#: cmd_login.go:17
+#: cmd_login.go:18
+msgid "login-flag-root"
+msgstr "zeigt die Kommandos, ohne sie auszuführen"
+
+#: cmd_login.go:23
 msgid "login-cmd-usage"
 msgstr "meldet sich auf dem Produktions-System an"
 
-#: cmd_login.go:18
+#: cmd_login.go:24
 msgid "login-cmd-describe"
 msgstr ""
 "Der Befehl 'login' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_login.go:30
-msgid "err-missing-json"
-msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
-
-#: cmd_secret.go:17
-msgid "secret-cmd-usage"
+#: cmd_secrets.go:20
+msgid "secrets-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_secret.go:18
-msgid "secret-cmd-describe"
+#: cmd_secrets.go:21
+msgid "secrets-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
+
+#: cmd_secrets.go:78
+msgid "secrets-err-read-failed"
+msgstr ""
+
+#: cmd_secrets.go:83
+msgid "secrets-err-parse-failed"
+msgstr ""
 
 #: cmd_setup.go:19
 msgid "setup-flag-hetzner"
@@ -252,46 +260,46 @@ msgstr "der FQDN wird auf %s gesetzt"
 msgid "file-err-missing-deploy"
 msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
-#: file_system.go:42
+#: file_system.go:45
 msgid "file-err-missing-system"
 msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
 
-#: generate_traefik.go:24
+#: generate_traefik.go:25
 msgid "traefik-flag-status-host"
 msgstr "filtert Projekte nach ihrem Status"
 
-#: generate_traefik.go:29
+#: generate_traefik.go:30
 msgid "traefik-flag-status-user"
 msgstr "filtert Projekte nach ihrem Status"
 
-#: generate_traefik.go:34
+#: generate_traefik.go:35
 msgid "traefik-flag-status-pswd"
 msgstr "filtert Projekte nach ihrem Status"
 
-#: generate_traefik.go:43
+#: generate_traefik.go:44
 msgid "install-traefik-usage"
 msgstr "installiert einen Traefik Reverse Proxy Container"
 
-#: generate_traefik.go:44
+#: generate_traefik.go:45
 msgid "install-traefik-describe"
 msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
-#: generate_traefik.go:57
+#: generate_traefik.go:58
 msgid "install-err-missing-prefix"
 msgstr "das Swap-File %s existiert bereits"
 
-#: generate_traefik.go:76
+#: generate_traefik.go:77
 msgid "gen-create-dir"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_traefik.go:81
+#: generate_traefik.go:82
 msgid "gen-create-config"
 msgstr "legt die Datei 'config.json' an"
 
-#: generate_traefik.go:98
+#: generate_traefik.go:99
 msgid "gen-create-compose"
 msgstr "legt die Datei 'compose.yaml' an"
 
@@ -311,19 +319,19 @@ msgstr "Toolset zur Verwaltung von Docker-Projekten unter Debian/Ubuntu Linux"
 msgid "app-action-commands"
 msgstr "Die folgenden Befehle werden erkannt:"
 
-#: project.go:160
+#: project.go:153
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:165
+#: project.go:158
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
 
-#: utils_secret.go:21
+#: utils_secret.go:26
 msgid "secret-err-unknown-mode"
 msgstr "zur Sicherheit muss --force angegeben werden"
 
-#: utils_secret.go:28
+#: utils_secret.go:33
 msgid "secret-err-empty"
 msgstr ""
 
@@ -366,6 +374,9 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "err-missing-json"
+#~ msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
 #~ msgid "deploy-step-config"
 #~ msgstr "legt die Datei 'config.json' an"

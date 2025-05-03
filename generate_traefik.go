@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -97,7 +98,53 @@ func runGenerateTraefik(c *cli.Context) error {
 
 	fmt.Println(T("gen-create-compose"))
 	statusHost := fmt.Sprintf("status.%s", systemConfig.DomainName)
+	if argHost := c.String("host"); argHost != "" {
+		statusHost = argHost
+	}
+
 	statusUser := fmt.Sprintf("admin@%s", systemConfig.DomainName)
+	if argUser := c.String("host"); argUser != "" {
+		statusUser = argUser
+	}
+
+	statusPswd := c.String("pswd")
+	var secret *Secret
+	if statusPswd != "" {
+		secret = &Secret{
+			Domain: statusHost,
+			User:   statusUser,
+			Input:  statusPswd,
+		}
+		hash, err := GetSecret(statusPswd, "bcrypt")
+		if err != nil {
+			return err
+		}
+		if err := SaveSecrets(project.GetName(), []Secret{*secret}); err != nil {
+			return err
+		}
+		secret.Output = hash
+	} else {
+		secret, err = LoadSecret(project.GetName(), statusHost, statusUser)
+		if err != nil {
+			pw := GenerateRandomPassword()
+			hash, err := GetSecret(pw, "bcrypt")
+			if err != nil {
+				return err
+			}
+			secret = &Secret{
+				Domain: statusHost,
+				User:   statusUser,
+				Input:  pw,
+				Output: hash,
+			}
+			if err := SaveSecrets(project.GetName(), []Secret{*secret}); err != nil {
+				return err
+			}
+			statusPswd = pw
+		} else {
+			statusPswd = secret.Input
+		}
+	}
 
 	dataDir, err := project.GetDataPath("prod")
 	if err != nil {
@@ -109,12 +156,12 @@ func runGenerateTraefik(c *cli.Context) error {
 	}
 
 	composeData := TraefikTemplateData{
-		TraefikVersion: "v2",
+		TraefikVersion: "v2.11",
 		EmailUser:      systemConfig.SysAdmin,
 		LogLevel:       "INFO",
 		StatusHost:     statusHost,
 		StatusUser:     statusUser,
-		StatusPswd:     "TODO",
+		StatusPswd:     strings.ReplaceAll(secret.Output, "$", "$$"),
 		DataDir:        dataDir,
 		LogsDir:        logsDir,
 	}

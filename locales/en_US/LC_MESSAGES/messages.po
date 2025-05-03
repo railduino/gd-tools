@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-03 23:02+0200\n"
+"POT-Creation-Date: 2025-05-04 01:36+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -115,24 +115,32 @@ msgstr ""
 msgid "list-status-unknown"
 msgstr ""
 
-#: cmd_login.go:17
+#: cmd_login.go:18
+msgid "login-flag-root"
+msgstr ""
+
+#: cmd_login.go:23
 msgid "login-cmd-usage"
 msgstr ""
 
-#: cmd_login.go:18
+#: cmd_login.go:24
 msgid "login-cmd-describe"
 msgstr ""
 
-#: cmd_login.go:30
-msgid "err-missing-json"
+#: cmd_secrets.go:20
+msgid "secrets-cmd-usage"
 msgstr ""
 
-#: cmd_secret.go:17
-msgid "secret-cmd-usage"
+#: cmd_secrets.go:21
+msgid "secrets-cmd-describe"
 msgstr ""
 
-#: cmd_secret.go:18
-msgid "secret-cmd-describe"
+#: cmd_secrets.go:78
+msgid "secrets-err-read-failed"
+msgstr ""
+
+#: cmd_secrets.go:83
+msgid "secrets-err-parse-failed"
 msgstr ""
 
 #: cmd_setup.go:19
@@ -211,43 +219,43 @@ msgstr ""
 msgid "file-err-missing-deploy"
 msgstr ""
 
-#: file_system.go:42
+#: file_system.go:45
 msgid "file-err-missing-system"
 msgstr ""
 
-#: generate_traefik.go:24
+#: generate_traefik.go:25
 msgid "traefik-flag-status-host"
 msgstr ""
 
-#: generate_traefik.go:29
+#: generate_traefik.go:30
 msgid "traefik-flag-status-user"
 msgstr ""
 
-#: generate_traefik.go:34
+#: generate_traefik.go:35
 msgid "traefik-flag-status-pswd"
 msgstr ""
 
-#: generate_traefik.go:43
+#: generate_traefik.go:44
 msgid "install-traefik-usage"
 msgstr ""
 
-#: generate_traefik.go:44
+#: generate_traefik.go:45
 msgid "install-traefik-describe"
 msgstr ""
 
-#: generate_traefik.go:57
+#: generate_traefik.go:58
 msgid "install-err-missing-prefix"
 msgstr ""
 
-#: generate_traefik.go:76
+#: generate_traefik.go:77
 msgid "gen-create-dir"
 msgstr ""
 
-#: generate_traefik.go:81
+#: generate_traefik.go:82
 msgid "gen-create-config"
 msgstr ""
 
-#: generate_traefik.go:98
+#: generate_traefik.go:99
 msgid "gen-create-compose"
 msgstr ""
 
@@ -267,19 +275,19 @@ msgstr "Toolset for managing Docker based projects under Debian/Ubuntu Linux"
 msgid "app-action-commands"
 msgstr "Available commands:"
 
-#: project.go:160
+#: project.go:153
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:165
+#: project.go:158
 msgid "install-err-unique-exist"
 msgstr ""
 
-#: utils_secret.go:21
+#: utils_secret.go:26
 msgid "secret-err-unknown-mode"
 msgstr ""
 
-#: utils_secret.go:28
+#: utils_secret.go:33
 msgid "secret-err-empty"
 msgstr ""
 

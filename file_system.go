@@ -30,13 +30,16 @@ type SystemConfig struct {
 }
 
 func FileSystemRead() (*SystemConfig, error) {
-	rootDir, err := GetProjectRoot(ReadEnv())
-	if err != nil {
+	if _, err := os.Getwd(); err != nil {
 		return nil, err
 	}
 
-	systemFile := filepath.Join(rootDir, SystemConfigFile)
-	systemData, err := os.ReadFile(systemFile)
+	systemPath := SystemConfigFile
+	if CheckEnv("prod") {
+		systemPath = filepath.Join("/etc", SystemConfigFile)
+	}
+
+	systemData, err := os.ReadFile(systemPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			msg := T("file-err-missing-system")
