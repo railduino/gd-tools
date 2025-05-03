@@ -272,48 +272,27 @@ func systemMountRAID(dryRun bool, id, target string) error {
 		return nil
 	}
 
+	mkdir := fmt.Sprintf("mkdir -p %s", target)
+	if err := ShellCmd(dryRun, mkdir); err != nil {
+		return err
+	}
+
+	uuid := fmt.Sprintf("UUID=%s", id)
+	line := fmt.Sprintf("%s %s ext4 defaults,nofail 0 0", uuid, target)
 	if dryRun {
-		fmt.Println("[dry] mkdir -p", target)
-		fmt.Printf("[dry] fstab-Eintrag prüfen/ergänzen: UUID=%s %s ext4 defaults,nofail 0 0\n", id, target)
-		fmt.Println("[dry] mount -a")
-		return nil
-	}
-
-	// TODO AptGetInstallPackages(dryRun, []string{"mdadm"})
-
-	/* TODO refactor using shell utils
-
-	if err := os.MkdirAll(target, 0755); err != nil {
-		return fmt.Errorf("Fehler beim Anlegen von %s: %w", target, err)
-	}
-
-	// prüfen ob UUID in fstab vorhanden ist
-	found := false
-	content, err := os.ReadFile("/etc/fstab")
-	if err == nil && strings.Contains(string(content), id) {
-		found = true
-	}
-	if !found {
-		entry := fmt.Sprintf("UUID=%s %s ext4 defaults,nofail 0 0\n", id, target)
-		f, err := os.OpenFile("/etc/fstab", os.O_APPEND|os.O_WRONLY, 0644)
-		if err != nil {
-			return fmt.Errorf("Fehler beim Öffnen von /etc/fstab: %w", err)
+		fmt.Printf("[dry] /etc/fstab: '%s'\n", line)
+	} else {
+		if err := FileAddLine("/etc/fstab", uuid, line); err != nil {
+			return err
 		}
-		defer f.Close()
-		if _, err := f.WriteString(entry); err != nil {
-			return fmt.Errorf("Fehler beim Schreiben nach /etc/fstab: %w", err)
-		}
-		_ = exec.Command("systemctl", "daemon-reexec").Run()
 	}
 
-	if err := exec.Command("mount", "-a").Run(); err != nil {
-		return fmt.Errorf("Fehler beim mount -a: %w", err)
+	cmds := []string{
+		"systemctl daemon-reload",
+		"mount -a",
 	}
 
-	fmt.Println("RAID-Volume erfolgreich eingebunden:", target)
-	*/
-
-	return nil
+	return ShellCmds(dryRun, cmds)
 }
 
 func systemFirewall(dryRun bool, sshPort string) error {

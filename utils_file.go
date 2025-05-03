@@ -39,6 +39,11 @@ func FileGetContent(path string) (string, error) {
 }
 
 func FileAddLine(path, pattern, text string) error {
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return err
+	}
+
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
 		return err
@@ -46,11 +51,6 @@ func FileAddLine(path, pattern, text string) error {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return err
-	}
-
 	found := false
 	var lines []string
 	for scanner.Scan() {
