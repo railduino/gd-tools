@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 01:36+0200\n"
+"POT-Creation-Date: 2025-05-04 04:22+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -213,6 +213,14 @@ msgstr ""
 
 #: cmd_system.go:147
 msgid "system-hostname-update"
+msgstr ""
+
+#: cmd_update.go:17
+msgid "update-cmd-usage"
+msgstr ""
+
+#: cmd_update.go:18
+msgid "update-cmd-describe"
 msgstr ""
 
 #: file_deploy.go:25 file_deploy.go:42

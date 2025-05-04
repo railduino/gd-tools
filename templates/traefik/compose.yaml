@@ -1,6 +1,7 @@
 services:
   traefik:
     image: traefik:{{ .TraefikVersion }}
+    user: "${GDTOOLS_UID}:${GDTOOLS_GID}"
     container_name: traefik
     restart: always
     ports:
@@ -30,7 +31,7 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ .DataDir }}/letsencrypt:/letsencrypt"
       - "{{ .LogsDir }}:/logs"
     labels:

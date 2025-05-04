@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 01:38+0200\n"
+"POT-Creation-Date: 2025-05-04 04:29+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -223,6 +223,14 @@ msgstr ""
 
 #: cmd_system.go:147
 msgid "system-hostname-update"
+msgstr ""
+
+#: cmd_update.go:17
+msgid "update-cmd-usage"
+msgstr ""
+
+#: cmd_update.go:18
+msgid "update-cmd-describe"
 msgstr ""
 
 #: file_deploy.go:25 file_deploy.go:42
