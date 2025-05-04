@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 04:29+0200\n"
+"POT-Creation-Date: 2025-05-04 11:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -173,56 +173,60 @@ msgstr ""
 msgid "setup-err-missing-host"
 msgstr ""
 
-#: cmd_setup.go:47
+#: cmd_setup.go:48
 msgid "setup-err-host-exist"
 msgstr ""
 
-#: cmd_setup.go:98
+#: cmd_setup.go:99
 msgid "setup-step-mkdir"
 msgstr ""
 
-#: cmd_setup.go:106
+#: cmd_setup.go:107
 msgid "setup-step-system"
 msgstr ""
 
-#: cmd_system.go:26
+#: cmd_system.go:27
+msgid "system-flag-upgrade"
+msgstr ""
+
+#: cmd_system.go:32
 msgid "system-cmd-usage"
 msgstr ""
 
-#: cmd_system.go:27
+#: cmd_system.go:33
 msgid "system-cmd-describe"
 msgstr ""
 
-#: cmd_system.go:41
+#: cmd_system.go:58
 msgid "system-only-root"
 msgstr ""
 
-#: cmd_system.go:90
+#: cmd_system.go:111
 msgid "system-timezone-okay"
 msgstr ""
 
-#: cmd_system.go:95
+#: cmd_system.go:116
 msgid "system-timezone-update"
 msgstr ""
 
-#: cmd_system.go:104
-msgid "system-swapfile-zero"
-msgstr ""
-
-#: cmd_system.go:111
-msgid "system-swapfile-exist"
-msgstr ""
-
-#: cmd_system.go:128
-msgid "system-swapfile-fstab"
-msgstr ""
-
-#: cmd_system.go:142
+#: cmd_system.go:129
 msgid "system-hostname-okay"
 msgstr ""
 
-#: cmd_system.go:147
+#: cmd_system.go:134
 msgid "system-hostname-update"
+msgstr ""
+
+#: cmd_system.go:143
+msgid "system-swapfile-zero"
+msgstr ""
+
+#: cmd_system.go:150
+msgid "system-swapfile-exist"
+msgstr ""
+
+#: cmd_system.go:167
+msgid "system-swapfile-fstab"
 msgstr ""
 
 #: cmd_update.go:17
@@ -237,7 +241,7 @@ msgstr ""
 msgid "file-err-missing-deploy"
 msgstr ""
 
-#: file_system.go:45
+#: file_system.go:48
 msgid "file-err-missing-system"
 msgstr ""
 
@@ -309,7 +313,7 @@ msgstr ""
 msgid "secret-err-empty"
 msgstr ""
 
-#: utils_shell.go:19 utils_shell.go:111
+#: utils_shell.go:19 utils_shell.go:116
 msgid "exec-dry-running"
 msgstr ""
 
@@ -325,15 +329,15 @@ msgstr ""
 msgid "exec-err-invalid"
 msgstr ""
 
-#: utils_shell.go:105
+#: utils_shell.go:110
 msgid "uuid-err-missing-device"
 msgstr ""
 
-#: utils_shell.go:119
+#: utils_shell.go:124
 msgid "uuid-err-failed"
 msgstr ""
 
-#: utils_shell.go:124
+#: utils_shell.go:129
 msgid "uuid-err-empty"
 msgstr ""
 

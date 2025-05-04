@@ -97,7 +97,12 @@ func shellPrepare(cmdStr string) (*exec.Cmd, error) {
 		return nil, fmt.Errorf(Tf("exec-err-invalid", cmdStr))
 	}
 
-	return exec.Command(args[0], args[1:]...), nil
+	var newCmd []string
+	for _, arg := range args {
+		newCmd = append(newCmd, strings.ReplaceAll(arg, "_#_", " "))
+	}
+
+	return exec.Command(newCmd[0], newCmd[1:]...), nil
 }
 
 func ShellGetDeviceUUID(dryRun bool, device string) (string, error) {

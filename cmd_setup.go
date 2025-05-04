@@ -43,7 +43,8 @@ func runSetup(c *cli.Context) error {
 	}
 	dstPath := c.Args().First()
 
-	if _, err := os.Stat(dstPath); err == nil {
+	systemFile := filepath.Join(dstPath, SystemConfigFile)
+	if _, err := os.Stat(systemFile); err == nil {
 		msg := Tf("setup-err-host-exist", dstPath)
 		return fmt.Errorf(msg)
 	}
@@ -114,7 +115,6 @@ func runSetup(c *cli.Context) error {
 		HostName:   hostName,
 		DomainName: domainName,
 		SwapSpace:  0,
-		SshPort:    "OpenSSH",
 		SysAdmin:   sysAdmin,
 		Packages:   packages,
 		Mounts:     mounts,

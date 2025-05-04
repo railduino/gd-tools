@@ -49,6 +49,8 @@ func runDeploy(c *cli.Context) error {
 		return err
 	}
 
+	deployFetchLetsEncrypt(dryRun, rootUser)
+
 	configCopy := fmt.Sprintf("%s --chmod=400 %s %s:/etc", rsyncRoot, SystemConfigFile, rootUser)
 	if err := ShellCmd(dryRun, configCopy); err != nil {
 		return err
@@ -56,11 +58,26 @@ func runDeploy(c *cli.Context) error {
 
 	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
 	rsyncUser := "rsync -avz --chown=gd-tools:gd-tools"
-	rsyncExcl := "--exclude=logs --exclude=secrets.json --exclude=" + SystemConfigFile
+	rsyncExcl := "--exclude=letsencrypt --exclude=secrets.json --exclude=" + SystemConfigFile
 	projectCopy := fmt.Sprintf("%s %s %s/ %s:projects", rsyncUser, rsyncExcl, localPath, toolUser)
 	if err := ShellCmd(dryRun, projectCopy); err != nil {
 		return err
 	}
 
+	if _, err := os.Stat("letsencrypt"); err == nil {
+		certCopy := fmt.Sprintf("rsync -avz --chown=root:root letsencrypt/ %s:/etc/letsencrypt", rootUser)
+		if err := ShellCmd(dryRun, certCopy); err != nil {
+			return err
+		}
+	}
+
 	return nil
+}
+
+func deployFetchLetsEncrypt(dryRun bool, rootUser string) {
+	rsyncCmd := fmt.Sprintf("rsync -avz %s:/etc/letsencrypt/ letsencrypt", rootUser)
+
+	if err := ShellCmd(dryRun, rsyncCmd); err != nil {
+		fmt.Println("Ignore error:", err)
+	}
 }

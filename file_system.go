@@ -23,10 +23,13 @@ type SystemConfig struct {
 	HostName   string   `json:"host_name"`   // hostname (default FQDN)
 	DomainName string   `json:"domain_name"` // derived from FQDN
 	SwapSpace  int      `json:"swap_space"`  // size in GByte (or 0)
-	SshPort    string   `json:"ssh_port"`    // unsually 'OpenSSH'
 	SysAdmin   string   `json:"sys_admin"`   // try to read from ~/.gitconfig
 	Packages   []string `json:"packages"`    // Required DEB packages
 	Mounts     []Mount  `json:"mounts"`      // Mounted filesystem (can grow)
+
+	// runtime flags
+	DryRun  bool `json:"-"`
+	Upgrade bool `json:"-"`
 }
 
 func FileSystemRead() (*SystemConfig, error) {

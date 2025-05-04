@@ -1,3 +1,4 @@
+# Basispakete
 openssh-server
 xauth
 git
@@ -17,8 +18,16 @@ ca-certificates
 gnupg2
 lsb-release
 dirmngr
+
+# Docker
 docker-ce
 docker-ce-cli
 containerd.io
 docker-buildx-plugin
 docker-compose-plugin
+
+# Webserver + SSL
+nginx
+certbot
+python3-certbot-nginx
+

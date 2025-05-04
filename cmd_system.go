@@ -21,22 +21,39 @@ func init() {
 	AddSubCommand(commandSystem, "any")
 }
 
+var systemFlagUpgrade = cli.BoolFlag{
+	Name:    "upgrade",
+	Aliases: []string{"u"},
+	Usage:   T("system-flag-upgrade"),
+}
+
 var commandSystem = &cli.Command{
 	Name:        "system",
 	Usage:       T("system-cmd-usage"),
 	Description: T("system-cmd-describe"),
 	Flags: []cli.Flag{
 		&mainFlagDryRun,
+		&systemFlagUpgrade,
 	},
 	Action: runSystem,
 }
 
 func runSystem(c *cli.Context) error {
+	localPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	dryRun := c.Bool("dry")
+
 	if CheckEnv("dev") {
+		hostName := filepath.Base(localPath)
+		rootUser := fmt.Sprintf("root@%s", hostName)
+		deployFetchLetsEncrypt(dryRun, rootUser)
+
 		return ShellEditor(SystemConfigFile)
 	}
 
-	// must be "prod" - only root is allowed to run
+	// this must be "prod" - only root is allowed to run
 	if euid := os.Geteuid(); euid != 0 {
 		msg := T("system-only-root")
 		return fmt.Errorf(msg)
@@ -51,60 +68,82 @@ func runSystem(c *cli.Context) error {
 	if err := json.Unmarshal(systemData, &systemConfig); err != nil {
 		return err
 	}
+	systemConfig.DryRun = dryRun
+	systemConfig.Upgrade = c.Bool("upgrade")
 
-	dryRun := c.Bool("dry")
-	if err := systemTimeZone(dryRun, systemConfig.TimeZone); err != nil {
+	if err := systemConfig.SetTimeZone(); err != nil {
 		return err
 	}
-	if err := systemSwapFile(dryRun, systemConfig.SwapSpace); err != nil {
+	if err := systemConfig.SetHostName(); err != nil {
 		return err
 	}
-	if err := systemHostName(dryRun, systemConfig.HostName); err != nil {
+	if err := systemConfig.AddSwapSpace(); err != nil {
 		return err
 	}
-	if err := systemDocker(dryRun); err != nil {
+	if err := systemConfig.AddDockerRepo(); err != nil {
 		return err
 	}
-	if err := systemPackages(dryRun, systemConfig.Packages); err != nil {
+	if err := systemConfig.InstallPackages(); err != nil {
 		return err
 	}
-	if err := systemMounts(dryRun, systemConfig.Mounts); err != nil {
+	if err := systemConfig.SetupMounts(); err != nil {
 		return err
 	}
-	if err := systemFirewall(dryRun, systemConfig.SshPort); err != nil {
+	if err := systemConfig.ActivateFirewall(); err != nil {
 		return err
 	}
-	if err := systemUser(dryRun); err != nil {
+	if err := systemConfig.AddToolsUser(); err != nil {
+		return err
+	}
+	if err := systemConfig.CollectData(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func systemTimeZone(dryRun bool, zone string) error {
+func (sc *SystemConfig) SetTimeZone() error {
 	currZone, err := FileGetLine("/etc/timezone")
 	if err != nil {
 		return err
 	}
-	if currZone == zone {
-		msg := Tf("system-timezone-okay", zone)
+	if currZone == sc.TimeZone {
+		msg := Tf("system-timezone-okay", sc.TimeZone)
 		fmt.Println(msg)
 		return nil
 	}
 
-	msg := Tf("system-timezone-update", zone)
+	msg := Tf("system-timezone-update", sc.TimeZone)
 	fmt.Println(msg)
 
-	set_timezone := fmt.Sprintf("timedatectl set-timezone %s", zone)
-	return ShellCmd(dryRun, set_timezone)
+	set_timezone := fmt.Sprintf("timedatectl set-timezone %s", sc.TimeZone)
+	return ShellCmd(sc.DryRun, set_timezone)
 }
 
-func systemSwapFile(dryRun bool, size int) error {
-	if size <= 0 {
+func (sc *SystemConfig) SetHostName() error {
+	currName, err := FileGetLine("/etc/hostname")
+	if err != nil {
+		return err
+	}
+	if currName == sc.HostName {
+		msg := Tf("system-hostname-okay", sc.HostName)
+		fmt.Println(msg)
+		return nil
+	}
+
+	msg := Tf("system-hostname-update", sc.HostName)
+	fmt.Println(msg)
+
+	set_hostname := fmt.Sprintf("hostnamectl set-hostname %s", sc.HostName)
+	return ShellCmd(sc.DryRun, set_hostname)
+}
+
+func (sc *SystemConfig) AddSwapSpace() error {
+	if sc.SwapSpace <= 0 {
 		fmt.Println(T("system-swapfile-zero"))
 		return nil
 	}
-	swapSize := fmt.Sprintf("%dG", size)
+	swapSize := fmt.Sprintf("%dG", sc.SwapSpace)
 
 	swapFile := "/swap.img"
 	if _, err := os.Stat(swapFile); err == nil {
@@ -120,11 +159,11 @@ func systemSwapFile(dryRun bool, size int) error {
 		fmt.Sprintf("swapon %s", swapFile),
 	}
 
-	if err := ShellCmds(dryRun, cmds); err != nil {
+	if err := ShellCmds(sc.DryRun, cmds); err != nil {
 		return err
 	}
 
-	if dryRun {
+	if sc.DryRun {
 		msg := Tf("system-swapfile-fstab", swapFile)
 		fmt.Println(msg)
 		return nil
@@ -133,30 +172,12 @@ func systemSwapFile(dryRun bool, size int) error {
 	return FileAddLine("/etc/fstab", `^/swap\.img\s+none\s+swap\s+sw\s+0\s+0$`, "/swap.img none swap sw 0 0")
 }
 
-func systemHostName(dryRun bool, name string) error {
-	currName, err := FileGetLine("/etc/hostname")
-	if err != nil {
-		return err
-	}
-	if currName == name {
-		msg := Tf("system-hostname-okay", name)
-		fmt.Println(msg)
-		return nil
-	}
-
-	msg := Tf("system-hostname-update", name)
-	fmt.Println(msg)
-
-	set_hostname := fmt.Sprintf("hostnamectl set-hostname %s", name)
-	return ShellCmd(dryRun, set_hostname)
-}
-
-func systemDocker(dryRun bool) error {
+func (sc *SystemConfig) AddDockerRepo() error {
 	dockerURL := "https://download.docker.com/linux/ubuntu"
 	gpgKey := "/etc/apt/keyrings/docker.gpg"
 	dockerDeb := "/etc/apt/sources.list.d/docker.list"
 
-	if dryRun {
+	if sc.DryRun {
 		cmd := fmt.Sprintf("install Docker from %s ...", dockerURL)
 		return ShellCmd(true, cmd)
 	}
@@ -211,12 +232,12 @@ func systemDocker(dryRun bool) error {
 	return nil
 }
 
-func systemPackages(dryRun bool, packages []string) error {
-	if err := ShellCmd(dryRun, "apt update"); err != nil {
+func (sc *SystemConfig) InstallPackages() error {
+	if err := ShellCmd(sc.DryRun, "apt update"); err != nil {
 		return err
 	}
 
-	for _, pkg_name := range packages {
+	for _, pkg_name := range sc.Packages {
 		pkg_info := exec.Command("dpkg", "-s", pkg_name)
 		if err := pkg_info.Run(); err == nil {
 			fmt.Printf("- %s ist bereits installiert\n", pkg_name)
@@ -224,33 +245,36 @@ func systemPackages(dryRun bool, packages []string) error {
 		}
 
 		apt_get_install := fmt.Sprintf("apt install -y %s", pkg_name)
-		if err := ShellCmd(dryRun, apt_get_install); err != nil {
+		if err := ShellCmd(sc.DryRun, apt_get_install); err != nil {
 			return err
 		}
 	}
 
-	if err := SystemService(dryRun, "ssh"); err != nil {
+	if err := SystemService(sc.DryRun, "ssh"); err != nil {
 		return err
 	}
-	if err := SystemService(dryRun, "docker"); err != nil {
+	if err := SystemService(sc.DryRun, "docker"); err != nil {
+		return err
+	}
+	if err := SystemService(sc.DryRun, "nginx"); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func systemMounts(dryRun bool, mounts []Mount) error {
-	if err := ShellCmd(dryRun, "mount -a"); err != nil {
+func (sc *SystemConfig) SetupMounts() error {
+	if err := ShellCmd(sc.DryRun, "mount -a"); err != nil {
 		return err
 	}
 
-	for _, mount := range mounts {
+	for _, mount := range sc.Mounts {
 		var err error
 		switch provider := strings.ToLower(mount.Provider); provider {
 		case "hetzner":
-			err = systemMountHetzner(dryRun, mount.Identifier, mount.Mountpoint)
+			err = systemMountHetzner(sc.DryRun, mount.Identifier, mount.Mountpoint)
 		case "raid":
-			err = systemMountRAID(dryRun, mount.Identifier, mount.Mountpoint)
+			err = systemMountRAID(sc.DryRun, mount.Identifier, mount.Mountpoint)
 		default:
 			err = fmt.Errorf("Provider '%s' ist noch nicht implementiert.", provider)
 		}
@@ -321,9 +345,11 @@ func systemMountRAID(dryRun bool, id, target string) error {
 	return ShellCmds(dryRun, cmds)
 }
 
-func systemFirewall(dryRun bool, sshPort string) error {
-	allowSSH := fmt.Sprintf("ufw allow %s", sshPort)
-	if err := ShellCmd(dryRun, allowSSH); err != nil {
+func (sc *SystemConfig) ActivateFirewall() error {
+	if err := ShellCmd(sc.DryRun, "ufw allow OpenSSH"); err != nil {
+		return err
+	}
+	if err := ShellCmd(sc.DryRun, "ufw allow Nginx_#_Full"); err != nil {
 		return err
 	}
 
@@ -332,7 +358,7 @@ func systemFirewall(dryRun bool, sshPort string) error {
 		return err
 	}
 	if !matched {
-		if err := ShellCmd(dryRun, "ufw enable"); err != nil {
+		if err := ShellCmd(sc.DryRun, "ufw enable"); err != nil {
 			return err
 		}
 	}
@@ -340,7 +366,7 @@ func systemFirewall(dryRun bool, sshPort string) error {
 	return nil
 }
 
-func systemUser(dryRun bool) error {
+func (sc *SystemConfig) AddToolsUser() error {
 	envFile := "/etc/gd-tools-env"
 	if err := os.WriteFile(envFile, []byte("prod\n"), 0o444); err != nil {
 		return err
@@ -349,7 +375,7 @@ func systemUser(dryRun bool) error {
 	gdUser, err := user.Lookup("gd-tools")
 	if err != nil {
 		userAdd := fmt.Sprintf("useradd -r -m -s /bin/bash gd-tools")
-		if err := ShellCmd(dryRun, userAdd); err != nil {
+		if err := ShellCmd(sc.DryRun, userAdd); err != nil {
 			return err
 		}
 	}
@@ -364,7 +390,7 @@ func systemUser(dryRun bool) error {
 	}
 	if ok := slices.Contains(gdGroups, "docker"); !ok {
 		groupAdd := fmt.Sprintf("usermod -aG docker gd-tools")
-		if err := ShellCmd(dryRun, groupAdd); err != nil {
+		if err := ShellCmd(sc.DryRun, groupAdd); err != nil {
 			return err
 		}
 	}
@@ -377,8 +403,36 @@ func systemUser(dryRun bool) error {
 		"install -o gd-tools -g gd-tools -m 755 -d " + dataRoot,
 		"install -o gd-tools -g gd-tools -m 755 -d " + logsRoot,
 	}
-	if err := ShellCmds(dryRun, sshCmds); err != nil {
+	if err := ShellCmds(sc.DryRun, sshCmds); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (sc *SystemConfig) CollectData() error {
+	certbotOpts := fmt.Sprintf("--nginx --non-interactive --agree-tos --email %s", sc.SysAdmin)
+	certbotCmd := fmt.Sprintf("certbot certonly %s -d %s", certbotOpts, sc.HostName)
+	if err := ShellCmd(sc.DryRun, certbotCmd); err != nil {
+		return err
+	}
+
+	uids := make(map[string]string)
+	if u, err := user.Lookup("gd-tools"); err == nil {
+		uids["gd-tools.uid"] = u.Uid
+		uids["gd-tools.gid"] = u.Gid
+	}
+	if g, err := user.LookupGroup("docker"); err == nil {
+		uids["docker.gid"] = g.Gid
+	}
+	uidFile := "/etc/letsencrypt/uids.json"
+	if !sc.DryRun {
+		data, _ := json.MarshalIndent(uids, "", "  ")
+		if err := os.WriteFile(uidFile, data, 0644); err != nil {
+			return err
+		}
+	} else {
+		fmt.Printf("[dry] wuerde UID-Datei schreiben: %v\n", uids)
 	}
 
 	return nil
