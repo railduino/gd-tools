@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 11:52+0200\n"
+"POT-Creation-Date: 2025-05-04 16:36+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,22 +61,22 @@ msgstr ""
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_generate.go:13
+#: cmd_generate.go:26
 msgid "generate-flag-depends"
 msgstr "erstellt Abhängigkeit von Projekt"
 
-#: cmd_generate.go:36
+#: cmd_generate.go:40
 msgid "generate-cmd-usage"
 msgstr "erzeugt ein neues Projekt einer bestimmten Art"
 
-#: cmd_generate.go:37
+#: cmd_generate.go:41
 msgid "generate-cmd-describe"
 msgstr ""
 "Der Befehl 'generate' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_generate.go:43
+#: cmd_generate.go:48
 msgid "generate-cmd-list-kinds"
 msgstr "Die folgenden Projekt-Arten sind implementiert:"
 
@@ -280,6 +280,41 @@ msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 msgid "file-err-missing-system"
 msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
 
+#: generate_maintenance.go:23
+msgid "install-maintenance-usage"
+msgstr "installiert einen Traefik Reverse Proxy Container"
+
+#: generate_maintenance.go:24
+msgid "install-maintenance-describe"
+msgstr ""
+"Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+"\n"
+"TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+
+#: generate_maintenance.go:32 generate_traefik.go:58 generate_wordpress.go:42
+msgid "install-err-missing-prefix"
+msgstr "das Swap-File %s existiert bereits"
+
+#: generate_maintenance.go:44 generate_traefik.go:77 generate_wordpress.go:59
+msgid "gen-create-dir"
+msgstr "legt das Projekt-Verzeichnis an"
+
+#: generate_maintenance.go:54 generate_traefik.go:82
+msgid "gen-create-config"
+msgstr "legt die Datei 'config.json' an"
+
+#: generate_maintenance.go:64
+msgid "gen-create-index"
+msgstr "legt das Projekt-Verzeichnis an"
+
+#: generate_maintenance.go:75 generate_traefik.go:99 generate_wordpress.go:92
+msgid "gen-create-compose"
+msgstr "legt die Datei 'compose.yaml' an"
+
+#: generate_maintenance.go:93 generate_wordpress.go:102
+msgid "gen-create-env"
+msgstr "legt das Projekt-Verzeichnis an"
+
 #: generate_traefik.go:25
 msgid "traefik-flag-status-host"
 msgstr "filtert Projekte nach ihrem Status"
@@ -303,21 +338,20 @@ msgstr ""
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
-#: generate_traefik.go:58
-msgid "install-err-missing-prefix"
-msgstr "das Swap-File %s existiert bereits"
+#: generate_wordpress.go:21
+msgid "wordpress-flag-title"
+msgstr ""
 
-#: generate_traefik.go:77
-msgid "gen-create-dir"
-msgstr "legt das Projekt-Verzeichnis an"
+#: generate_wordpress.go:30
+msgid "install-wordpress-usage"
+msgstr "installiert einen Traefik Reverse Proxy Container"
 
-#: generate_traefik.go:82
-msgid "gen-create-config"
-msgstr "legt die Datei 'config.json' an"
-
-#: generate_traefik.go:99
-msgid "gen-create-compose"
-msgstr "legt die Datei 'compose.yaml' an"
+#: generate_wordpress.go:31
+msgid "install-wordpress-describe"
+msgstr ""
+"Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+"\n"
+"TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
 #: main.go:27
 msgid "main-flag-commands"
@@ -335,11 +369,11 @@ msgstr "Toolset zur Verwaltung von Docker-Projekten unter Debian/Ubuntu Linux"
 msgid "app-action-commands"
 msgstr "Die folgenden Befehle werden erkannt:"
 
-#: project.go:153
+#: project.go:170
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:158
+#: project.go:175
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
 

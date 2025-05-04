@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 11:54+0200\n"
+"POT-Creation-Date: 2025-05-04 16:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,19 +61,19 @@ msgstr ""
 msgid "enable-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:13
+#: cmd_generate.go:26
 msgid "generate-flag-depends"
 msgstr ""
 
-#: cmd_generate.go:36
+#: cmd_generate.go:40
 msgid "generate-cmd-usage"
 msgstr ""
 
-#: cmd_generate.go:37
+#: cmd_generate.go:41
 msgid "generate-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:43
+#: cmd_generate.go:48
 msgid "generate-cmd-list-kinds"
 msgstr ""
 
@@ -245,6 +245,38 @@ msgstr ""
 msgid "file-err-missing-system"
 msgstr ""
 
+#: generate_maintenance.go:23
+msgid "install-maintenance-usage"
+msgstr ""
+
+#: generate_maintenance.go:24
+msgid "install-maintenance-describe"
+msgstr ""
+
+#: generate_maintenance.go:32 generate_traefik.go:58 generate_wordpress.go:42
+msgid "install-err-missing-prefix"
+msgstr ""
+
+#: generate_maintenance.go:44 generate_traefik.go:77 generate_wordpress.go:59
+msgid "gen-create-dir"
+msgstr ""
+
+#: generate_maintenance.go:54 generate_traefik.go:82
+msgid "gen-create-config"
+msgstr ""
+
+#: generate_maintenance.go:64
+msgid "gen-create-index"
+msgstr ""
+
+#: generate_maintenance.go:75 generate_traefik.go:99 generate_wordpress.go:92
+msgid "gen-create-compose"
+msgstr ""
+
+#: generate_maintenance.go:93 generate_wordpress.go:102
+msgid "gen-create-env"
+msgstr ""
+
 #: generate_traefik.go:25
 msgid "traefik-flag-status-host"
 msgstr ""
@@ -265,20 +297,16 @@ msgstr ""
 msgid "install-traefik-describe"
 msgstr ""
 
-#: generate_traefik.go:58
-msgid "install-err-missing-prefix"
+#: generate_wordpress.go:21
+msgid "wordpress-flag-title"
 msgstr ""
 
-#: generate_traefik.go:77
-msgid "gen-create-dir"
+#: generate_wordpress.go:30
+msgid "install-wordpress-usage"
 msgstr ""
 
-#: generate_traefik.go:82
-msgid "gen-create-config"
-msgstr ""
-
-#: generate_traefik.go:99
-msgid "gen-create-compose"
+#: generate_wordpress.go:31
+msgid "install-wordpress-describe"
 msgstr ""
 
 #: main.go:27
@@ -297,11 +325,11 @@ msgstr ""
 msgid "app-action-commands"
 msgstr ""
 
-#: project.go:153
+#: project.go:170
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:158
+#: project.go:175
 msgid "install-err-unique-exist"
 msgstr ""
 
