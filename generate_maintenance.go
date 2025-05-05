@@ -8,12 +8,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type MaintenanceComposeData struct {
-	DataDir     string
-	LogsDir     string
-	ServicePort int
-}
-
 func init() {
 	RegisterProjectKind(commandGenerateMaintenance)
 }
@@ -29,7 +23,7 @@ var commandGenerateMaintenance = &cli.Command{
 func runGenerateMaintenance(c *cli.Context) error {
 	args := c.Args().Slice()
 	if len(args) < 1 {
-		return fmt.Errorf(T("install-err-missing-prefix"))
+		return fmt.Errorf(T("generate-err-missing-prefix"))
 	}
 
 	project := Project{
@@ -41,17 +35,17 @@ func runGenerateMaintenance(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("gen-create-dir"))
+	fmt.Println(T("generate-create-dir"))
 	projectPath, err := project.GetPath()
 	if err != nil {
 		return err
 	}
-	volumesPath := filepath.Join(projectPath, "volumes")
-	if err := os.MkdirAll(volumesPath, 0755); err != nil {
+	dataPath := filepath.Join(projectPath, "data")
+	if err := os.MkdirAll(dataPath, 0755); err != nil {
 		return err
 	}
 
-	fmt.Println(T("gen-create-config"))
+	fmt.Println(T("generate-create-config"))
 	project.Config = Config{
 		IsEnabled: false,
 		DependsOn: []string{},
@@ -61,7 +55,7 @@ func runGenerateMaintenance(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("gen-create-index"))
+	fmt.Println(T("generate-create-index"))
 	indexPath := filepath.Join("maintenance", "index.html")
 	indexData, err := TemplateParse(indexPath, struct{}{})
 	if err != nil {
@@ -72,11 +66,11 @@ func runGenerateMaintenance(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("gen-create-compose"))
+	fmt.Println(T("generate-create-compose"))
 	dataDir, _ := project.GetDataPath("prod")
 	logsDir, _ := project.GetLogsPath("prod")
 
-	composeData := MaintenanceComposeData{
+	composeData := GenerateData{
 		DataDir:     dataDir,
 		LogsDir:     logsDir,
 		ServicePort: project.GetNumericPrefix(8000),
@@ -87,12 +81,6 @@ func runGenerateMaintenance(c *cli.Context) error {
 		return err
 	}
 	if err := project.SaveCompose(); err != nil {
-		return err
-	}
-
-	fmt.Println(T("gen-create-env"))
-	envPath := filepath.Join(project.GetName(), ".env")
-	if err := GenerateEnvFromUIDs(envPath); err != nil {
 		return err
 	}
 

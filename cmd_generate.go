@@ -11,7 +11,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// Registered project kinds (eg. traefik, wordpress, nextcloud, mail_host)
+type GenerateData struct {
+	DataDir     string
+	LogsDir     string
+	ServicePort int
+	ToolsUID    int
+	DockerGID   int
+}
+
+// Registered project kinds (eg. wordpress, nextcloud, mail_host)
 var generateKinds []*cli.Command
 
 var generateCommand *cli.Command = commandGenerate
@@ -57,7 +65,7 @@ func runGenerateDispatcher(c *cli.Context) error {
 	return nil
 }
 
-func GenerateEnvFromUIDs(envPath string) error {
+func GenerateGetIDs(envPath string) error {
 	data, err := os.ReadFile(filepath.Join(LetsEncryptDir, "uids.json"))
 	if err != nil {
 		return err

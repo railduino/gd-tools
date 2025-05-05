@@ -21,6 +21,12 @@ func init() {
 	AddSubCommand(commandSystem, "any")
 }
 
+var systemFlagProgress = cli.BoolFlag{
+	Name:    "progress",
+	Aliases: []string{"p"},
+	Usage:   T("system-flag-progress"),
+}
+
 var systemFlagUpgrade = cli.BoolFlag{
 	Name:    "upgrade",
 	Aliases: []string{"u"},
@@ -33,6 +39,7 @@ var commandSystem = &cli.Command{
 	Description: T("system-cmd-describe"),
 	Flags: []cli.Flag{
 		&mainFlagDryRun,
+		&systemFlagProgress,
 		&systemFlagUpgrade,
 	},
 	Action: runSystem,
@@ -50,7 +57,7 @@ func runSystem(c *cli.Context) error {
 		rootUser := fmt.Sprintf("root@%s", hostName)
 		deployFetchLetsEncrypt(dryRun, rootUser)
 
-		return ShellEditor(SystemConfigFile)
+		return ShellEditor(SystemConfigName)
 	}
 
 	// this must be "prod" - only root is allowed to run
@@ -59,16 +66,18 @@ func runSystem(c *cli.Context) error {
 		return fmt.Errorf(msg)
 	}
 
-	systemFile := filepath.Join("/etc", SystemConfigFile)
-	systemData, err := os.ReadFile(systemFile)
+	systemConfigFile := filepath.Join("/etc", SystemConfigName)
+	content, err := os.ReadFile(systemConfigFile)
 	if err != nil {
 		return err
 	}
+
 	var systemConfig SystemConfig
-	if err := json.Unmarshal(systemData, &systemConfig); err != nil {
+	if err := json.Unmarshal(content, &systemConfig); err != nil {
 		return err
 	}
 	systemConfig.DryRun = dryRun
+	systemConfig.Progress = c.Bool("progress")
 	systemConfig.Upgrade = c.Bool("upgrade")
 
 	if err := systemConfig.SetTimeZone(); err != nil {
@@ -411,28 +420,42 @@ func (sc *SystemConfig) AddToolsUser() error {
 }
 
 func (sc *SystemConfig) CollectData() error {
-	certbotOpts := fmt.Sprintf("--nginx --non-interactive --agree-tos --email %s", sc.SysAdmin)
-	certbotCmd := fmt.Sprintf("certbot certonly %s -d %s", certbotOpts, sc.HostName)
-	if err := ShellCmd(sc.DryRun, certbotCmd); err != nil {
+	if _, err := os.ReadDir("/etc/letsencrypt"); err != nil {
+		certbotOpts := fmt.Sprintf("--nginx --non-interactive --agree-tos --email %s", sc.SysAdmin)
+		certbotCmd := fmt.Sprintf("certbot certonly %s -d %s", certbotOpts, sc.HostName)
+		if err := ShellCmd(sc.DryRun, certbotCmd); err != nil {
+			return err
+		}
+	}
+	if _, err := os.ReadDir("/etc/letsencrypt"); err != nil {
 		return err
 	}
 
-	uids := make(map[string]string)
-	if u, err := user.Lookup("gd-tools"); err == nil {
-		uids["gd-tools.uid"] = u.Uid
-		uids["gd-tools.gid"] = u.Gid
+	gdtUser, err := user.Lookup("gd-tools")
+	if err != nil {
+		return err
 	}
-	if g, err := user.LookupGroup("docker"); err == nil {
-		uids["docker.gid"] = g.Gid
+	dckUser, err := user.Lookup("docker")
+	if err != nil {
+		return err
 	}
-	uidFile := "/etc/letsencrypt/uids.json"
-	if !sc.DryRun {
-		data, _ := json.MarshalIndent(uids, "", "  ")
-		if err := os.WriteFile(uidFile, data, 0644); err != nil {
+	if sc.DryRun {
+		msg := Tf("system-list_ids", gdtUser.Uid, gdtUser.Gid, dckUser.Gid)
+		fmt.Println("[dry]", msg)
+	} else {
+		uidData := SystemIDs{
+			ToolsUID:  gdtUser.Uid,
+			ToolsGID:  gdtUser.Gid,
+			DockerGID: dckUser.Gid,
+		}
+		uidPath := filepath.Join("/etc/letsencrypt", SystemIDsName)
+		content, err := json.MarshalIndent(uidData, "", "  ")
+		if err != nil {
 			return err
 		}
-	} else {
-		fmt.Printf("[dry] wuerde UID-Datei schreiben: %v\n", uids)
+		if err := os.WriteFile(uidFile, content, 0644); err != nil {
+			return err
+		}
 	}
 
 	return nil

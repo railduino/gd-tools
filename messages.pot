@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:46+0200\n"
+"POT-Creation-Date: 2025-05-05 06:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,19 +61,19 @@ msgstr ""
 msgid "enable-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:26
+#: cmd_generate.go:34
 msgid "generate-flag-depends"
 msgstr ""
 
-#: cmd_generate.go:40
+#: cmd_generate.go:48
 msgid "generate-cmd-usage"
 msgstr ""
 
-#: cmd_generate.go:41
+#: cmd_generate.go:49
 msgid "generate-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:48
+#: cmd_generate.go:56
 msgid "generate-cmd-list-kinds"
 msgstr ""
 
@@ -186,47 +186,55 @@ msgid "setup-step-system"
 msgstr ""
 
 #: cmd_system.go:27
-msgid "system-flag-upgrade"
-msgstr ""
-
-#: cmd_system.go:32
-msgid "system-cmd-usage"
+msgid "system-flag-progress"
 msgstr ""
 
 #: cmd_system.go:33
+msgid "system-flag-upgrade"
+msgstr ""
+
+#: cmd_system.go:38
+msgid "system-cmd-usage"
+msgstr ""
+
+#: cmd_system.go:39
 msgid "system-cmd-describe"
 msgstr ""
 
-#: cmd_system.go:58
+#: cmd_system.go:65
 msgid "system-only-root"
 msgstr ""
 
-#: cmd_system.go:111
+#: cmd_system.go:120
 msgid "system-timezone-okay"
 msgstr ""
 
-#: cmd_system.go:116
+#: cmd_system.go:125
 msgid "system-timezone-update"
 msgstr ""
 
-#: cmd_system.go:129
+#: cmd_system.go:138
 msgid "system-hostname-okay"
 msgstr ""
 
-#: cmd_system.go:134
+#: cmd_system.go:143
 msgid "system-hostname-update"
 msgstr ""
 
-#: cmd_system.go:143
+#: cmd_system.go:152
 msgid "system-swapfile-zero"
 msgstr ""
 
-#: cmd_system.go:150
+#: cmd_system.go:159
 msgid "system-swapfile-exist"
 msgstr ""
 
-#: cmd_system.go:167
+#: cmd_system.go:176
 msgid "system-swapfile-fstab"
+msgstr ""
+
+#: cmd_system.go:443
+msgid "system-list_ids"
 msgstr ""
 
 #: cmd_update.go:17
@@ -241,40 +249,32 @@ msgstr ""
 msgid "file-err-missing-deploy"
 msgstr ""
 
-#: file_system.go:48
-msgid "file-err-missing-system"
-msgstr ""
-
-#: generate_maintenance.go:23
+#: generate_maintenance.go:17
 msgid "install-maintenance-usage"
 msgstr ""
 
-#: generate_maintenance.go:24
+#: generate_maintenance.go:18
 msgid "install-maintenance-describe"
 msgstr ""
 
-#: generate_maintenance.go:32 generate_traefik.go:58 generate_wordpress.go:42
-msgid "install-err-missing-prefix"
+#: generate_maintenance.go:26
+msgid "generate-err-missing-prefix"
 msgstr ""
 
-#: generate_maintenance.go:44 generate_traefik.go:77 generate_wordpress.go:59
-msgid "gen-create-dir"
+#: generate_maintenance.go:38
+msgid "generate-create-dir"
 msgstr ""
 
-#: generate_maintenance.go:54 generate_traefik.go:82
-msgid "gen-create-config"
+#: generate_maintenance.go:48
+msgid "generate-create-config"
 msgstr ""
 
-#: generate_maintenance.go:64
-msgid "gen-create-index"
+#: generate_maintenance.go:58
+msgid "generate-create-index"
 msgstr ""
 
-#: generate_maintenance.go:75 generate_traefik.go:99 generate_wordpress.go:92
-msgid "gen-create-compose"
-msgstr ""
-
-#: generate_maintenance.go:93 generate_wordpress.go:102
-msgid "gen-create-env"
+#: generate_maintenance.go:69
+msgid "generate-create-compose"
 msgstr ""
 
 #: generate_traefik.go:25
@@ -297,6 +297,22 @@ msgstr ""
 msgid "install-traefik-describe"
 msgstr ""
 
+#: generate_traefik.go:58 generate_wordpress.go:42
+msgid "install-err-missing-prefix"
+msgstr ""
+
+#: generate_traefik.go:77 generate_wordpress.go:59
+msgid "gen-create-dir"
+msgstr ""
+
+#: generate_traefik.go:82
+msgid "gen-create-config"
+msgstr ""
+
+#: generate_traefik.go:99 generate_wordpress.go:92
+msgid "gen-create-compose"
+msgstr ""
+
 #: generate_wordpress.go:21
 msgid "wordpress-flag-title"
 msgstr ""
@@ -307,6 +323,10 @@ msgstr ""
 
 #: generate_wordpress.go:31
 msgid "install-wordpress-describe"
+msgstr ""
+
+#: generate_wordpress.go:102
+msgid "gen-create-env"
 msgstr ""
 
 #: main.go:27
@@ -331,6 +351,10 @@ msgstr ""
 
 #: project.go:175
 msgid "install-err-unique-exist"
+msgstr ""
+
+#: system.go:63
+msgid "system-err-missing-file"
 msgstr ""
 
 #: utils_secret.go:26

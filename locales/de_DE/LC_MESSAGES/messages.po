@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:36+0200\n"
+"POT-Creation-Date: 2025-05-05 06:28+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -61,22 +61,22 @@ msgstr ""
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_generate.go:26
+#: cmd_generate.go:34
 msgid "generate-flag-depends"
 msgstr "erstellt Abhängigkeit von Projekt"
 
-#: cmd_generate.go:40
+#: cmd_generate.go:48
 msgid "generate-cmd-usage"
 msgstr "erzeugt ein neues Projekt einer bestimmten Art"
 
-#: cmd_generate.go:41
+#: cmd_generate.go:49
 msgid "generate-cmd-describe"
 msgstr ""
 "Der Befehl 'generate' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_generate.go:48
+#: cmd_generate.go:56
 msgid "generate-cmd-list-kinds"
 msgstr "Die folgenden Projekt-Arten sind implementiert:"
 
@@ -213,14 +213,18 @@ msgid "setup-step-system"
 msgstr "Step: erzeugt die JSON-Dateien für die Umgebung"
 
 #: cmd_system.go:27
+msgid "system-flag-progress"
+msgstr "der FQDN wird auf %s gesetzt"
+
+#: cmd_system.go:33
 msgid "system-flag-upgrade"
 msgstr "der FQDN wird auf %s gesetzt"
 
-#: cmd_system.go:32
+#: cmd_system.go:38
 msgid "system-cmd-usage"
 msgstr "bereitet das Produktions-System für die Nutzung von gd-tools vor"
 
-#: cmd_system.go:33
+#: cmd_system.go:39
 msgid "system-cmd-describe"
 msgstr ""
 "Der Befehl 'system' ist verantwortlich für das Setup des Host-Systems.\n"
@@ -228,37 +232,41 @@ msgstr ""
 "In der Entwicklungsumgebung wird die Datei system.json editiert.\n"
 "Auf dem Produktions-System wird die Umgebung für gd-tools eingerichtet."
 
-#: cmd_system.go:58
+#: cmd_system.go:65
 msgid "system-only-root"
 msgstr "die Zeitzone %s ist bereits gesetzt"
 
-#: cmd_system.go:111
+#: cmd_system.go:120
 msgid "system-timezone-okay"
 msgstr "die Zeitzone %s ist bereits gesetzt"
 
-#: cmd_system.go:116
+#: cmd_system.go:125
 msgid "system-timezone-update"
 msgstr "die Zeitzone wird auf %s gesetzt"
 
-#: cmd_system.go:129
+#: cmd_system.go:138
 msgid "system-hostname-okay"
 msgstr "der FQDN ist bereits auf %s gesetzt"
 
-#: cmd_system.go:134
+#: cmd_system.go:143
 msgid "system-hostname-update"
 msgstr "der FQDN wird auf %s gesetzt"
 
-#: cmd_system.go:143
+#: cmd_system.go:152
 msgid "system-swapfile-zero"
 msgstr "es wird kein Swap-File angefordert"
 
-#: cmd_system.go:150
+#: cmd_system.go:159
 msgid "system-swapfile-exist"
 msgstr "das Swap-File %s existiert bereits"
 
-#: cmd_system.go:167
+#: cmd_system.go:176
 msgid "system-swapfile-fstab"
 msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
+
+#: cmd_system.go:443
+msgid "system-list_ids"
+msgstr "das Swap-File %s existiert bereits"
 
 #: cmd_update.go:17
 msgid "update-cmd-usage"
@@ -276,44 +284,36 @@ msgstr ""
 msgid "file-err-missing-deploy"
 msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
-#: file_system.go:48
-msgid "file-err-missing-system"
-msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
-
-#: generate_maintenance.go:23
+#: generate_maintenance.go:17
 msgid "install-maintenance-usage"
 msgstr "installiert einen Traefik Reverse Proxy Container"
 
-#: generate_maintenance.go:24
+#: generate_maintenance.go:18
 msgid "install-maintenance-describe"
 msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
-#: generate_maintenance.go:32 generate_traefik.go:58 generate_wordpress.go:42
-msgid "install-err-missing-prefix"
+#: generate_maintenance.go:26
+msgid "generate-err-missing-prefix"
 msgstr "das Swap-File %s existiert bereits"
 
-#: generate_maintenance.go:44 generate_traefik.go:77 generate_wordpress.go:59
-msgid "gen-create-dir"
+#: generate_maintenance.go:38
+msgid "generate-create-dir"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_maintenance.go:54 generate_traefik.go:82
-msgid "gen-create-config"
+#: generate_maintenance.go:48
+msgid "generate-create-config"
 msgstr "legt die Datei 'config.json' an"
 
-#: generate_maintenance.go:64
-msgid "gen-create-index"
+#: generate_maintenance.go:58
+msgid "generate-create-index"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_maintenance.go:75 generate_traefik.go:99 generate_wordpress.go:92
-msgid "gen-create-compose"
+#: generate_maintenance.go:69
+msgid "generate-create-compose"
 msgstr "legt die Datei 'compose.yaml' an"
-
-#: generate_maintenance.go:93 generate_wordpress.go:102
-msgid "gen-create-env"
-msgstr "legt das Projekt-Verzeichnis an"
 
 #: generate_traefik.go:25
 msgid "traefik-flag-status-host"
@@ -338,6 +338,22 @@ msgstr ""
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
+#: generate_traefik.go:58 generate_wordpress.go:42
+msgid "install-err-missing-prefix"
+msgstr "das Swap-File %s existiert bereits"
+
+#: generate_traefik.go:77 generate_wordpress.go:59
+msgid "gen-create-dir"
+msgstr "legt das Projekt-Verzeichnis an"
+
+#: generate_traefik.go:82
+msgid "gen-create-config"
+msgstr "legt die Datei 'config.json' an"
+
+#: generate_traefik.go:99 generate_wordpress.go:92
+msgid "gen-create-compose"
+msgstr "legt die Datei 'compose.yaml' an"
+
 #: generate_wordpress.go:21
 msgid "wordpress-flag-title"
 msgstr ""
@@ -352,6 +368,10 @@ msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+
+#: generate_wordpress.go:102
+msgid "gen-create-env"
+msgstr "legt das Projekt-Verzeichnis an"
 
 #: main.go:27
 msgid "main-flag-commands"
@@ -376,6 +396,10 @@ msgstr ""
 #: project.go:175
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
+
+#: system.go:63
+msgid "system-err-missing-file"
+msgstr "das Swap-File %s existiert bereits"
 
 #: utils_secret.go:26
 msgid "secret-err-unknown-mode"
@@ -424,6 +448,9 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "file-err-missing-system"
+#~ msgstr "keine system.json - sind wir im richtigen Verzeichnis?"
 
 #~ msgid "err-missing-json"
 #~ msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"

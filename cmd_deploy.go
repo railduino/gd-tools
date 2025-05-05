@@ -51,14 +51,14 @@ func runDeploy(c *cli.Context) error {
 
 	deployFetchLetsEncrypt(dryRun, rootUser)
 
-	configCopy := fmt.Sprintf("%s --chmod=400 %s %s:/etc", rsyncRoot, SystemConfigFile, rootUser)
+	configCopy := fmt.Sprintf("%s --chmod=400 %s %s:/etc", rsyncRoot, SystemConfigName, rootUser)
 	if err := ShellCmd(dryRun, configCopy); err != nil {
 		return err
 	}
 
 	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
 	rsyncUser := "rsync -avz --chown=gd-tools:gd-tools"
-	rsyncExcl := "--exclude=letsencrypt --exclude=secrets.json --exclude=" + SystemConfigFile
+	rsyncExcl := "--exclude=letsencrypt --exclude=secrets.json --exclude=" + SystemConfigName
 	projectCopy := fmt.Sprintf("%s %s %s/ %s:projects", rsyncUser, rsyncExcl, localPath, toolUser)
 	if err := ShellCmd(dryRun, projectCopy); err != nil {
 		return err

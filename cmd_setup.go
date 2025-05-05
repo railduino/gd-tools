@@ -43,7 +43,7 @@ func runSetup(c *cli.Context) error {
 	}
 	dstPath := c.Args().First()
 
-	systemFile := filepath.Join(dstPath, SystemConfigFile)
+	systemFile := filepath.Join(dstPath, SystemConfigName)
 	if _, err := os.Stat(systemFile); err == nil {
 		msg := Tf("setup-err-host-exist", dstPath)
 		return fmt.Errorf(msg)
