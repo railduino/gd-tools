@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -32,8 +31,9 @@ func runDeploy(c *cli.Context) error {
 	}
 	hostName := filepath.Base(localPath)
 	rootUser := fmt.Sprintf("root@%s", hostName)
-	rsyncRoot := "rsync -avz --chown=root:root"
+	toolsUser := fmt.Sprintf("gd-tools@%s", hostName)
 
+	// Deploy binary
 	execPath, err := os.Executable()
 	if err != nil {
 		return err
@@ -42,62 +42,78 @@ func runDeploy(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	execCopy := fmt.Sprintf("%s --chmod=755 %s %s:/usr/local/bin", rsyncRoot, execPath, rootUser)
-	if err := ShellCmd(dryRun, execCopy); err != nil {
+	if err := DeployLocal(dryRun, execPath, "/usr/local/bin", rootUser, "755"); err != nil {
 		return err
 	}
 
-	deployFetchLetsEncrypt(dryRun, rootUser)
-
-	configCopy := fmt.Sprintf("%s --chmod=400 %s %s:/etc", rsyncRoot, SystemConfigName, rootUser)
-	if err := ShellCmd(dryRun, configCopy); err != nil {
+	// Deploy system config
+	if err := DeployLocal(dryRun, SystemConfigName, "/etc", rootUser, "400"); err != nil {
 		return err
 	}
 
-	toolsUser := fmt.Sprintf("gd-tools@%s", hostName)
-	rsyncFlagList := []string{
-		"--chown=gd-tools:gd-tools",
-		"--exclude=letsencrypt",
-		"--exclude=secrets.json",
-		"--exclude=data",
-		"--exclude=" + SystemConfigName,
+	// Deploy static templates
+	if err := DeployTemplate(dryRun, "ssl-params.conf", "/etc/nginx/snippets/ssl-params.conf", rootUser, "444"); err != nil {
+		return err
 	}
-	rsyncFlags := strings.Join(rsyncFlagList, " ")
-	projectCopy := fmt.Sprintf("rsync -avz %s %s/ %s:projects", rsyncFlags, localPath, toolsUser)
-	if err := ShellCmd(dryRun, projectCopy); err != nil {
+	if err := DeployTemplate(dryRun, "nginx.conf", "/etc/nginx/nginx.conf", rootUser, "444"); err != nil {
 		return err
 	}
 
+	// Deploy project tree (excluding sensitive data)
+	rsyncProjects := DeployRsync{
+		DryRun: dryRun,
+		Flags: []string{
+			"--chown=gd-tools:gd-tools",
+			"--exclude=letsencrypt",
+			"--exclude=secrets.json",
+			"--exclude=data",
+			"--exclude=" + SystemConfigName,
+		},
+		Local:    localPath + "/",
+		Receiver: toolsUser,
+		Remote:   "projects",
+	}
+	if err := rsyncProjects.Execute(); err != nil {
+		return err
+	}
+
+	// Deploy project-specific data dirs
 	projects, err := ProjectLoadAll()
 	if err != nil {
 		return err
 	}
 	for _, p := range projects {
-		localDataPath := filepath.Join(p.GetName(), "data")
-		if stat, err := os.Stat(localDataPath); err == nil && stat.IsDir() {
-			remoteDataPath := fmt.Sprintf("%s:/var/gd-tools/data/%s", toolsUser, p.GetName())
-			rsyncCmd := fmt.Sprintf("rsync -avz --update --chown=gd-tools:gd-tools %s/ %s",
-				localDataPath, remoteDataPath)
-			if err := ShellCmd(dryRun, rsyncCmd); err != nil {
+		dataPath := filepath.Join(p.GetName(), "data")
+		if stat, err := os.Stat(dataPath); err == nil && stat.IsDir() {
+			rsyncData := DeployRsync{
+				DryRun:   dryRun,
+				Flags:    []string{"--chown=gd-tools:gd-tools", "--update"},
+				Local:    dataPath + "/",
+				Receiver: toolsUser,
+				Remote:   "/var/gd-tools/data/" + p.GetName(),
+			}
+			if err := rsyncData.Execute(); err != nil {
 				return err
 			}
 		}
 	}
 
-	if _, err := os.Stat("letsencrypt"); err == nil {
-		certCopy := fmt.Sprintf("rsync -avz --chown=root:root letsencrypt/ %s:/etc/letsencrypt", rootUser)
-		if err := ShellCmd(dryRun, certCopy); err != nil {
+	// Fetch certs from target before overwrite
+	deployFetchLetsEncrypt(dryRun, rootUser)
+
+	// Push certs if available locally
+	if stat, err := os.Stat("letsencrypt"); err == nil && stat.IsDir() {
+		rsyncCerts := DeployRsync{
+			DryRun:   dryRun,
+			Flags:    []string{"--chown=root:root"},
+			Local:    "letsencrypt/",
+			Receiver: rootUser,
+			Remote:   "/etc/letsencrypt",
+		}
+		if err := rsyncCerts.Execute(); err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-func deployFetchLetsEncrypt(dryRun bool, rootUser string) {
-	rsyncCmd := fmt.Sprintf("rsync -avz %s:/etc/letsencrypt/ letsencrypt", rootUser)
-
-	if err := ShellCmd(dryRun, rsyncCmd); err != nil {
-		fmt.Println("Ignore error:", err)
-	}
 }

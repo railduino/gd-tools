@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 11:58+0200\n"
+"POT-Creation-Date: 2025-05-05 22:21+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -39,11 +39,11 @@ msgstr "das Ziel '%s' ist kein Verzeichnis"
 msgid "delete-err-no-force"
 msgstr "zur Sicherheit muss --force angegeben werden"
 
-#: cmd_deploy.go:18
+#: cmd_deploy.go:17
 msgid "deploy-cmd-usage"
 msgstr "aktualisiert das Produktions-System"
 
-#: cmd_deploy.go:19
+#: cmd_deploy.go:18
 msgid "deploy-cmd-describe"
 msgstr ""
 "Der Befehl 'deploy' macht etwas.\n"

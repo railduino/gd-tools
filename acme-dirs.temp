@@ -1,0 +1,5 @@
+mkdir -p /var/www/letsencrypt/.well-known/acme-challenge
+chown www-data:www-data /var/www/letsencrypt -R
+
+certbot certonly --webroot -w /var/www/letsencrypt -d system.example.com
+
