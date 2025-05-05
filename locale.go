@@ -9,7 +9,7 @@ import (
 	"github.com/leonelquinteros/gotext"
 )
 
-//go:embed locales
+//go:embed locales/**
 var localeFS embed.FS
 
 var (
