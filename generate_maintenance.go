@@ -9,10 +9,10 @@ import (
 )
 
 func init() {
-	RegisterProjectKind(commandGenerateMaintenance)
+	RegisterProjectKind(generateMaintenance)
 }
 
-var commandGenerateMaintenance = &cli.Command{
+var generateMaintenance = &cli.Command{
 	Name:        "maintenance",
 	Usage:       T("install-maintenance-usage"),
 	Description: T("install-maintenance-describe"),
@@ -21,26 +21,18 @@ var commandGenerateMaintenance = &cli.Command{
 }
 
 func runGenerateMaintenance(c *cli.Context) error {
-	args := c.Args().Slice()
-	if len(args) < 1 {
-		return fmt.Errorf(T("generate-err-missing-prefix"))
+	systemConfig, err := ReadSystemConfig(true)
+	if err != nil {
+		return err
 	}
 
-	project := Project{
-		Prefix: args[0],
-		Kind:   "maintenance",
-		Name:   "",
-	}
-	if err := project.CheckConflict(true); err != nil {
+	project, err := GenerateCreateProject(c, "maintenance", true)
+	if err != nil {
 		return err
 	}
 
 	fmt.Println(T("generate-create-dir"))
-	projectPath, err := project.GetPath()
-	if err != nil {
-		return err
-	}
-	dataPath := filepath.Join(projectPath, "data")
+	dataPath := filepath.Join(project.GetName(), "data")
 	if err := os.MkdirAll(dataPath, 0755); err != nil {
 		return err
 	}
@@ -56,27 +48,26 @@ func runGenerateMaintenance(c *cli.Context) error {
 	}
 
 	fmt.Println(T("generate-create-index"))
-	indexPath := filepath.Join("maintenance", "index.html")
-	indexData, err := TemplateParse(indexPath, struct{}{})
+	indexTmplPath := filepath.Join("maintenance", "index.html")
+	indexData, err := TemplateParse(indexTmplPath, struct{}{})
 	if err != nil {
 		return err
 	}
-	htmlPath := filepath.Join(volumesPath, "index.html")
+	htmlPath := filepath.Join(dataPath, "index.html")
 	if err := os.WriteFile(htmlPath, indexData, 0644); err != nil {
 		return err
 	}
 
 	fmt.Println(T("generate-create-compose"))
-	dataDir, _ := project.GetDataPath("prod")
-	logsDir, _ := project.GetLogsPath("prod")
-
 	composeData := GenerateData{
-		DataDir:     dataDir,
-		LogsDir:     logsDir,
-		ServicePort: project.GetNumericPrefix(8000),
+		DataDir:     filepath.Join(SystemDataRoot, project.GetName()),
+		LogsDir:     filepath.Join(SystemLogsRoot, project.GetName()),
+		ServicePort: project.PortStr,
+		ToolsUID:    systemConfig.ToolsUID,
+		DockerGID:   systemConfig.DockerGID,
 	}
-	composePath := filepath.Join("maintenance", "compose.yaml")
-	project.Compose, err = TemplateParse(composePath, composeData)
+	composeTmplPath := filepath.Join("maintenance", "compose.yaml")
+	project.Compose, err = TemplateParse(composeTmplPath, composeData)
 	if err != nil {
 		return err
 	}

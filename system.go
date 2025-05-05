@@ -8,8 +8,11 @@ import (
 )
 
 const (
-	SystemConfigName = "gd-tools-config.json"
+	SystemConfigName = "gd-tools-system.json"
 	SystemIDsName    = "gd-tools-ids.json"
+	SystemVarMount   = "/var/gd-tools"
+	SystemDataRoot   = SystemVarMount + "/data"
+	SystemLogsRoot   = SystemVarMount + "/logs"
 )
 
 type Mount struct {
@@ -19,9 +22,9 @@ type Mount struct {
 }
 
 type SystemIDs struct {
-	ToolsUID  int `json:"tools_uid"`
-	ToolsGID  int `json:"tools_gid"`
-	DockerGID int `json:"docker_gid"`
+	ToolsUID  string `json:"tools_uid"`
+	ToolsGID  string `json:"tools_gid"`
+	DockerGID string `json:"docker_gid"`
 }
 
 type SystemConfig struct {
@@ -35,9 +38,7 @@ type SystemConfig struct {
 	Mounts     []Mount  `json:"mounts"`      // Mounted filesystem (can grow)
 
 	// container uid/gid - fetch after deployment
-	ToolsUID  int `json:"tools_uid"`
-	ToolsGID  int `json:"tools_gid"`
-	DockerGID int `json:"docker_gid"`
+	SystemIDs
 
 	// runtime data, like current path or flags
 	CurrentPath string `json:"-"`
@@ -46,7 +47,7 @@ type SystemConfig struct {
 	Upgrade     bool   `json:"-"`
 }
 
-func ReadSystemConfig() (*SystemConfig, error) {
+func ReadSystemConfig(needIDs bool) (*SystemConfig, error) {
 	currentPath, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -76,13 +77,18 @@ func ReadSystemConfig() (*SystemConfig, error) {
 		if content, err := os.ReadFile(uidPath); err == nil {
 			var uidData SystemIDs
 			if err := json.Unmarshal(content, &uidData); err == nil {
-				systemConfig.ToolsUID = uidData.ToolsUID
-				systemConfig.ToolsGID = uidData.ToolsGID
-				systemConfig.DockerGID = uidData.DockerGID
+				systemConfig.SystemIDs = uidData
 			}
 		}
 	}
 	systemConfig.CurrentPath = currentPath
+
+	if needIDs {
+		if systemConfig.ToolsUID == "" || systemConfig.ToolsUID == "0" {
+			msg := T("system-err-missing-ids")
+			return nil, fmt.Errorf(msg)
+		}
+	}
 
 	return &systemConfig, nil
 }

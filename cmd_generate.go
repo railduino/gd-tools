@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
-	"strings"
+	"strconv"
 
 	"github.com/urfave/cli/v2"
 )
@@ -14,9 +11,9 @@ import (
 type GenerateData struct {
 	DataDir     string
 	LogsDir     string
-	ServicePort int
-	ToolsUID    int
-	DockerGID   int
+	ServicePort string
+	ToolsUID    string
+	DockerGID   string
 }
 
 // Registered project kinds (eg. wordpress, nextcloud, mail_host)
@@ -65,22 +62,49 @@ func runGenerateDispatcher(c *cli.Context) error {
 	return nil
 }
 
-func GenerateGetIDs(envPath string) error {
-	data, err := os.ReadFile(filepath.Join(LetsEncryptDir, "uids.json"))
+func GenerateCreateProject(c *cli.Context, kind string, unique bool) (*Project, error) {
+	args := c.Args().Slice()
+	if len(args) < 1 {
+		msg := T("generate-err-prefix-missing")
+		return nil, fmt.Errorf(msg)
+	}
+	prefixStr := args[0]
+
+	number, err := GenerateParsePrefix(prefixStr)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	var uids map[string]string
-	if err := json.Unmarshal(data, &uids); err != nil {
-		return fmt.Errorf("uids.json ungültig: %w", err)
+	project := Project{
+		Prefix:  fmt.Sprintf("%02d", number),
+		Number:  number,
+		PortStr: fmt.Sprintf("%d", number+8000),
+		Kind:    kind,
 	}
 
-	lines := []string{
-		"GDTOOLS_UID=" + uids["gd-tools.uid"],
-		"GDTOOLS_GID=" + uids["gd-tools.gid"],
-		"DOCKER_GID=" + uids["docker.gid"],
+	if !unique {
+		if len(args) < 2 {
+			return nil, fmt.Errorf(T("generate-err-name-missing"))
+		}
+		project.Name = args[1]
 	}
 
-	return os.WriteFile(envPath, []byte(strings.Join(lines, "\n")+"\n"), 0644)
+	if err := project.CheckConflict(unique); err != nil {
+		return nil, err
+	}
+
+	return &project, nil
+}
+
+func GenerateParsePrefix(s string) (int, error) {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, fmt.Errorf(T("generate-err-prefix-numeric"))
+	}
+
+	if n < 0 || n > 99 {
+		return 0, fmt.Errorf(T("generate-err-prefix-numeric"))
+	}
+
+	return n, nil
 }

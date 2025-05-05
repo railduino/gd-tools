@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 06:28+0200\n"
+"POT-Creation-Date: 2025-05-05 11:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,20 +61,32 @@ msgstr ""
 msgid "enable-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:34
+#: cmd_generate.go:31
 msgid "generate-flag-depends"
 msgstr ""
 
-#: cmd_generate.go:48
+#: cmd_generate.go:45
 msgid "generate-cmd-usage"
 msgstr ""
 
-#: cmd_generate.go:49
+#: cmd_generate.go:46
 msgid "generate-cmd-describe"
 msgstr ""
 
-#: cmd_generate.go:56
+#: cmd_generate.go:53
 msgid "generate-cmd-list-kinds"
+msgstr ""
+
+#: cmd_generate.go:68
+msgid "generate-err-prefix-missing"
+msgstr ""
+
+#: cmd_generate.go:87
+msgid "generate-err-name-missing"
+msgstr ""
+
+#: cmd_generate.go:102 cmd_generate.go:106
+msgid "generate-err-prefix-numeric"
 msgstr ""
 
 #: cmd_git.go:16
@@ -177,11 +189,11 @@ msgstr ""
 msgid "setup-err-host-exist"
 msgstr ""
 
-#: cmd_setup.go:99
+#: cmd_setup.go:95
 msgid "setup-step-mkdir"
 msgstr ""
 
-#: cmd_setup.go:107
+#: cmd_setup.go:103
 msgid "setup-step-system"
 msgstr ""
 
@@ -233,7 +245,7 @@ msgstr ""
 msgid "system-swapfile-fstab"
 msgstr ""
 
-#: cmd_system.go:443
+#: cmd_system.go:441
 msgid "system-list_ids"
 msgstr ""
 
@@ -257,60 +269,20 @@ msgstr ""
 msgid "install-maintenance-describe"
 msgstr ""
 
-#: generate_maintenance.go:26
-msgid "generate-err-missing-prefix"
-msgstr ""
-
-#: generate_maintenance.go:38
+#: generate_maintenance.go:34 generate_wordpress.go:62
 msgid "generate-create-dir"
 msgstr ""
 
-#: generate_maintenance.go:48
+#: generate_maintenance.go:40
 msgid "generate-create-config"
 msgstr ""
 
-#: generate_maintenance.go:58
+#: generate_maintenance.go:50
 msgid "generate-create-index"
 msgstr ""
 
-#: generate_maintenance.go:69
+#: generate_maintenance.go:61 generate_wordpress.go:90
 msgid "generate-create-compose"
-msgstr ""
-
-#: generate_traefik.go:25
-msgid "traefik-flag-status-host"
-msgstr ""
-
-#: generate_traefik.go:30
-msgid "traefik-flag-status-user"
-msgstr ""
-
-#: generate_traefik.go:35
-msgid "traefik-flag-status-pswd"
-msgstr ""
-
-#: generate_traefik.go:44
-msgid "install-traefik-usage"
-msgstr ""
-
-#: generate_traefik.go:45
-msgid "install-traefik-describe"
-msgstr ""
-
-#: generate_traefik.go:58 generate_wordpress.go:42
-msgid "install-err-missing-prefix"
-msgstr ""
-
-#: generate_traefik.go:77 generate_wordpress.go:59
-msgid "gen-create-dir"
-msgstr ""
-
-#: generate_traefik.go:82
-msgid "gen-create-config"
-msgstr ""
-
-#: generate_traefik.go:99 generate_wordpress.go:92
-msgid "gen-create-compose"
 msgstr ""
 
 #: generate_wordpress.go:21
@@ -318,15 +290,19 @@ msgid "wordpress-flag-title"
 msgstr ""
 
 #: generate_wordpress.go:30
-msgid "install-wordpress-usage"
+msgid "generate-wordpress-usage"
 msgstr ""
 
 #: generate_wordpress.go:31
-msgid "install-wordpress-describe"
+msgid "generate-wordpress-describe"
 msgstr ""
 
-#: generate_wordpress.go:102
-msgid "gen-create-env"
+#: generate_wordpress.go:42
+msgid "generate-err-missing-prefix"
+msgstr ""
+
+#: generate_wordpress.go:45
+msgid "generate-err-missing-name"
 msgstr ""
 
 #: main.go:27
@@ -345,16 +321,20 @@ msgstr ""
 msgid "app-action-commands"
 msgstr ""
 
-#: project.go:170
+#: project.go:127
 msgid "install-err-project-exist"
 msgstr ""
 
-#: project.go:175
+#: project.go:132
 msgid "install-err-unique-exist"
 msgstr ""
 
-#: system.go:63
+#: system.go:64
 msgid "system-err-missing-file"
+msgstr ""
+
+#: system.go:88
+msgid "system-err-missing-ids"
 msgstr ""
 
 #: utils_secret.go:26

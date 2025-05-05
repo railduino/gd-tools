@@ -65,22 +65,18 @@ func runSetup(c *cli.Context) error {
 	// check for filesystems to be mounted
 	// N.B. mounts given here are mutually exclusive
 	var mounts []Mount
-	mountpoint, err := GetDataRoot("prod", "")
-	if err != nil {
-		return err
-	}
 	if volume := c.String("hetzner"); volume != "" {
 		mount := Mount{
 			Provider:   "Hetzner",
 			Identifier: volume,
-			Mountpoint: mountpoint,
+			Mountpoint: SystemVarMount,
 		}
 		mounts = append(mounts, mount)
 	} else if device := c.String("raid"); device != "" {
 		mount := Mount{
 			Provider:   "RAID",
 			Identifier: device,
-			Mountpoint: mountpoint,
+			Mountpoint: SystemVarMount,
 		}
 		mounts = append(mounts, mount)
 	}

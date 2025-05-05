@@ -3,12 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 )
 
 const (
@@ -22,11 +20,18 @@ type Config struct {
 	Networks  []string `json:"networks"`
 }
 
+type ProdDirs struct {
+	DataDir string
+	LogsDir string
+}
+
 type Project struct {
 	Prefix  string
+	Number  int
+	PortStr string
 	Kind    string
 	Name    string
-	Config  Config
+	Config
 	Compose []byte
 }
 
@@ -40,24 +45,8 @@ func GetProjectRoot() (string, error) {
 		return localDir, nil
 	}
 
+	// TODO prepend $HOMEDIR
 	return "projects", nil
-}
-
-func GetDataRoot(env, subdir string) (string, error) {
-	if env == "dev" {
-		dir, err := os.Getwd()
-		if err != nil {
-			return "", err
-		}
-		return filepath.Join(dir, subdir), nil
-	}
-
-	baseDir := ProdDataRoot
-	if subdir == "" {
-		return baseDir, nil
-	}
-
-	return filepath.Join(baseDir, subdir), nil
 }
 
 func ProjectLoadAll() ([]*Project, error) {
@@ -109,16 +98,6 @@ func SortProjectsDescending(projects []*Project) {
 	})
 }
 
-func (p *Project) GetNumericPrefix(offset int) int {
-	var val int
-	if _, err := fmt.Sscanf(p.Prefix, "%d", &val); err == nil {
-		return val + offset
-	}
-
-	rand.Seed(time.Now().UnixNano())
-	return 8100 + rand.Intn(100)
-}
-
 func (p *Project) GetName() string {
 	parts := []string{p.Prefix, p.Kind}
 	if p.Name != "" {
@@ -130,28 +109,6 @@ func (p *Project) GetName() string {
 
 func (p *Project) GetPath() (string, error) {
 	rootDir, err := GetProjectRoot()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(rootDir, p.GetName()), nil
-}
-
-func (p *Project) GetDataPath(env string) (string, error) {
-	if env == "dev" {
-		return filepath.Join("volumes", p.GetName()), nil
-	}
-
-	rootDir, err := GetDataRoot(env, "volumes")
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(rootDir, p.GetName()), nil
-}
-
-func (p *Project) GetLogsPath(env string) (string, error) {
-	rootDir, err := GetDataRoot(env, "logs")
 	if err != nil {
 		return "", err
 	}

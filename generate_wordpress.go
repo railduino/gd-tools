@@ -12,26 +12,26 @@ type WordPressTemplateData struct {
 	Title     string `json:"title"`
 	AdminUser string `json:"admin_user"`
 	AdminMail string `json:"admin_mail"`
-	DataDir   string `json:"-"`
-	LogsDir   string `json:"-"`
+
+	SystemIDs
 }
 
-var wpFlagTitle = &cli.StringFlag{
+var wordPressFlagTitle = cli.StringFlag{
 	Name:  "title",
 	Usage: T("wordpress-flag-title"),
 }
 
 func init() {
-	RegisterProjectKind(commandGenerateWordPress)
+	RegisterProjectKind(generateWordPress)
 }
 
-var commandGenerateWordPress = &cli.Command{
+var generateWordPress = &cli.Command{
 	Name:        "wordpress",
-	Usage:       T("install-wordpress-usage"),
-	Description: T("install-wordpress-describe"),
+	Usage:       T("generate-wordpress-usage"),
+	Description: T("generate-wordpress-describe"),
 	Flags: []cli.Flag{
 		&generateDependsFlag,
-		wpFlagTitle,
+		&wordPressFlagTitle,
 	},
 	Action: runGenerateWordPress,
 }
@@ -39,10 +39,13 @@ var commandGenerateWordPress = &cli.Command{
 func runGenerateWordPress(c *cli.Context) error {
 	args := c.Args().Slice()
 	if len(args) < 1 {
-		return fmt.Errorf(T("install-err-missing-prefix"))
+		return fmt.Errorf(T("generate-err-missing-prefix"))
+	}
+	if len(args) < 2 {
+		return fmt.Errorf(T("generate-err-missing-name"))
 	}
 
-	systemConfig, err := FileSystemRead()
+	systemConfig, err := ReadSystemConfig(true)
 	if err != nil {
 		return err
 	}
@@ -50,13 +53,13 @@ func runGenerateWordPress(c *cli.Context) error {
 	project := Project{
 		Prefix: args[0],
 		Kind:   "wordpress",
-		Name:   "",
+		Name:   args[1],
 	}
 	if err := project.CheckConflict(true); err != nil {
 		return err
 	}
 
-	fmt.Println(T("gen-create-dir"))
+	fmt.Println(T("generate-create-dir"))
 	if err := os.MkdirAll(project.GetName(), 0755); err != nil {
 		return err
 	}
@@ -78,18 +81,13 @@ func runGenerateWordPress(c *cli.Context) error {
 		title = fmt.Sprintf("%s @ %s", project.GetName(), systemConfig.DomainName)
 	}
 
-	dataDir, _ := project.GetDataPath("prod")
-	logsDir, _ := project.GetLogsPath("prod")
-
 	composeData := WordPressTemplateData{
 		Title:     title,
 		AdminUser: fmt.Sprintf("admin@%s", systemConfig.DomainName),
 		AdminMail: systemConfig.SysAdmin,
-		DataDir:   dataDir,
-		LogsDir:   logsDir,
 	}
 
-	fmt.Println(T("gen-create-compose"))
+	fmt.Println(T("generate-create-compose"))
 	composePath := filepath.Join("wordpress", "compose.yaml")
 	project.Compose, err = TemplateParse(composePath, composeData)
 	if err != nil {
@@ -99,6 +97,5 @@ func runGenerateWordPress(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Println(T("gen-create-env"))
-	return GenerateEnvFromUIDs(".env")
+	return nil
 }

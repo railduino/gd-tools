@@ -404,13 +404,11 @@ func (sc *SystemConfig) AddToolsUser() error {
 		}
 	}
 
-	dataRoot, _ := GetDataRoot("prod", "volumes")
-	logsRoot, _ := GetDataRoot("prod", "logs")
 	sshCmds := []string{
 		"install -o gd-tools -g gd-tools -m 700 -d /home/gd-tools/.ssh",
 		"install -o gd-tools -g gd-tools -m 600 /root/.ssh/authorized_keys /home/gd-tools/.ssh",
-		"install -o gd-tools -g gd-tools -m 755 -d " + dataRoot,
-		"install -o gd-tools -g gd-tools -m 755 -d " + logsRoot,
+		"install -o gd-tools -g gd-tools -m 755 -d " + SystemDataRoot,
+		"install -o gd-tools -g gd-tools -m 755 -d " + SystemLogsRoot,
 	}
 	if err := ShellCmds(sc.DryRun, sshCmds); err != nil {
 		return err
@@ -435,25 +433,25 @@ func (sc *SystemConfig) CollectData() error {
 	if err != nil {
 		return err
 	}
-	dckUser, err := user.Lookup("docker")
+	dckGroup, err := user.LookupGroup("docker")
 	if err != nil {
 		return err
 	}
 	if sc.DryRun {
-		msg := Tf("system-list_ids", gdtUser.Uid, gdtUser.Gid, dckUser.Gid)
+		msg := Tf("system-list_ids", gdtUser.Uid, gdtUser.Gid, dckGroup.Gid)
 		fmt.Println("[dry]", msg)
 	} else {
 		uidData := SystemIDs{
 			ToolsUID:  gdtUser.Uid,
 			ToolsGID:  gdtUser.Gid,
-			DockerGID: dckUser.Gid,
+			DockerGID: dckGroup.Gid,
 		}
-		uidPath := filepath.Join("/etc/letsencrypt", SystemIDsName)
 		content, err := json.MarshalIndent(uidData, "", "  ")
 		if err != nil {
 			return err
 		}
-		if err := os.WriteFile(uidFile, content, 0644); err != nil {
+		uidPath := filepath.Join("/etc/letsencrypt", SystemIDsName)
+		if err := os.WriteFile(uidPath, content, 0644); err != nil {
 			return err
 		}
 	}
