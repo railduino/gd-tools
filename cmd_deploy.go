@@ -1,12 +1,10 @@
 package main
 
 import (
-	_ "bytes"
 	"fmt"
 	"os"
-	_ "os/exec"
 	"path/filepath"
-	_ "strings"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -56,12 +54,34 @@ func runDeploy(c *cli.Context) error {
 		return err
 	}
 
-	toolUser := fmt.Sprintf("gd-tools@%s", hostName)
-	rsyncUser := "rsync -avz --chown=gd-tools:gd-tools"
-	rsyncExcl := "--exclude=letsencrypt --exclude=secrets.json --exclude=" + SystemConfigName
-	projectCopy := fmt.Sprintf("%s %s %s/ %s:projects", rsyncUser, rsyncExcl, localPath, toolUser)
+	toolsUser := fmt.Sprintf("gd-tools@%s", hostName)
+	rsyncFlagList := []string{
+		"--chown=gd-tools:gd-tools",
+		"--exclude=letsencrypt",
+		"--exclude=secrets.json",
+		"--exclude=data",
+		"--exclude=" + SystemConfigName,
+	}
+	rsyncFlags := strings.Join(rsyncFlagList, " ")
+	projectCopy := fmt.Sprintf("rsync -avz %s %s/ %s:projects", rsyncFlags, localPath, toolsUser)
 	if err := ShellCmd(dryRun, projectCopy); err != nil {
 		return err
+	}
+
+	projects, err := ProjectLoadAll()
+	if err != nil {
+		return err
+	}
+	for _, p := range projects {
+		localDataPath := filepath.Join(p.GetName(), "data")
+		if stat, err := os.Stat(localDataPath); err == nil && stat.IsDir() {
+			remoteDataPath := fmt.Sprintf("%s:/var/gd-tools/data/%s", toolsUser, p.GetName())
+			rsyncCmd := fmt.Sprintf("rsync -avz --update --chown=gd-tools:gd-tools %s/ %s",
+				localDataPath, remoteDataPath)
+			if err := ShellCmd(dryRun, rsyncCmd); err != nil {
+				return err
+			}
+		}
 	}
 
 	if _, err := os.Stat("letsencrypt"); err == nil {

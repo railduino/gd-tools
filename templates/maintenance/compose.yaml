@@ -2,7 +2,7 @@ services:
   maintenance:
     image: nginx:alpine
     container_name: ${COMPOSE_PROJECT_NAME}
-    user: "${GDTOOLS_UID}:${DOCKER_GID}"
+    user: "{{ .ToolsUID }}:{{ .DockerGID }}"
     restart: always
     volumes:
       - "{{ .DataDir }}:/usr/share/nginx/html:ro"
