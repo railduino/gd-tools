@@ -55,7 +55,7 @@ func runSystem(c *cli.Context) error {
 	if CheckEnv("dev") {
 		hostName := filepath.Base(localPath)
 		rootUser := fmt.Sprintf("root@%s", hostName)
-		deployFetchLetsEncrypt(dryRun, rootUser)
+		DeployFetchLetsEncrypt(dryRun, rootUser)
 
 		return ShellEditor(SystemConfigName)
 	}
@@ -178,7 +178,9 @@ func (sc *SystemConfig) AddSwapSpace() error {
 		return nil
 	}
 
-	return FileAddLine("/etc/fstab", `^/swap\.img\s+none\s+swap\s+sw\s+0\s+0$`, "/swap.img none swap sw 0 0")
+	return FileAddLine("/etc/fstab",
+		`^/swap\.img\s+none\s+swap\s+sw\s+0\s+0$`,
+		"/swap.img none swap sw 0 0")
 }
 
 func (sc *SystemConfig) AddDockerRepo() error {

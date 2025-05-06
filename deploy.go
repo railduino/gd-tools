@@ -95,10 +95,17 @@ func DeployLocal(dryRun bool, localPath, destPath, receiver, chmod string) error
 }
 
 // Utility: holt /etc/letsencrypt vom Zielsystem lokal
-func deployFetchLetsEncrypt(dryRun bool, rootUser string) {
+func DeployFetchLetsEncrypt(dryRun bool, rootUser string) {
 	rsyncCmd := fmt.Sprintf("rsync -avz %s:/etc/letsencrypt/ letsencrypt", rootUser)
 
 	if err := ShellCmd(dryRun, rsyncCmd); err != nil {
 		fmt.Println("Ignore error:", err)
+	}
+	if dryRun {
+		return
+	}
+
+	if systemConfig, err := ReadSystemConfig(false); err == nil {
+		systemConfig.Save()
 	}
 }

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-05 22:21+0200\n"
+"POT-Creation-Date: 2025-05-06 06:14+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -276,9 +276,9 @@ msgstr "das Swap-File %s existiert bereits"
 msgid "system-swapfile-fstab"
 msgstr "das Swap-File %s wird in /etc/fstab eingetragen"
 
-#: cmd_system.go:441
+#: cmd_system.go:443
 msgid "system-list_ids"
-msgstr "das Swap-File %s existiert bereits"
+msgstr "die IDs sind %s:%s (gd-tools) bzw. :%s (docker)"
 
 #: cmd_update.go:17
 msgid "update-cmd-usage"

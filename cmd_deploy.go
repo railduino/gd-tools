@@ -99,7 +99,7 @@ func runDeploy(c *cli.Context) error {
 	}
 
 	// Fetch certs from target before overwrite
-	deployFetchLetsEncrypt(dryRun, rootUser)
+	DeployFetchLetsEncrypt(dryRun, rootUser)
 
 	// Push certs if available locally
 	if stat, err := os.Stat("letsencrypt"); err == nil && stat.IsDir() {
