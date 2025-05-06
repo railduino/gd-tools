@@ -30,7 +30,7 @@ var commandDelete = &cli.Command{
 }
 
 func runDeleteProject(c *cli.Context) error {
-	if err := FileDeployCheck(); err != nil {
+	if _, err := ReadSystemConfig(true); err != nil {
 		return err
 	}
 

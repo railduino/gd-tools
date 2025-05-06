@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 15:41+0200\n"
+"POT-Creation-Date: 2025-05-06 21:25+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -155,6 +155,18 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
+#: cmd_serve.go:24
+msgid "serve-cmd-usage"
+msgstr ""
+
+#: cmd_serve.go:25
+msgid "serve-cmd-describe"
+msgstr ""
+
+#: cmd_serve.go:32
+msgid "serve-avoid-root"
+msgstr ""
+
 #: cmd_setup.go:19
 msgid "setup-flag-hetzner"
 msgstr ""
@@ -245,10 +257,6 @@ msgstr ""
 
 #: cmd_update.go:18
 msgid "update-cmd-describe"
-msgstr ""
-
-#: file_deploy.go:25 file_deploy.go:42
-msgid "file-err-missing-deploy"
 msgstr ""
 
 #: generate_binary.go:17

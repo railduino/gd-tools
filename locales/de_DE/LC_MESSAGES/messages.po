@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 15:41+0200\n"
+"POT-Creation-Date: 2025-05-06 21:25+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,6 +187,21 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
+#: cmd_serve.go:24
+msgid "serve-cmd-usage"
+msgstr "erzeugt einen geheimen Schlüssel"
+
+#: cmd_serve.go:25
+msgid "serve-cmd-describe"
+msgstr ""
+"Der Befehl 'secret' macht etwas.\n"
+"\n"
+"TODO Genaueres steht dann hier."
+
+#: cmd_serve.go:32
+msgid "serve-avoid-root"
+msgstr ""
+
 #: cmd_setup.go:19
 msgid "setup-flag-hetzner"
 msgstr ""
@@ -291,10 +306,6 @@ msgstr ""
 "\n"
 "Vor dem Löschen sollte das Projekt auf dem Server 'down' sein.\n"
 "Sonst wird nach einem 'deploy' die 'compose.yaml' nicht mehr gefunden."
-
-#: file_deploy.go:25 file_deploy.go:42
-msgid "file-err-missing-deploy"
-msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
 #: generate_binary.go:17
 msgid "install-binary-usage"
@@ -440,6 +451,9 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "file-err-missing-deploy"
+#~ msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
 #~ msgid "generate-err-prefix-range"
 #~ msgstr "das Präfix muss eine Zahl von 0 bis 99 sein"
