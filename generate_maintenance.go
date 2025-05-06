@@ -26,7 +26,7 @@ func runGenerateMaintenance(c *cli.Context) error {
 		return err
 	}
 
-	project, err := GenerateCreateProject(c, "maintenance", true)
+	project, err := GenerateBuildProject(c, "maintenance", true)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 06:14+0200\n"
+"POT-Creation-Date: 2025-05-06 15:41+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -296,6 +296,29 @@ msgstr ""
 msgid "file-err-missing-deploy"
 msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"
 
+#: generate_binary.go:17
+msgid "install-binary-usage"
+msgstr "installiert einen Traefik Reverse Proxy Container"
+
+#: generate_binary.go:18
+msgid "install-binary-describe"
+msgstr ""
+"Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+"\n"
+"TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+
+#: generate_binary.go:34
+msgid "generate-create-dirs"
+msgstr "legt das Projekt-Verzeichnis an"
+
+#: generate_binary.go:48 generate_maintenance.go:40
+msgid "generate-create-config"
+msgstr "legt die Datei 'config.json' an"
+
+#: generate_binary.go:58 generate_maintenance.go:61 generate_wordpress.go:90
+msgid "generate-create-compose"
+msgstr "legt die Datei 'compose.yaml' an"
+
 #: generate_maintenance.go:17
 msgid "install-maintenance-usage"
 msgstr "installiert einen Traefik Reverse Proxy Container"
@@ -311,17 +334,9 @@ msgstr ""
 msgid "generate-create-dir"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_maintenance.go:40
-msgid "generate-create-config"
-msgstr "legt die Datei 'config.json' an"
-
 #: generate_maintenance.go:50
 msgid "generate-create-index"
 msgstr "legt das Projekt-Verzeichnis an"
-
-#: generate_maintenance.go:61 generate_wordpress.go:90
-msgid "generate-create-compose"
-msgstr "legt die Datei 'compose.yaml' an"
 
 #: generate_wordpress.go:21
 msgid "wordpress-flag-title"

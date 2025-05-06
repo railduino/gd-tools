@@ -62,7 +62,7 @@ func runGenerateDispatcher(c *cli.Context) error {
 	return nil
 }
 
-func GenerateCreateProject(c *cli.Context, kind string, unique bool) (*Project, error) {
+func GenerateBuildProject(c *cli.Context, kind string, unique bool) (*Project, error) {
 	args := c.Args().Slice()
 	if len(args) < 1 {
 		msg := T("generate-err-prefix-missing")
