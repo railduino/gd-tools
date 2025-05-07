@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+type contextKey string
+
 type CommandWrapper struct {
 	Cmd    *cli.Command
 	Policy string // "prod", "dev", "any"

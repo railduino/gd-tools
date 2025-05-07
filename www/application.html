@@ -1,0 +1,222 @@
+<!doctype html>
+<html class="theme-{{.Theme}}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>{{.Title}}MeetingPilot</title>
+  <link rel="icon" href="/static/images/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/images/app_icon_180x180.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/static/images/app_icon_120x120.png">
+  <link rel="apple-touch-icon" sizes="87x87" href="/static/images/app_icon_87x87.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/static/images/app_icon_167x167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/static/images/app_icon_152x152.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/static/images/app_icon_76x76.png">
+  <link rel="apple-touch-icon" href="/static/images/app_icon_180x180.png">
+  <link rel="stylesheet" href="/static/css/bulma.min.css">
+  <link rel="stylesheet" href="/static/css/bulma-tables.min.css">
+  <link rel="stylesheet" href="/static/css/bulma-switch.min.css">
+  <link rel="stylesheet" href="/static/css/dragula.min.css">
+  <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/static/css/iziToast.css">
+  <link rel="stylesheet" href="/static/css/slimselect.min.css">
+  <link rel="stylesheet" href="/static/css/toastui-calendar.min.css">
+  <link rel="stylesheet" href="/static/css/trix.min.css">
+  <link rel="stylesheet" href="/static/css/meetingpilot.css">
+  <script src="/static/js/iziToast.js"></script>
+  <script src="/static/js/dragula.min.js"></script>
+  <script src="/static/js/slimselect.umd.min.js"></script>
+  <script src="/static/js/trix.umd.min.js"></script>
+  <script src="/static/js/meetingpilot.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a href="https://www.meetingpilot.info/" id="navbar-home" target="_blank" class="navbar-item brand-text">
+          <img src="/static/images/app_icon_160x160.png" alt="Logo">
+          <span>MeetingPilot</span>
+        </a>
+        <a role="button" id="navBurger" class="navbar-burger">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div id="navMenu" class="navbar-menu">
+        {{if ne .Current nil}}
+        <div id="navbar-left" class="navbar-start">
+          <a href="/" class="navbar-item">Dashboard</a>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">{{T "MeetingPL"}}</a>
+            <div class="navbar-dropdown">
+              <a href="/meetings/new" class="navbar-item">{{T "NewMeeting"}}</a>
+              <hr class="navbar-divider">
+              <a href="/meetings" class="navbar-item">Tabelle</a>
+              <a href="/calendar" class="navbar-item">Kalender</a>
+              <a href="/protocols" class="navbar-item">Protokolle</a>
+              <hr class="navbar-divider">
+              {{range .Categories}}
+              <a href="/category/{{.ID}}/items" class="navbar-item">{{.Plural}}</a>
+              {{end}}
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">Stammdaten</a>
+            <div class="navbar-dropdown">
+              <a href="/users" class="navbar-item">{{T "UserPL"}}</a>
+              <a href="/sites" class="navbar-item">{{T "SitePL"}}</a>
+              <a href="/resources" class="navbar-item">Ressourcen</a>
+              <a href="/categories" class="navbar-item">{{T "CategoryPL"}}</a>
+              <a href="/config" class="navbar-item">Organisation</a>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">Hilfe</a>
+            <div class="navbar-dropdown">
+              <a href="/help/manual" class="navbar-item">Handbuch</a>
+              <a href="/help/videos" class="navbar-item">Lern-Videos</a>
+              <a href="/help/feedback" class="navbar-item">Feedback</a>
+              {{if ne .HelpText ""}}
+              <hr class="navbar-divider">
+              <a href="/help/{{.HelpLink}}" class="navbar-item">{{.HelpText}}</a>
+              {{end}}
+            </div>
+          </div>
+        </div>
+        {{end}}
+        <div id="navbar-right" class="navbar-end">
+          {{if ne .Current nil}}
+          <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">{{.Current.Name}}</a>
+            <div class="navbar-dropdown">
+              <a href="/profile" class="navbar-item">Profil</a>
+              <hr class="navbar-divider">
+              <a href="/logout" class="navbar-item">{{T "Logout"}}</a>
+            </div>
+          </div>
+          {{else}}
+          <a href="https://www.railduino.de/impressum/" target="_blank" class="navbar-item">Impressum</a>
+          <a href="https://www.railduino.de/datenschutzerklaerung/" target="_blank" class="navbar-item">Datenschutz</a>
+          <a href="/login" class="navbar-item">{{T "Login"}}</a>
+          {{end}}
+        </div>
+      </div>
+    </nav>
+
+{{.Content}}
+  </div>
+
+  <script>
+    function getCookie(name) {
+      let cookies = document.cookie.split("; ");
+      for (let cookie of cookies) {
+        let [key, value] = cookie.split("=");
+        if (key === name) {
+          return decodeURIComponent(value);
+        }
+      }
+      return "no-jwt-token";
+    }
+
+    const flashSuccess = "{{.Success}}";
+    if (flashSuccess != "") {
+      iziToast.success({
+        timeout: 3000,
+        message: flashSuccess,
+        position: 'bottomRight'
+      });
+    }
+
+    const flashWarning = "{{.Warning}}";
+    if (flashWarning != "") {
+      iziToast.error({
+        timeout: 3000,
+        message: flashWarning,
+        position: 'bottomRight'
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("navBurger").addEventListener("click", function() {
+        document.getElementById("navBurger").classList.toggle("is-active");
+        document.getElementById("navMenu").classList.toggle("is-active");
+      });
+
+      document.querySelectorAll(".delete-item").forEach(function(element) {
+        element.addEventListener("click", function(event) {
+          event.preventDefault();
+          const href = this.getAttribute("href");
+          if (confirm("Sind Sie sicher? Diese Aktion kann nicht rückgängig gemacht werden!")) {
+            console.log("DELETE-URL: " + href);
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = href;
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "_delete";
+            input.value = "yes";
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        });
+      });
+
+      const sortableTables = document.querySelectorAll("table.sortable");
+      sortableTables.forEach(function (table) {
+        const headers = table.querySelectorAll("th.sorting");
+        const tbody = table.querySelector("tbody");
+        headers.forEach((header, index) => {
+          header.addEventListener("click", function () {
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const isAscending = header.classList.contains("asc");
+            const direction = isAscending ? -1 : 1;
+            headers.forEach(h => {
+              h.classList.remove("asc", "desc");
+              const icon = h.querySelector(".sort-icon");
+              if (icon) icon.remove();
+            });
+            const sortedRows = rows.sort((rowA, rowB) => {
+              const cellA = rowA.children[index].textContent.trim();
+              const cellB = rowB.children[index].textContent.trim();
+              const a = isNaN(cellA) ? cellA.toLowerCase() : parseFloat(cellA);
+              const b = isNaN(cellB) ? cellB.toLowerCase() : parseFloat(cellB);
+              if (a < b) return -1 * direction;
+              if (a > b) return 1 * direction;
+              return 0;
+            });
+            sortedRows.forEach(row => tbody.appendChild(row));
+            header.classList.toggle("asc", !isAscending);
+            header.classList.toggle("desc", isAscending);
+            const icon = document.createElement("i");
+            icon.classList.add("sort-icon", "fas", isAscending ? "fa-arrow-down" : "fa-arrow-up");
+            header.appendChild(icon);
+          });
+        });
+      });
+
+      const passwordCheck = document.getElementById("password-check");
+      if (passwordCheck) {
+        passwordCheck.addEventListener("submit", function(event) {
+          event.preventDefault();
+          const password = document.getElementById("password");
+          const repeated = document.getElementById("repeated");
+          if (password.value !== repeated.value) {
+            repeated.setCustomValidity("Die Passwörter stimmen nicht überein.");
+            repeated.reportValidity();
+          } else {
+            repeated.setCustomValidity("");
+            event.target.submit();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
+

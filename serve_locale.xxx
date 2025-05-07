@@ -1,0 +1,90 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/leonelquinteros/gotext"
+	"golang.org/x/text/language"
+)
+
+const languageKey contextKey = "language"
+
+type LangCode struct {
+	Lang   string
+	Locale *gotext.Locale
+}
+
+const (
+	cookieName = "language"
+)
+
+var (
+	langCodes = []LangCode{
+		{Lang: "de_DE"},
+		{Lang: "en_US"},
+	}
+	langTags = []language.Tag{}
+)
+
+func WebT(r *http.Request, key string, args ...interface{}) string {
+	code := langCodes[0]
+	if lang, ok := r.Context().Value(languageKey).(string); ok {
+		for _, check := range langCodes {
+			if check.Lang == lang {
+				code = check
+			}
+		}
+	}
+
+	if result := code.Locale.Get(key, args...); result != key {
+		return result
+	}
+
+	return "WebMSG: " + key
+}
+
+func ServeGetLocale(r *http.Request) LangCode {
+	lang := r.URL.Query().Get("lang")
+	if lang == "" {
+		lang = r.Header.Get("Accept-Language")
+	}
+
+	prefs, _, _ := language.ParseAcceptLanguage(lang)
+	match := language.NewMatcher(langTags)
+	_, index, _ := match.Match(prefs...)
+
+	// n.b. index is 0 if no match is found
+	return langCodes[index]
+}
+
+func ServeLocaleMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.String(), "static/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		code := ServeGetLocale(r)
+		ctx := context.WithValue(r.Context(), languageKey, code.Lang)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func InitServeLocale() error {
+	for index, code := range langCodes {
+		loc := gotext.NewLocaleFSWithPath(code.Lang, wwwFS, "www/locales")
+		if loc == nil {
+			return fmt.Errorf("locale %s was not found", code.Lang)
+		}
+		loc.AddDomain("default")
+		langCodes[index].Locale = loc
+		fmt.Printf("%s -> %s\n", code.Lang, loc.Get("Hello, world!"))
+
+		langTags = append(langTags, language.Make(code.Lang))
+	}
+
+	return nil
+}

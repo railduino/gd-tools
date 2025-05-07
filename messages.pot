@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-06 21:25+0200\n"
+"POT-Creation-Date: 2025-05-07 06:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,16 +165,16 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:24
+#: cmd_serve.go:31
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:25
+#: cmd_serve.go:32
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:32
-msgid "serve-avoid-root"
+#: cmd_serve.go:39
+msgid "serve-not-as-root"
 msgstr ""
 
 #: cmd_setup.go:19
@@ -325,19 +325,19 @@ msgstr ""
 msgid "generate-err-missing-name"
 msgstr ""
 
-#: main.go:27
+#: main.go:29
 msgid "main-flag-commands"
 msgstr ""
 
-#: main.go:32
+#: main.go:34
 msgid "main-flag-dry-run"
 msgstr ""
 
-#: main.go:39
+#: main.go:41
 msgid "usage-main-app"
 msgstr ""
 
-#: main.go:59
+#: main.go:61
 msgid "app-action-commands"
 msgstr ""
 
