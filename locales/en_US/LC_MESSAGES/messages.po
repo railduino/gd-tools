@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 14:43+0200\n"
+"POT-Creation-Date: 2025-05-07 23:38+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -155,20 +155,16 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:37
+#: cmd_serve.go:17
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:38
+#: cmd_serve.go:18
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:45
+#: cmd_serve.go:25
 msgid "serve-not-as-root"
-msgstr ""
-
-#: cmd_serve.go:105
-msgid "serve-first-edit-config"
 msgstr ""
 
 #: cmd_setup.go:19
@@ -347,11 +343,11 @@ msgstr ""
 msgid "install-err-unique-exist"
 msgstr ""
 
-#: system.go:64
+#: system.go:67
 msgid "system-err-missing-file"
 msgstr ""
 
-#: system.go:88
+#: system.go:91
 msgid "system-err-missing-ids"
 msgstr ""
 

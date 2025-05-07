@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 14:43+0200\n"
+"POT-Creation-Date: 2025-05-07 23:38+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,24 +187,20 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:37
+#: cmd_serve.go:17
 msgid "serve-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_serve.go:38
+#: cmd_serve.go:18
 msgid "serve-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_serve.go:45
+#: cmd_serve.go:25
 msgid "serve-not-as-root"
 msgstr ""
-
-#: cmd_serve.go:105
-msgid "serve-first-edit-config"
-msgstr "das Swap-File %s existiert bereits"
 
 #: cmd_setup.go:19
 msgid "setup-flag-hetzner"
@@ -404,11 +400,11 @@ msgstr ""
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
 
-#: system.go:64
+#: system.go:67
 msgid "system-err-missing-file"
 msgstr "das Swap-File %s existiert bereits"
 
-#: system.go:88
+#: system.go:91
 msgid "system-err-missing-ids"
 msgstr "das Swap-File %s existiert bereits"
 
@@ -459,6 +455,9 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "serve-first-edit-config"
+#~ msgstr "das Swap-File %s existiert bereits"
 
 #~ msgid "file-err-missing-deploy"
 #~ msgstr "keine deploy.json - sind wir im richtigen Verzeichnis?"

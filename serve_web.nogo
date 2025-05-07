@@ -1,0 +1,65 @@
+package main
+
+import (
+	"bytes"
+	"context"
+	"embed"
+	"fmt"
+	"html/template"
+	"io/fs"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func ServeRender(w http.ResponseWriter, r *http.Request, name string, data interface{}) (template.HTML, error) {
+	var contentHTML bytes.Buffer
+
+	contentInput, err := wwwFS.ReadFile("www/" + name + ".html")
+	if err != nil {
+		log.Printf("ERROR: ReadFile(%s): %s", name, err.Error())
+		http.NotFound(w, r)
+		return "", err
+	}
+
+	contentTmpl, err := template.New(name).Funcs(template.FuncMap{
+		"T": func(key string, args ...interface{}) string {
+			return WebT(r, key, args...)
+		},
+	}).Parse(string(contentInput))
+	if err != nil {
+		log.Printf("ERROR: Parse(%s): %s", name, err.Error())
+		ServeError(w, r, err)
+		return "", err
+	}
+
+	if err := contentTmpl.Execute(&contentHTML, data); err != nil {
+		log.Printf("ERROR: Execute(%s): %s", name, err.Error())
+		ServeError(w, r, err)
+		return "", err
+	}
+
+	return template.HTML(contentHTML.String()), nil
+}
+
+func ServeParse(w http.ResponseWriter, r *http.Request, current *User) error {
+	if err := r.ParseForm(); err != nil {
+		log.Printf("ERROR: ParseForm: %s", err.Error())
+		ServeError(w, r, err)
+		http.Redirect(w, r, "/", http.StatusFound)
+		return err
+	}
+
+	if ok := current.CheckCSRFToken(r.FormValue("csrf_token")); !ok {
+		err := fmt.Errorf(WebT(r, "WrongToken"))
+		ServeWarning(w, r, "WrongToken")
+		http.Redirect(w, r, "/", http.StatusFound)
+		return err
+	}
+
+	return nil
+}

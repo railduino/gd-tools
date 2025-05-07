@@ -40,6 +40,9 @@ type SystemConfig struct {
 	// container uid/gid - fetch after deployment
 	SystemIDs
 
+	// webserver configuration
+	ServeConfig
+
 	// runtime data, like current path or flags
 	CurrentPath string `json:"-"`
 	DryRun      bool   `json:"-"`

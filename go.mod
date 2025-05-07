@@ -10,7 +10,6 @@ replace github.com/docker/distribution => github.com/docker/distribution v2.7.1+
 
 require (
 	github.com/docker/docker v0.0.0-00010101000000-000000000000
-	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
 	github.com/leonelquinteros/gotext v1.7.1
 	github.com/urfave/cli/v2 v2.27.6
@@ -20,8 +19,6 @@ require (
 	golang.org/x/text v0.24.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v3 v3.0.1
-	gorm.io/driver/sqlite v1.5.7
-	gorm.io/gorm v1.26.0
 )
 
 require (
@@ -31,9 +28,6 @@ require (
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/mattn/go-sqlite3 v1.14.22 // indirect
 	github.com/moby/term v0.5.2 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
