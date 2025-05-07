@@ -1,7 +1,11 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"hash/crc32"
+	"log"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -23,7 +27,7 @@ type ServeConfig struct {
 }
 
 func init() {
-	AddSubCommand(commandServe, "prod")
+	AddSubCommand(commandServe, "any") // TODO "prod"
 }
 
 var commandServe = &cli.Command{
@@ -48,17 +52,40 @@ func runServe(c *cli.Context) error {
 		return err
 	}
 
-	if err := InitServeLocale(); err != nil {
-		return err
+	LocaleInit()
+	for _, line := range LocaleGetInfo() {
+		log.Printf("Locale: %s", line)
 	}
 
 	if err := InitServeDB(); err != nil {
 		return err
 	}
 
+	if err := InitServeUser(); err != nil {
+		return err
+	}
+	UserLoginInit()
+
 	if err := InitServeWeb("127.0.0.1:3000"); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func NewToken(len int) (string, error) {
+	token := make([]byte, len)
+
+	_, err := rand.Read(token)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(token), nil
+}
+
+func CRC32(text string) string {
+	crc := crc32.ChecksumIEEE([]byte(text))
+
+	return fmt.Sprintf("%08X", crc)
 }

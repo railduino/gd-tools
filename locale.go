@@ -16,6 +16,11 @@ import (
 //go:embed locales/**
 var localeFS embed.FS
 
+const (
+	languageKey contextKey = "language"
+	HelloWorld             = "hello-world"
+)
+
 type LangCode struct {
 	Lang   string
 	Locale *gotext.Locale
@@ -28,8 +33,13 @@ var (
 	}
 	langTags = []language.Tag{}
 
-	toolsCode *LangCode
+	toolsLocale *gotext.Locale
+	localeInfo  []string
 )
+
+func LocaleGetInfo() []string {
+	return localeInfo
+}
 
 // initialize the i18n system
 func LocaleInit() {
@@ -44,8 +54,10 @@ func LocaleInit() {
 		localePath := filepath.Join("locales", lang, "LC_MESSAGES", "messages.po")
 		if _, err := os.Stat(localePath); err == nil {
 			locale = gotext.NewLocale("locales", lang)
+			localeInfo = append(localeInfo, lang+" loaded from file")
 		} else {
 			locale = gotext.NewLocaleFSWithPath(lang, localeFS, "locales")
+			localeInfo = append(localeInfo, lang+" loaded from exec")
 		}
 		if locale == nil {
 			fmt.Fprintln(os.Stderr, "Fatal: Locale could not be initialized.")
@@ -55,17 +67,50 @@ func LocaleInit() {
 		locale.AddDomain("messages")
 		langCodes[index].Locale = locale
 		langTags = append(langTags, language.Make(code.Lang))
-		fmt.Printf("%s -> %s\n", code.Lang, locale.Get("hello-world"))
 	}
 
 	// at this point, at least de_DE and en_US are known to exist
-	toolsLang := os.Getenv("LANG")
-	if toolsLang == "" {
-		toolsLang = langCodes[0].Lang
+	if toolsLocale == nil {
+		toolsLang := os.Getenv("LANG")
+		if toolsLang == "" {
+			toolsLang = langCodes[0].Lang
+		}
+		for _, code := range langCodes {
+			if code.Lang == toolsLang {
+				toolsLocale = code.Locale
+				break
+			}
+		}
+		if toolsLocale == nil {
+			toolsLocale = langCodes[0].Locale
+		}
+		localeInfo = append(localeInfo, T("hello-world"))
 	}
-	toolsLang = normalizeLang(toolsLang)
+	if toolsLocale == nil {
+		fmt.Fprintln(os.Stderr, "Fatal: toolsLocale is missing.")
+		os.Exit(1)
+	}
 }
 
+// WebT: Handle strings from the embedded webserver
+func WebT(r *http.Request, key string, args ...interface{}) string {
+	code := langCodes[0]
+	if lang, ok := r.Context().Value(languageKey).(string); ok {
+		for _, check := range langCodes {
+			if check.Lang == lang {
+				code = check
+			}
+		}
+	}
+
+	if result := code.Locale.Get(key, args...); result != key {
+		return result
+	}
+
+	return "WebMSG: " + key
+}
+
+// i18n middleware for the embedded webserver
 func LocaleFromRequest(r *http.Request) LangCode {
 	lang := r.URL.Query().Get("lang")
 	if lang == "" {
@@ -80,13 +125,26 @@ func LocaleFromRequest(r *http.Request) LangCode {
 	return langCodes[index]
 }
 
+func LocaleMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.String(), "static/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		code := LocaleFromRequest(r)
+		ctx := context.WithValue(r.Context(), languageKey, code.Lang)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 // T: Handle plain strings
 func T(msg string) string {
-	if locale == nil {
+	if toolsLocale == nil {
 		LocaleInit()
 	}
 
-	if text := locale.Get(msg); text != "" && text != msg {
+	if text := toolsLocale.Get(msg); text != "" && text != msg {
 		return text
 	} else {
 		return "MSG:" + msg
@@ -95,7 +153,7 @@ func T(msg string) string {
 
 // Tf: Handle formatted strings
 func Tf(format string, args ...any) string {
-	if locale == nil {
+	if toolsLocale == nil {
 		LocaleInit()
 	}
 
@@ -104,16 +162,16 @@ func Tf(format string, args ...any) string {
 
 // Tn: Handle counting strings
 func Tn(singular, plural string, n int) string {
-	if locale == nil {
+	if toolsLocale == nil {
 		LocaleInit()
 	}
 
-	return locale.GetN(singular, plural, n)
+	return toolsLocale.GetN(singular, plural, n)
 }
 
 // Tnf: Handle counting strings with args
 func Tnf(singular, plural string, n int, args ...any) string {
-	if locale == nil {
+	if toolsLocale == nil {
 		LocaleInit()
 	}
 
@@ -122,12 +180,11 @@ func Tnf(singular, plural string, n int, args ...any) string {
 
 // make sure there is a valid language
 func normalizeLang(lang string) string {
-	switch lang {
-	case "de", "de_DE":
-		return "de_DE"
-	case "en", "en_US", "en_GB":
-		return "en_US"
-	default:
-		return "de_DE"
+	for _, code := range langCodes {
+		if code.Lang == lang {
+			return lang
+		}
 	}
+
+	return langCodes[0].Lang
 }

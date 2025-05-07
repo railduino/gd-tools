@@ -14,7 +14,8 @@ var (
 )
 
 func InitServeDB() error {
-	ServeDB, err := gorm.Open(sqlite.Open(ServeDataBaseName), &gorm.Config{})
+	var err error
+	ServeDB, err = gorm.Open(sqlite.Open(ServeDataBaseName), &gorm.Config{})
 	if err != nil {
 		return err
 	}

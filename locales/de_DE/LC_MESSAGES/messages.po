@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 06:02+0200\n"
+"POT-Creation-Date: 2025-05-07 11:09+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,18 +187,18 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:31
+#: cmd_serve.go:35
 msgid "serve-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_serve.go:32
+#: cmd_serve.go:36
 msgid "serve-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_serve.go:39
+#: cmd_serve.go:43
 msgid "serve-not-as-root"
 msgstr ""
 
@@ -371,6 +371,10 @@ msgstr "das Swap-File %s existiert bereits"
 #: generate_wordpress.go:45
 msgid "generate-err-missing-name"
 msgstr "das Swap-File %s existiert bereits"
+
+#: locale.go:87
+msgid "hello-world"
+msgstr "Hallo, Welt!"
 
 #: main.go:29
 msgid "main-flag-commands"

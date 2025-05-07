@@ -1,16 +1,16 @@
 package main
 
 import (
-	_ "bytes"
+	"bytes"
 	"context"
 	"embed"
-	_ "errors"
-	_ "html/template"
+	"fmt"
+	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
-	_ "net/url"
-	_ "os"
+	"net/url"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -19,8 +19,24 @@ import (
 //go:embed www/**
 var wwwFS embed.FS
 
+type Page struct {
+	Title   string
+	Content template.HTML
+	Current *User
+	Success string
+	Warning string
+	Error   string
+}
+
+const (
+	SuccessCookie = "success_message"
+	WarningCookie = "warning_message"
+	ErrorCookie   = "error_message"
+)
+
 var (
-	ServeMux *http.ServeMux
+	ServeMux    *http.ServeMux
+	AppTemplate string
 )
 
 func InitServeWeb(serveAddr string) error {
@@ -30,8 +46,15 @@ func InitServeWeb(serveAddr string) error {
 	staticServer := http.FileServer(http.FS(subFS))
 	ServeMux.Handle("/static/", http.StripPrefix("/", staticServer))
 
+	appTmplFile := "www/application.html"
+	appTmplContent, err := wwwFS.ReadFile(appTmplFile)
+	if err != nil {
+		return err
+	}
+	AppTemplate = string(appTmplContent)
+
 	app_srv := &http.Server{
-		Handler:      ServeLocaleMiddleware(ServeMux),
+		Handler:      LocaleMiddleware(ServeMux),
 		Addr:         serveAddr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
@@ -48,6 +71,8 @@ func InitServeWeb(serveAddr string) error {
 	if err := app_srv.Shutdown(context.TODO()); err != nil {
 		log.Printf("WARN: Shutdown: %s", err.Error())
 	}
+
+	return nil
 }
 
 func ServeListen(srv *http.Server) {
@@ -58,9 +83,8 @@ func ServeListen(srv *http.Server) {
 	}
 }
 
-/*
 func ServeSuccess(w http.ResponseWriter, r *http.Request, message string) {
-	value := url.QueryEscape(T(r, message))
+	value := url.QueryEscape(WebT(r, message))
 	cookie := &http.Cookie{
 		Name:  SuccessCookie,
 		Value: value,
@@ -70,7 +94,7 @@ func ServeSuccess(w http.ResponseWriter, r *http.Request, message string) {
 }
 
 func ServeWarning(w http.ResponseWriter, r *http.Request, message string) {
-	value := url.QueryEscape(T(r, message))
+	value := url.QueryEscape(WebT(r, message))
 	cookie := &http.Cookie{
 		Name:  WarningCookie,
 		Value: value,
@@ -80,7 +104,7 @@ func ServeWarning(w http.ResponseWriter, r *http.Request, message string) {
 }
 
 func ServeError(w http.ResponseWriter, r *http.Request, err error) {
-	value := url.QueryEscape(T(r, err.Error()))
+	value := url.QueryEscape(WebT(r, err.Error()))
 	cookie := &http.Cookie{
 		Name:  ErrorCookie,
 		Value: value,
@@ -105,7 +129,6 @@ func (p Page) Serve(w http.ResponseWriter, r *http.Request) {
 		p.Title += " - "
 	}
 
-	p.Theme = "light"
 	if p.Current != nil {
 		if p.Current.Refresh {
 			accessToken, _ := LoginCreateJWT(p.Current.Email, 15*time.Minute)
@@ -117,10 +140,7 @@ func (p Page) Serve(w http.ResponseWriter, r *http.Request) {
 				Path:     "/",
 				Expires:  time.Now().Add(15 * time.Minute),
 			})
-			Info("new AccessToken for %s", p.Current.Email)
-		}
-		if p.Current.Dark {
-			p.Theme = "dark"
+			log.Printf("INFO: new AccessToken for %s", p.Current.Email)
 		}
 	}
 
@@ -143,17 +163,17 @@ func (p Page) Serve(w http.ResponseWriter, r *http.Request) {
 	var err error
 	tmpl, err := template.New("app").Funcs(template.FuncMap{
 		"T": func(key string, args ...interface{}) string {
-			return T(r, key, args...)
+			return WebT(r, key, args...)
 		},
-	}).Parse(app_tmpl)
+	}).Parse(AppTemplate)
 	if err != nil {
-		Error("Serve(%s): %s", p.Title, err.Error())
+		log.Printf("ERROR: Serve(%s): %s", p.Title, err.Error())
 		ServeError(w, r, err)
 		return
 	}
 
 	if err := tmpl.Execute(&pageHTML, p); err != nil {
-		Error("Serve(%s): %s", p.Title, err.Error())
+		log.Printf("ERROR: Serve(%s): %s", p.Title, err.Error())
 		ServeError(w, r, err)
 		return
 	}
@@ -166,28 +186,24 @@ func ServeRender(w http.ResponseWriter, r *http.Request, name string, data inter
 
 	contentInput, err := wwwFS.ReadFile("www/" + name + ".html")
 	if err != nil {
-		Error("ReadFile(%s): %s", name, err.Error())
+		log.Printf("ERROR: ReadFile(%s): %s", name, err.Error())
 		http.NotFound(w, r)
 		return "", err
 	}
 
 	contentTmpl, err := template.New(name).Funcs(template.FuncMap{
 		"T": func(key string, args ...interface{}) string {
-			return T(r, key, args...)
-		},
-		"Input": func(kind, name, label string, value interface{}, plus, attr string) template.HTML {
-			label = T(r, label)
-			return Input(kind, name, label, value, plus, attr)
+			return WebT(r, key, args...)
 		},
 	}).Parse(string(contentInput))
 	if err != nil {
-		Error("Parse(%s): %s", name, err.Error())
+		log.Printf("ERROR: Parse(%s): %s", name, err.Error())
 		ServeError(w, r, err)
 		return "", err
 	}
 
 	if err := contentTmpl.Execute(&contentHTML, data); err != nil {
-		Error("Execute(%s): %s", name, err.Error())
+		log.Printf("ERROR: Execute(%s): %s", name, err.Error())
 		ServeError(w, r, err)
 		return "", err
 	}
@@ -197,14 +213,14 @@ func ServeRender(w http.ResponseWriter, r *http.Request, name string, data inter
 
 func ServeParse(w http.ResponseWriter, r *http.Request, current *User) error {
 	if err := r.ParseForm(); err != nil {
-		Error("ParseForm: %s", err.Error())
+		log.Printf("ERROR: ParseForm: %s", err.Error())
 		ServeError(w, r, err)
 		http.Redirect(w, r, "/", http.StatusFound)
 		return err
 	}
 
 	if ok := current.CheckCSRFToken(r.FormValue("csrf_token")); !ok {
-		err := errors.New(T(r, "WrongToken"))
+		err := fmt.Errorf(WebT(r, "WrongToken"))
 		ServeWarning(w, r, "WrongToken")
 		http.Redirect(w, r, "/", http.StatusFound)
 		return err
@@ -212,4 +228,3 @@ func ServeParse(w http.ResponseWriter, r *http.Request, current *User) error {
 
 	return nil
 }
-*/

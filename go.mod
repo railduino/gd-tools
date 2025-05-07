@@ -10,6 +10,7 @@ replace github.com/docker/distribution => github.com/docker/distribution v2.7.1+
 
 require (
 	github.com/docker/docker v0.0.0-00010101000000-000000000000
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/joho/godotenv v1.5.1
 	github.com/leonelquinteros/gotext v1.7.1
 	github.com/urfave/cli/v2 v2.27.6
