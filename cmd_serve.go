@@ -2,7 +2,8 @@ package main
 
 import (
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"hash/crc32"
 	"log"
@@ -20,7 +21,8 @@ type ServeConfig struct {
 	AdminMail string `json:"admin_mail"`
 	AdminPswd string `json:"admin_pswd"`
 
-	ServePort string `json:"serve_port"`
+	Address   string `json:"address"`
+	JWTSecret string `json:"jwt_secret"`
 
 	ImprintURL string `json:"imprint_url"`
 	ProtectURL string `json:"protect_url"`
@@ -52,6 +54,11 @@ func runServe(c *cli.Context) error {
 		return err
 	}
 
+	serveConfig, err := GetServeConfig()
+	if err != nil {
+		return err
+	}
+
 	LocaleInit()
 	for _, line := range LocaleGetInfo() {
 		log.Printf("Locale: %s", line)
@@ -66,22 +73,62 @@ func runServe(c *cli.Context) error {
 	}
 	UserLoginInit()
 
-	if err := InitServeWeb("127.0.0.1:3000"); err != nil {
+	if err := InitServeWeb(serveConfig.Address); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func NewToken(len int) (string, error) {
-	token := make([]byte, len)
+func GetServeConfig() (*ServeConfig, error) {
+	var serveConfig ServeConfig
 
-	_, err := rand.Read(token)
+	content, err := os.ReadFile(ServeConfigName)
 	if err != nil {
+		if os.IsNotExist(err) {
+			serveConfig = ServeConfig{
+				Address: "127.0.0.1:3000",
+			}
+			if err := serveConfig.Save(); err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	} else {
+		if err := json.Unmarshal(content, &serveConfig); err != nil {
+			return nil, err
+		}
+	}
+
+	if serveConfig.AdminPswd == "" {
+		msg := T("serve-first-edit-config")
+		return nil, fmt.Errorf(msg)
+	}
+
+	return &serveConfig, nil
+}
+
+func (sc *ServeConfig) Save() error {
+	content, err := json.MarshalIndent(*sc, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(ServeConfigName, content, 0644); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewToken(n int) (string, error) {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
 
-	return hex.EncodeToString(token), nil
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 func CRC32(text string) string {

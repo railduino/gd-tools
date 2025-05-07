@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 12:08+0200\n"
+"POT-Creation-Date: 2025-05-07 14:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,16 +165,20 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:35
+#: cmd_serve.go:37
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:36
+#: cmd_serve.go:38
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:43
+#: cmd_serve.go:45
 msgid "serve-not-as-root"
+msgstr ""
+
+#: cmd_serve.go:105
+msgid "serve-first-edit-config"
 msgstr ""
 
 #: cmd_setup.go:19

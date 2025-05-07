@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 11:09+0200\n"
+"POT-Creation-Date: 2025-05-07 14:43+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,20 +187,24 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:35
+#: cmd_serve.go:37
 msgid "serve-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_serve.go:36
+#: cmd_serve.go:38
 msgid "serve-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_serve.go:43
+#: cmd_serve.go:45
 msgid "serve-not-as-root"
 msgstr ""
+
+#: cmd_serve.go:105
+msgid "serve-first-edit-config"
+msgstr "das Swap-File %s existiert bereits"
 
 #: cmd_setup.go:19
 msgid "setup-flag-hetzner"
