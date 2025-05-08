@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 23:38+0200\n"
+"POT-Creation-Date: 2025-05-08 11:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -165,15 +165,15 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:17
+#: cmd_serve.go:36
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:18
+#: cmd_serve.go:37
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:25
+#: cmd_serve.go:44
 msgid "serve-not-as-root"
 msgstr ""
 
@@ -351,6 +351,14 @@ msgstr ""
 
 #: project.go:132
 msgid "install-err-unique-exist"
+msgstr ""
+
+#: serve_home.go:10
+msgid "web-home-title"
+msgstr ""
+
+#: serve_status.go:12
+msgid "web-status-title"
 msgstr ""
 
 #: system.go:67

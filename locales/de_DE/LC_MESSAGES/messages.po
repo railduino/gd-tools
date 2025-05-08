@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-07 23:38+0200\n"
+"POT-Creation-Date: 2025-05-08 11:32+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,18 +187,18 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:17
+#: cmd_serve.go:36
 msgid "serve-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_serve.go:18
+#: cmd_serve.go:37
 msgid "serve-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_serve.go:25
+#: cmd_serve.go:44
 msgid "serve-not-as-root"
 msgstr ""
 
@@ -399,6 +399,14 @@ msgstr ""
 #: project.go:132
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
+
+#: serve_home.go:10
+msgid "web-home-title"
+msgstr ""
+
+#: serve_status.go:12
+msgid "web-status-title"
+msgstr ""
 
 #: system.go:67
 msgid "system-err-missing-file"

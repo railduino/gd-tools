@@ -3,11 +3,10 @@ package main
 import (
 	"context"
 	"embed"
-	"encoding/json"
+	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -16,65 +15,40 @@ import (
 //go:embed www/**
 var wwwFS embed.FS
 
-const (
-	ServeConfigName = "gd-tools-serve.conf"
-)
+type ServePage struct {
+	Title      string
+	ProgName   string
+	ProgLink   string
+	ImprintURL string
+	ProtectURL string
+	Content    template.HTML
+	Request    *http.Request
 
-type ServeConfig struct {
-	SysAdmin string `json:"sys_admin"`
-	Password string `json:"password"`
-
-	Address string `json:"address"`
-
-	ImprintURL string `json:"imprint_url"`
-	ProtectURL string `json:"protect_url"`
+	ServeConfig
+	LoggedIn bool
 }
 
 var (
-	serveConfig ServeConfig
 	serveMux    *http.ServeMux
-	appTemplate string
+	serveLayout string
 )
-
-func ReadServeConfig() (*ServeConfig, error) {
-	content, err := os.ReadFile(ServeConfigName)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(content, &serveConfig); err != nil {
-		return nil, err
-	}
-
-	return &serveConfig, nil
-}
-
-func (sc *ServeConfig) Save() error {
-	content, err := json.MarshalIndent(*sc, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	if err := os.WriteFile(ServeConfigName, content, 0644); err != nil {
-		return err
-	}
-
-	return nil
-}
 
 func RunWebServer(serveAddr string) error {
 	serveMux = http.NewServeMux()
+
+	layoutFile := "www/application.html"
+	layoutContent, err := wwwFS.ReadFile(layoutFile)
+	if err != nil {
+		return err
+	}
+	serveLayout = string(layoutContent)
 
 	subFS, _ := fs.Sub(wwwFS, "www")
 	staticServer := http.FileServer(http.FS(subFS))
 	serveMux.Handle("/static/", http.StripPrefix("/", staticServer))
 
-	appTmplFile := "www/application.html"
-	appTmplContent, err := wwwFS.ReadFile(appTmplFile)
-	if err != nil {
-		return err
-	}
-	appTemplate = string(appTmplContent)
+	ServeHomeInit()
+	ServeStatusInit()
 
 	webServer := &http.Server{
 		Handler:      LocaleMiddleware(serveMux),
@@ -103,5 +77,22 @@ func ListenRoutine(srv *http.Server) {
 
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("FATAL: ListenRoutine: %s", err.Error())
+	}
+}
+
+func (p ServePage) Render(w http.ResponseWriter, r *http.Request) {
+	parsedTemplate, err := template.New("app").Funcs(template.FuncMap{
+		"T": func(msg string) string {
+			return WebT(r, msg)
+		},
+	}).Parse(serveLayout)
+	if err != nil {
+		http.Error(w, "Internal error (parse)", 500)
+		log.Println("ERROR: parse template:", err)
+	}
+
+	if err := parsedTemplate.Execute(w, p); err != nil {
+		http.Error(w, "Internal error (execute)", 500)
+		log.Println("ERROR: execute template:", err)
 	}
 }
