@@ -12,12 +12,19 @@ func init() {
 	AddSubCommand(commandDeploy, "dev")
 }
 
+var deployFlagDebug = cli.BoolFlag{
+	Name:    "debug",
+	Aliases: []string{"d"},
+	Usage:   T("system-flag-debug"),
+}
+
 var commandDeploy = &cli.Command{
 	Name:        "deploy",
 	Usage:       T("deploy-cmd-usage"),
 	Description: T("deploy-cmd-describe"),
 	Flags: []cli.Flag{
 		&mainFlagDryRun,
+		&deployFlagDebug,
 	},
 	Action: runDeploy,
 }
@@ -42,20 +49,20 @@ func runDeploy(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := DeployLocal(dryRun, execPath, "/usr/local/bin", rootUser, "755"); err != nil {
+	if err := DeployLocal(c, execPath, "/usr/local/bin", rootUser, "755"); err != nil {
 		return err
 	}
 
 	// Deploy system config
-	if err := DeployLocal(dryRun, SystemConfigName, "/etc", rootUser, "400"); err != nil {
+	if err := DeployLocal(c, SystemConfigName, "/etc", rootUser, "400"); err != nil {
 		return err
 	}
 
 	// Deploy static templates
-	if err := DeployTemplate(dryRun, "ssl-params.conf", "/etc/nginx/snippets/ssl-params.conf", rootUser, "444"); err != nil {
+	if err := DeployTemplate(c, "ssl-params.conf", "/etc/nginx/snippets/ssl-params.conf", rootUser, "444"); err != nil {
 		return err
 	}
-	if err := DeployTemplate(dryRun, "nginx.conf", "/etc/nginx/nginx.conf", rootUser, "444"); err != nil {
+	if err := DeployTemplate(c, "nginx.conf", "/etc/nginx/nginx.conf", rootUser, "444"); err != nil {
 		return err
 	}
 
@@ -72,6 +79,9 @@ func runDeploy(c *cli.Context) error {
 		Local:    localPath + "/",
 		Receiver: toolsUser,
 		Remote:   "projects",
+	}
+	if !c.Bool("debug") {
+		rsyncProjects.Flags = append(rsyncProjects.Flags, "--quiet")
 	}
 	if err := rsyncProjects.Execute(); err != nil {
 		return err
@@ -92,6 +102,9 @@ func runDeploy(c *cli.Context) error {
 				Receiver: toolsUser,
 				Remote:   "/var/gd-tools/data/" + p.GetName(),
 			}
+			if !c.Bool("debug") {
+				rsyncData.Flags = append(rsyncData.Flags, "--quiet")
+			}
 			if err := rsyncData.Execute(); err != nil {
 				return err
 			}
@@ -99,7 +112,7 @@ func runDeploy(c *cli.Context) error {
 	}
 
 	// Fetch certs from target before overwrite
-	DeployFetchLetsEncrypt(dryRun, rootUser)
+	DeployFetchLetsEncrypt(c, rootUser)
 
 	// Push certs if available locally
 	if stat, err := os.Stat("letsencrypt"); err == nil && stat.IsDir() {
@@ -109,6 +122,9 @@ func runDeploy(c *cli.Context) error {
 			Local:    "letsencrypt/",
 			Receiver: rootUser,
 			Remote:   "/etc/letsencrypt",
+		}
+		if !c.Bool("debug") {
+			rsyncCerts.Flags = append(rsyncCerts.Flags, "--quiet")
 		}
 		if err := rsyncCerts.Execute(); err != nil {
 			return err

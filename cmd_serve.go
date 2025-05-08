@@ -28,7 +28,7 @@ var (
 )
 
 func init() {
-	AddSubCommand(commandServe, "any") // TODO "prod"
+	AddSubCommand(commandServe, "prod")
 }
 
 var commandServe = &cli.Command{

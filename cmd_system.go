@@ -55,7 +55,7 @@ func runSystem(c *cli.Context) error {
 	if CheckEnv("dev") {
 		hostName := filepath.Base(localPath)
 		rootUser := fmt.Sprintf("root@%s", hostName)
-		DeployFetchLetsEncrypt(dryRun, rootUser)
+		DeployFetchLetsEncrypt(c, rootUser)
 
 		return ShellEditor(SystemConfigName)
 	}

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/urfave/cli/v2"
 )
 
 // DeployRsync beschreibt einen generischen rsync-Vorgang
@@ -24,8 +26,8 @@ func (rs *DeployRsync) Execute() error {
 	return ShellCmd(rs.DryRun, cmd)
 }
 
-// Typ 1: DeployTemplate → überträgt statische Dateien aus templates/ ohne Rendern
-func DeployTemplate(dryRun bool, fileName, destPath, receiver, chmod string) error {
+// Typ 1: DeployTemplate: überträgt statische Dateien aus templates/ ohne Rendern
+func DeployTemplate(c *cli.Context, fileName, destPath, receiver, chmod string) error {
 	content, err := TemplateLoad(fileName)
 	if err != nil {
 		return fmt.Errorf("TemplateLoad(%s) failed: %w", fileName, err)
@@ -43,18 +45,24 @@ func DeployTemplate(dryRun bool, fileName, destPath, receiver, chmod string) err
 	tmpFile.Close()
 
 	rsync := DeployRsync{
-		DryRun:   dryRun,
-		Flags:    []string{"--chown=root:root", "--chmod=" + chmod},
+		DryRun: c.Bool("dry"),
+		Flags: []string{
+			"--chown=root:root",
+			"--chmod=" + chmod,
+		},
 		Local:    tmpFile.Name(),
 		Receiver: receiver,
 		Remote:   destPath,
+	}
+	if !c.Bool("debug") {
+		rsync.Flags = append(rsync.Flags, "--quiet")
 	}
 
 	return rsync.Execute()
 }
 
-// Typ 2: DeployParsedTemplate → rendert templates mit Platzhaltern und überträgt sie
-func DeployParsedTemplate(dryRun bool, tmplName, destPath, receiver, chmod string, data any) error {
+// Typ 2: DeployParsedTemplate: rendert templates mit Platzhaltern und überträgt sie
+func DeployParsedTemplate(c *cli.Context, tmplName, destPath, receiver, chmod string, data any) error {
 	rendered, err := TemplateParse(tmplName, data)
 	if err != nil {
 		return fmt.Errorf("TemplateParse(%s) failed: %w", tmplName, err)
@@ -72,40 +80,58 @@ func DeployParsedTemplate(dryRun bool, tmplName, destPath, receiver, chmod strin
 	tmpFile.Close()
 
 	rsync := DeployRsync{
-		DryRun:   dryRun,
-		Flags:    []string{"--chown=root:root", "--chmod=" + chmod},
+		DryRun: c.Bool("dry"),
+		Flags: []string{
+			"--chown=root:root",
+			"--chmod=" + chmod,
+		},
 		Local:    tmpFile.Name(),
 		Receiver: receiver,
 		Remote:   destPath,
 	}
+	if !c.Bool("debug") {
+		rsync.Flags = append(rsync.Flags, "--quiet")
+	}
 
 	return rsync.Execute()
 }
 
-// Typ 3: DeployLocal → überträgt lokale echte Dateien oder Verzeichnisse unverändert
-func DeployLocal(dryRun bool, localPath, destPath, receiver, chmod string) error {
+// Typ 3: DeployLocal: überträgt lokale echte Dateien oder Verzeichnisse unverändert
+func DeployLocal(c *cli.Context, localPath, destPath, receiver, chmod string) error {
 	rsync := DeployRsync{
-		DryRun:   dryRun,
-		Flags:    []string{"--chown=root:root", "--chmod=" + chmod},
+		DryRun: c.Bool("dry"),
+		Flags: []string{
+			"--chown=root:root",
+			"--chmod=" + chmod,
+		},
 		Local:    localPath,
 		Receiver: receiver,
 		Remote:   destPath,
 	}
+	if !c.Bool("debug") {
+		rsync.Flags = append(rsync.Flags, "--quiet")
+	}
+
 	return rsync.Execute()
 }
 
 // Utility: holt /etc/letsencrypt vom Zielsystem lokal
-func DeployFetchLetsEncrypt(dryRun bool, rootUser string) {
-	rsyncCmd := fmt.Sprintf("rsync -avz %s:/etc/letsencrypt/ letsencrypt", rootUser)
+func DeployFetchLetsEncrypt(c *cli.Context, rootUser string) {
+	dryRun := c.Bool("dry")
+
+	rsyncPrefix := "rsync -avz"
+	if !c.Bool("debug") {
+		rsyncPrefix += " --quiet"
+	}
+	rsyncCmd := fmt.Sprintf("%s %s:/etc/letsencrypt/ letsencrypt", rsyncPrefix, rootUser)
 
 	if err := ShellCmd(dryRun, rsyncCmd); err != nil {
 		fmt.Println("Ignore error:", err)
 	}
-	if dryRun {
-		return
-	}
 
-	if systemConfig, err := ReadSystemConfig(false); err == nil {
-		systemConfig.Save()
+	if !dryRun {
+		if systemConfig, err := ReadSystemConfig(false); err == nil {
+			systemConfig.Save()
+		}
 	}
 }

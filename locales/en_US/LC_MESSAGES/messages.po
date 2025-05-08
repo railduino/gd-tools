@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-08 11:32+0200\n"
+"POT-Creation-Date: 2025-05-08 12:22+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -35,11 +35,15 @@ msgstr ""
 msgid "delete-err-no-force"
 msgstr ""
 
-#: cmd_deploy.go:17
+#: cmd_deploy.go:18
+msgid "system-flag-debug"
+msgstr ""
+
+#: cmd_deploy.go:23
 msgid "deploy-cmd-usage"
 msgstr ""
 
-#: cmd_deploy.go:18
+#: cmd_deploy.go:24
 msgid "deploy-cmd-describe"
 msgstr ""
 
