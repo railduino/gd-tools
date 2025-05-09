@@ -14,8 +14,8 @@ func init() {
 
 var generateMaintenance = &cli.Command{
 	Name:        "maintenance",
-	Usage:       T("install-maintenance-usage"),
-	Description: T("install-maintenance-describe"),
+	Usage:       T("generate-maintenance-usage"),
+	Description: T("generate-maintenance-describe"),
 	Flags:       []cli.Flag{},
 	Action:      runGenerateMaintenance,
 }

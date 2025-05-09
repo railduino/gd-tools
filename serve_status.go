@@ -2,49 +2,31 @@ package main
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func ServeStatus(w http.ResponseWriter, r *http.Request) {
+func (sc *ServeConfig) StatusHandler(w http.ResponseWriter, r *http.Request) {
 	page := ServePage{
-		Title:      T("web-status-title"),
-		ProgName:   "gd-tools",
-		ProgLink:   "https://github.com/railduino/gd-tools",
-		ImprintURL: serveConfig.ImprintURL,
-		ProtectURL: serveConfig.ProtectURL,
-		Content: template.HTML(`
-<section class="section">
-  <h1 class="title">Systemstatus</h1>
-  <p>WebSocket wird aufgebaut…</p>
-  <div id="status-output"></div>
-  <script>
-    const socket = new WebSocket("ws://" + location.host + "/ws");
-    socket.onmessage = function(event) {
-      document.getElementById("status-output").textContent = event.data;
-    };
-  </script>
-</section>
-		`),
+		Title:   T("web-status-title"),
+		Layout:  sc.Layout,
+		Content: template.HTML(sc.StatusContent),
 		Request: r,
 	}
 
 	page.Render(w, r)
 }
 
-func ServeStatusInit() {
-	serveMux.HandleFunc("/status", BasicAuthMiddleware(
-		serveConfig.SysAdmin,
-		serveConfig.Password,
-		ServeStatus,
-	))
+func (sc *ServeConfig) ServeStatusInit() error {
+	serveMux.HandleFunc("/status", BasicAuthMiddleware(ServeStatus))
 }
 
-func BasicAuthMiddleware(user, hash string, next http.HandlerFunc) http.HandlerFunc {
+func (sc *ServeConfig) BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
-		if !ok || username != user || !checkPasswordHash(password, hash) {
+		if !ok || sc.SysAdmin != user || !checkPasswordHash(password, sc.Password) {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return

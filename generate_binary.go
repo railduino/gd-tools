@@ -14,8 +14,8 @@ func init() {
 
 var generateBinary = &cli.Command{
 	Name:        "binary",
-	Usage:       T("install-binary-usage"),
-	Description: T("install-binary-describe"),
+	Usage:       T("generate-binary-usage"),
+	Description: T("generate-binary-describe"),
 	Flags:       []cli.Flag{},
 	Action:      runGenerateBinary,
 }

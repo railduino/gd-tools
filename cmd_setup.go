@@ -105,6 +105,7 @@ func runSetup(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	systemConfig := SystemConfig{
 		Version:    version,
 		TimeZone:   timeZone,
@@ -115,6 +116,7 @@ func runSetup(c *cli.Context) error {
 		Packages:   packages,
 		Mounts:     mounts,
 	}
+
 	if err := systemConfig.Save(); err != nil {
 		return err
 	}

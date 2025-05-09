@@ -37,33 +37,23 @@ var generateWordPress = &cli.Command{
 }
 
 func runGenerateWordPress(c *cli.Context) error {
-	args := c.Args().Slice()
-	if len(args) < 1 {
-		return fmt.Errorf(T("generate-err-missing-prefix"))
-	}
-	if len(args) < 2 {
-		return fmt.Errorf(T("generate-err-missing-name"))
-	}
-
 	systemConfig, err := ReadSystemConfig(true)
 	if err != nil {
 		return err
 	}
 
-	project := Project{
-		Prefix: args[0],
-		Kind:   "wordpress",
-		Name:   args[1],
-	}
-	if err := project.CheckConflict(true); err != nil {
+	project, err := GenerateBuildProject(c, "wordpress", false)
+	if err != nil {
 		return err
 	}
 
 	fmt.Println(T("generate-create-dir"))
-	if err := os.MkdirAll(project.GetName(), 0755); err != nil {
+	dataPath := filepath.Join(project.GetName(), "data")
+	if err := os.MkdirAll(dataPath, 0755); err != nil {
 		return err
 	}
 
+	fmt.Println(T("generate-create-config"))
 	project.Config = Config{
 		IsEnabled: false,
 		DependsOn: []string{},

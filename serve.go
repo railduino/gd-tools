@@ -7,7 +7,9 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -15,44 +17,40 @@ import (
 //go:embed www/**
 var wwwFS embed.FS
 
-type ServePage struct {
-	Title      string
-	ProgName   string
-	ProgLink   string
-	ImprintURL string
-	ProtectURL string
-	Content    template.HTML
-	Request    *http.Request
+type ServeConfig struct {
+	SysAdmin string `json:"sys_admin"`
+	Password string `json:"password"`
 
-	ServeConfig
+	Address string `json:"address"`
+
+	ProgName   string `json:"prog_name"`
+	ProgLink   string `json:"prog_link"`
+	ImprintURL string `json:"imprint_url"`
+	ProtectURL string `json:"protect_url"`
+
+	LayoutContent []byte `json:"-"`
+	HomeContent   []byte `json:"-"`
+	StatusContent []byte `json:"-"`
+
+	Mux *http.ServeMux `json:"-"`
+}
+
+type ServePage struct {
+	Title    string
+	Layout   string
+	Content  template.HTML
+	Request  *http.Request
 	LoggedIn bool
 }
 
-var (
-	serveMux    *http.ServeMux
-	serveLayout string
-)
-
-func RunWebServer(serveAddr string) error {
-	serveMux = http.NewServeMux()
-
-	layoutFile := "www/application.html"
-	layoutContent, err := wwwFS.ReadFile(layoutFile)
-	if err != nil {
-		return err
-	}
-	serveLayout = string(layoutContent)
-
+func (sc *ServeConfig) RunWebServer() error {
 	subFS, _ := fs.Sub(wwwFS, "www")
 	staticServer := http.FileServer(http.FS(subFS))
-	serveMux.Handle("/static/", http.StripPrefix("/", staticServer))
-
-	ServeHomeInit()
-	ServeStatusInit()
+	sc.Mux.Handle("/static/", http.StripPrefix("/", staticServer))
 
 	webServer := &http.Server{
-		Handler:      LocaleMiddleware(serveMux),
-		Addr:         serveAddr,
+		Handler:      LocaleMiddleware(sc.Mux),
+		Addr:         sc.Address,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -80,18 +78,36 @@ func ListenRoutine(srv *http.Server) {
 	}
 }
 
+func ServeLoadPage(name string) ([]byte, error) {
+	path := filepath.Join("www", name)
+
+	content, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			content, err = wwwFS.ReadFile(path)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err // any other error
+		}
+	}
+
+	return content, nil
+}
+
 func (p ServePage) Render(w http.ResponseWriter, r *http.Request) {
-	parsedTemplate, err := template.New("app").Funcs(template.FuncMap{
+	parsedLayout, err := template.New("app").Funcs(template.FuncMap{
 		"T": func(msg string) string {
 			return WebT(r, msg)
 		},
-	}).Parse(serveLayout)
+	}).Parse(p.Layout)
 	if err != nil {
 		http.Error(w, "Internal error (parse)", 500)
 		log.Println("ERROR: parse template:", err)
 	}
 
-	if err := parsedTemplate.Execute(w, p); err != nil {
+	if err := parsedLayout.Execute(w, p); err != nil {
 		http.Error(w, "Internal error (execute)", 500)
 		log.Println("ERROR: execute template:", err)
 	}

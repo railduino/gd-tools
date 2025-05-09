@@ -115,7 +115,7 @@ func DeployLocal(c *cli.Context, localPath, destPath, receiver, chmod string) er
 	return rsync.Execute()
 }
 
-// Utility: holt /etc/letsencrypt vom Zielsystem lokal
+// Utility: holt /etc/letsencrypt vom Zielsystem nach lokal
 func DeployFetchLetsEncrypt(c *cli.Context, rootUser string) {
 	dryRun := c.Bool("dry")
 

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gd-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-08 12:22+0200\n"
+"POT-Creation-Date: 2025-05-09 12:40+0200\n"
 "Language: en_US\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -159,15 +159,15 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:36
+#: cmd_serve.go:23
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:37
+#: cmd_serve.go:24
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:44
+#: cmd_serve.go:31
 msgid "serve-not-as-root"
 msgstr ""
 
@@ -264,34 +264,34 @@ msgid "update-cmd-describe"
 msgstr ""
 
 #: generate_binary.go:17
-msgid "install-binary-usage"
+msgid "generate-binary-usage"
 msgstr ""
 
 #: generate_binary.go:18
-msgid "install-binary-describe"
+msgid "generate-binary-describe"
 msgstr ""
 
 #: generate_binary.go:34
 msgid "generate-create-dirs"
 msgstr ""
 
-#: generate_binary.go:48 generate_maintenance.go:40
+#: generate_binary.go:48 generate_maintenance.go:40 generate_wordpress.go:56
 msgid "generate-create-config"
 msgstr ""
 
-#: generate_binary.go:58 generate_maintenance.go:61 generate_wordpress.go:90
+#: generate_binary.go:58 generate_maintenance.go:61 generate_wordpress.go:80
 msgid "generate-create-compose"
 msgstr ""
 
 #: generate_maintenance.go:17
-msgid "install-maintenance-usage"
+msgid "generate-maintenance-usage"
 msgstr ""
 
 #: generate_maintenance.go:18
-msgid "install-maintenance-describe"
+msgid "generate-maintenance-describe"
 msgstr ""
 
-#: generate_maintenance.go:34 generate_wordpress.go:62
+#: generate_maintenance.go:34 generate_wordpress.go:50
 msgid "generate-create-dir"
 msgstr ""
 
@@ -309,14 +309,6 @@ msgstr ""
 
 #: generate_wordpress.go:31
 msgid "generate-wordpress-describe"
-msgstr ""
-
-#: generate_wordpress.go:42
-msgid "generate-err-missing-prefix"
-msgstr ""
-
-#: generate_wordpress.go:45
-msgid "generate-err-missing-name"
 msgstr ""
 
 #: locale.go:87
@@ -347,11 +339,11 @@ msgstr ""
 msgid "install-err-unique-exist"
 msgstr ""
 
-#: serve_home.go:10
+#: serve_home.go:11
 msgid "web-home-title"
 msgstr ""
 
-#: serve_status.go:12
+#: serve_status.go:13
 msgid "web-status-title"
 msgstr ""
 

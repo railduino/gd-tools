@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/urfave/cli/v2"
@@ -11,20 +12,6 @@ import (
 
 const (
 	ServeConfigName = "gd-tools-serve.conf"
-)
-
-type ServeConfig struct {
-	SysAdmin string `json:"sys_admin"`
-	Password string `json:"password"`
-
-	Address string `json:"address"`
-
-	ImprintURL string `json:"imprint_url"`
-	ProtectURL string `json:"protect_url"`
-}
-
-var (
-	serveConfig ServeConfig
 )
 
 func init() {
@@ -53,24 +40,36 @@ func runServe(c *cli.Context) error {
 		return err
 	}
 
-	serveConfig, err := ReadServeConfig()
+	sc, err := ReadServeConfig()
 	if err != nil {
 		return err
 	}
+
+	if sc.LayoutContent, err = ServeLoadPage("application.html"); err != nil {
+		return err
+	}
+	if sc.HomeContent, err = ServeLoadPage("home.html"); err != nil {
+		return err
+	}
+	if sc.StatusContent, err = ServeLoadPage("status.html"); err != nil {
+		return err
+	}
+
+	sc.Mux = http.NewServeMux()
+	sc.Mux.HandleFunc("/", sc.HomeHandler)
+	sc.Mux.HandleFunc("/status", sc.BasicAuthMiddleware(sc.StatusHandler))
 
 	LocaleInit()
 	for _, line := range LocaleGetInfo() {
 		log.Printf("Locale: %s", line)
 	}
 
-	if err := RunWebServer(serveConfig.Address); err != nil {
-		return err
-	}
-
-	return nil
+	return sc.RunWebServer()
 }
 
 func ReadServeConfig() (*ServeConfig, error) {
+	var serveConfig ServeConfig
+
 	content, err := os.ReadFile(ServeConfigName)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: go-docker-tools 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-08 12:22+0200\n"
+"POT-Creation-Date: 2025-05-09 12:40+0200\n"
 "Language: de_DE\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -191,18 +191,18 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:36
+#: cmd_serve.go:23
 msgid "serve-cmd-usage"
 msgstr "erzeugt einen geheimen Schlüssel"
 
-#: cmd_serve.go:37
+#: cmd_serve.go:24
 msgid "serve-cmd-describe"
 msgstr ""
 "Der Befehl 'secret' macht etwas.\n"
 "\n"
 "TODO Genaueres steht dann hier."
 
-#: cmd_serve.go:44
+#: cmd_serve.go:31
 msgid "serve-not-as-root"
 msgstr ""
 
@@ -312,40 +312,40 @@ msgstr ""
 "Sonst wird nach einem 'deploy' die 'compose.yaml' nicht mehr gefunden."
 
 #: generate_binary.go:17
-msgid "install-binary-usage"
-msgstr "installiert einen Traefik Reverse Proxy Container"
+msgid "generate-binary-usage"
+msgstr "erzeugt ein neues Projekt einer bestimmten Art"
 
 #: generate_binary.go:18
-msgid "install-binary-describe"
+msgid "generate-binary-describe"
 msgstr ""
-"Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+"Der Befehl 'generate' macht etwas.\n"
 "\n"
-"TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+"TODO Genaueres steht dann hier."
 
 #: generate_binary.go:34
 msgid "generate-create-dirs"
 msgstr "legt das Projekt-Verzeichnis an"
 
-#: generate_binary.go:48 generate_maintenance.go:40
+#: generate_binary.go:48 generate_maintenance.go:40 generate_wordpress.go:56
 msgid "generate-create-config"
 msgstr "legt die Datei 'config.json' an"
 
-#: generate_binary.go:58 generate_maintenance.go:61 generate_wordpress.go:90
+#: generate_binary.go:58 generate_maintenance.go:61 generate_wordpress.go:80
 msgid "generate-create-compose"
 msgstr "legt die Datei 'compose.yaml' an"
 
 #: generate_maintenance.go:17
-msgid "install-maintenance-usage"
+msgid "generate-maintenance-usage"
 msgstr "installiert einen Traefik Reverse Proxy Container"
 
 #: generate_maintenance.go:18
-msgid "install-maintenance-describe"
+msgid "generate-maintenance-describe"
 msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
 
-#: generate_maintenance.go:34 generate_wordpress.go:62
+#: generate_maintenance.go:34 generate_wordpress.go:50
 msgid "generate-create-dir"
 msgstr "legt das Projekt-Verzeichnis an"
 
@@ -367,14 +367,6 @@ msgstr ""
 "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
 "\n"
 "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
-
-#: generate_wordpress.go:42
-msgid "generate-err-missing-prefix"
-msgstr "das Swap-File %s existiert bereits"
-
-#: generate_wordpress.go:45
-msgid "generate-err-missing-name"
-msgstr "das Swap-File %s existiert bereits"
 
 #: locale.go:87
 msgid "hello-world"
@@ -404,11 +396,11 @@ msgstr ""
 msgid "install-err-unique-exist"
 msgstr "von dieser Projekt-Art darf es nur eine Instanz geben"
 
-#: serve_home.go:10
+#: serve_home.go:11
 msgid "web-home-title"
 msgstr ""
 
-#: serve_status.go:12
+#: serve_status.go:13
 msgid "web-status-title"
 msgstr ""
 
@@ -467,6 +459,21 @@ msgstr "ungültige Liste erkannt"
 #: yaml_kvlist.go:46
 msgid "yaml-err-unexpected-kvlist"
 msgstr "hier wird keine Liste erwartet"
+
+#~ msgid "install-binary-usage"
+#~ msgstr "installiert einen Traefik Reverse Proxy Container"
+
+#~ msgid "install-binary-describe"
+#~ msgstr ""
+#~ "Traefik (https://traefik.io/traefik/) ist ein moderner Reverse Proxy.\n"
+#~ "\n"
+#~ "TODO - weitere Beschreibung, und warum i.d.R. das erste Projekt."
+
+#~ msgid "generate-err-missing-prefix"
+#~ msgstr "das Swap-File %s existiert bereits"
+
+#~ msgid "generate-err-missing-name"
+#~ msgstr "das Swap-File %s existiert bereits"
 
 #~ msgid "serve-first-edit-config"
 #~ msgstr "das Swap-File %s existiert bereits"
