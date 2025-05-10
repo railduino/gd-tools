@@ -34,14 +34,6 @@ func runServe(c *cli.Context) error {
 		return fmt.Errorf(msg)
 	}
 
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	if err := os.Chdir(homeDir); err != nil {
-		return err
-	}
-
 	content, err := os.ReadFile(filepath.Join("/etc", ServeConfigName))
 	if err != nil {
 		return err

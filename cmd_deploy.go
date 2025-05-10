@@ -68,6 +68,9 @@ func runDeploy(c *cli.Context) error {
 	if err := DeployTemplate(c, "nginx.conf", "/etc/nginx/nginx.conf", rootUser, "444"); err != nil {
 		return err
 	}
+	if err := DeployTemplate(c, "gd-tools-serve.service", "/etc/systemd/system/gd-tools-serve.service", rootUser, "644"); err != nil {
+		return err
+	}
 
 	// Deploy project tree (excluding sensitive data)
 	rsyncProjects := DeployRsync{

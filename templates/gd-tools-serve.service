@@ -1,0 +1,26 @@
+[Unit]
+Description=GD-Tools Webserver
+After=network.target
+
+[Service]
+Type=simple
+User=gd-tools
+Group=gd-tools
+WorkingDirectory=/var/gd-tools
+ExecStart=/usr/local/bin/gd-tools serve
+Restart=on-failure
+RestartSec=5s
+
+# Logging in eigenen Pfad
+StandardOutput=append:/var/gd-tools/logs/serve.log
+StandardError=append:/var/gd-tools/logs/serve.log
+
+# Sicherheitsmaßnahmen
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+

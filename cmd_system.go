@@ -394,6 +394,10 @@ func (sc *SystemConfig) AddToolsUser() error {
 	if err != nil {
 		return err
 	}
+	userChmod := fmt.Sprintf("chmod 755 /home/gd-tools")
+	if err := ShellCmd(sc.DryRun, userChmod); err != nil {
+		return err
+	}
 
 	gdGroups, err := gdUser.GroupIds()
 	if err != nil {
