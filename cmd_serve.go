@@ -4,15 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/urfave/cli/v2"
 )
 
 const (
-	ServeConfigName = "gd-tools-serve.conf"
+	ServeConfigName = "gd-tools-serve.json"
 )
+
+var serveConfig ServeConfig
 
 func init() {
 	AddSubCommand(commandServe, "prod")
@@ -40,50 +42,41 @@ func runServe(c *cli.Context) error {
 		return err
 	}
 
-	sc, err := ReadServeConfig()
+	content, err := os.ReadFile(filepath.Join("/etc", ServeConfigName))
 	if err != nil {
 		return err
 	}
-
-	if sc.LayoutContent, err = ServeLoadPage("application.html"); err != nil {
-		return err
-	}
-	if sc.HomeContent, err = ServeLoadPage("home.html"); err != nil {
-		return err
-	}
-	if sc.StatusContent, err = ServeLoadPage("status.html"); err != nil {
+	if err := json.Unmarshal(content, &serveConfig); err != nil {
 		return err
 	}
 
-	sc.Mux = http.NewServeMux()
-	sc.Mux.HandleFunc("/", sc.HomeHandler)
-	sc.Mux.HandleFunc("/status", sc.BasicAuthMiddleware(sc.StatusHandler))
+	if serveConfig.SysAdmin == "" {
+		return fmt.Errorf("missing SysAdmin")
+	}
+	if serveConfig.Address == "" {
+		serveConfig.Address = "127.0.0.1:3000"
+	}
+
+	if serveLayoutContent, err = ServeLoadPage("application.html"); err != nil {
+		return err
+	}
+	if serveHomeContent, err = ServeLoadPage("home.html"); err != nil {
+		return err
+	}
+	if serveStatusContent, err = ServeLoadPage("status.html"); err != nil {
+		return err
+	}
 
 	LocaleInit()
 	for _, line := range LocaleGetInfo() {
 		log.Printf("Locale: %s", line)
 	}
 
-	return sc.RunWebServer()
+	return RunWebServer()
 }
 
-func ReadServeConfig() (*ServeConfig, error) {
-	var serveConfig ServeConfig
-
-	content, err := os.ReadFile(ServeConfigName)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal(content, &serveConfig); err != nil {
-		return nil, err
-	}
-
-	return &serveConfig, nil
-}
-
-func (sc *ServeConfig) Save() error {
-	content, err := json.MarshalIndent(*sc, "", "  ")
+func (sc ServeConfig) Save() error {
+	content, err := json.MarshalIndent(sc, "", "  ")
 	if err != nil {
 		return err
 	}

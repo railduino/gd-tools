@@ -1,32 +1,29 @@
 package main
 
 import (
-	"html/template"
-	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (sc *ServeConfig) StatusHandler(w http.ResponseWriter, r *http.Request) {
+func StatusHandler(w http.ResponseWriter, r *http.Request) {
+	content, err := ServeParsePage(w, r, serveStatusContent, serveConfig)
+	if err != nil {
+		return
+	}
+
 	page := ServePage{
 		Title:   T("web-status-title"),
-		Layout:  sc.Layout,
-		Content: template.HTML(sc.StatusContent),
-		Request: r,
+		Content: content,
 	}
 
 	page.Render(w, r)
 }
 
-func (sc *ServeConfig) ServeStatusInit() error {
-	serveMux.HandleFunc("/status", BasicAuthMiddleware(ServeStatus))
-}
-
-func (sc *ServeConfig) BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+func BasicAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()
-		if !ok || sc.SysAdmin != user || !checkPasswordHash(password, sc.Password) {
+		if !ok || username != serveConfig.SysAdmin || !checkPasswordHash(password, serveConfig.Password) {
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return

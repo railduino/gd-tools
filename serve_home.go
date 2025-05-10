@@ -1,17 +1,18 @@
 package main
 
 import (
-	"html/template"
-	"log"
 	"net/http"
 )
 
-func (sc *ServeConfig) HomeHandler(w http.ResponseWriter, r *http.Request) {
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	content, err := ServeParsePage(w, r, serveHomeContent, serveConfig)
+	if err != nil {
+		return
+	}
+
 	page := ServePage{
 		Title:   T("web-home-title"),
-		Layout:  sc.Layout,
-		Content: template.HTML(sc.HomeContent),
-		Request: r,
+		Content: content,
 	}
 
 	page.Render(w, r)

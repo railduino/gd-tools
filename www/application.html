@@ -38,21 +38,8 @@
       </div>
 
       <div id="navMenu" class="navbar-menu">
-        <div id="navbar-right" class="navbar-end">
-          {{if ne .Current nil}}
-          <div class="navbar-item has-dropdown is-hoverable">
-            <a class="navbar-link">{{.Current.Name}}</a>
-            <div class="navbar-dropdown">
-              <a href="/profile" class="navbar-item">Profil</a>
-              <hr class="navbar-divider">
-              <a href="/logout" class="navbar-item">{{T "web-logout"}}</a>
-            </div>
-          </div>
-          {{else}}
           <a href="{{ .ImprintURL }}" target="_blank" class="navbar-item">{{T "web-imprint"}}</a>
           <a href="{{ .ProtectURL }}" target="_blank" class="navbar-item">{{T "web-protect"}}</a>
-          <a href="/login" class="navbar-item">{{T "web-login"}}</a>
-          {{end}}
         </div>
       </div>
     </nav>

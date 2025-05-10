@@ -15,13 +15,13 @@ func init() {
 }
 
 var setupFlagHetzner = cli.StringFlag{
-	Name:  "hetzner",
-	Usage: T("setup-flag-hetzner"),
+	Name:  "hetzner-volume",
+	Usage: T("setup-flag-hetzner-volume"),
 }
 
 var setupFlagRAID = cli.StringFlag{
-	Name:  "raid",
-	Usage: T("setup-flag-raid"),
+	Name:  "raid-device",
+	Usage: T("setup-flag-raid-device"),
 }
 
 var commandSetup = &cli.Command{
@@ -65,14 +65,14 @@ func runSetup(c *cli.Context) error {
 	// check for filesystems to be mounted
 	// N.B. mounts given here are mutually exclusive
 	var mounts []Mount
-	if volume := c.String("hetzner"); volume != "" {
+	if volume := c.String("hetzner-volume"); volume != "" {
 		mount := Mount{
 			Provider:   "Hetzner",
 			Identifier: volume,
 			Mountpoint: SystemVarMount,
 		}
 		mounts = append(mounts, mount)
-	} else if device := c.String("raid"); device != "" {
+	} else if device := c.String("raid-device"); device != "" {
 		mount := Mount{
 			Provider:   "RAID",
 			Identifier: device,
@@ -106,6 +106,19 @@ func runSetup(c *cli.Context) error {
 		return err
 	}
 
+	serveConfig := ServeConfig{
+		SysAdmin:   sysAdmin,
+		Password:   "TODO",
+		Address:    "127.0.0.1:3000",
+		ProgName:   "gd-tools",
+		ProgLink:   "https://github.com/railduino/gd-tools",
+		ImprintURL: fmt.Sprintf("https://www.%s/impressum/", domainName),
+		ProtectURL: fmt.Sprintf("https://www.%s/datenschutzerklaerung/", domainName),
+	}
+	if err := serveConfig.Save(); err != nil {
+		return err
+	}
+
 	systemConfig := SystemConfig{
 		Version:    version,
 		TimeZone:   timeZone,
@@ -116,7 +129,6 @@ func runSetup(c *cli.Context) error {
 		Packages:   packages,
 		Mounts:     mounts,
 	}
-
 	if err := systemConfig.Save(); err != nil {
 		return err
 	}

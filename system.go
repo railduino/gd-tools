@@ -38,10 +38,7 @@ type SystemConfig struct {
 	Mounts     []Mount  `json:"mounts"`      // Mounted filesystem (can grow)
 
 	// container uid/gid - fetch after deployment
-	SystemIDs
-
-	// webserver configuration
-	ServeConfig
+	SystemIDs SystemIDs
 
 	// runtime data, like current path or flags
 	CurrentPath string `json:"-"`
@@ -87,7 +84,7 @@ func ReadSystemConfig(needIDs bool) (*SystemConfig, error) {
 	systemConfig.CurrentPath = currentPath
 
 	if needIDs {
-		if systemConfig.ToolsUID == "" || systemConfig.ToolsUID == "0" {
+		if systemConfig.SystemIDs.ToolsUID == "" || systemConfig.SystemIDs.ToolsUID == "0" {
 			msg := T("system-err-missing-ids")
 			return nil, fmt.Errorf(msg)
 		}
@@ -96,8 +93,8 @@ func ReadSystemConfig(needIDs bool) (*SystemConfig, error) {
 	return &systemConfig, nil
 }
 
-func (sc *SystemConfig) Save() error {
-	content, err := json.MarshalIndent(*sc, "", "  ")
+func (sc SystemConfig) Save() error {
+	content, err := json.MarshalIndent(sc, "", "  ")
 	if err != nil {
 		return err
 	}

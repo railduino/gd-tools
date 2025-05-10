@@ -63,8 +63,8 @@ func runGenerateMaintenance(c *cli.Context) error {
 		DataDir:     filepath.Join(SystemDataRoot, project.GetName()),
 		LogsDir:     filepath.Join(SystemLogsRoot, project.GetName()),
 		ServicePort: project.PortStr,
-		ToolsUID:    systemConfig.ToolsUID,
-		DockerGID:   systemConfig.DockerGID,
+		ToolsUID:    systemConfig.SystemIDs.ToolsUID,
+		DockerGID:   systemConfig.SystemIDs.DockerGID,
 	}
 	composeTmplPath := filepath.Join("maintenance", "compose.yaml")
 	project.Compose, err = TemplateParse(composeTmplPath, composeData)

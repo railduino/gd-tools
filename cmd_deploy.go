@@ -57,6 +57,9 @@ func runDeploy(c *cli.Context) error {
 	if err := DeployLocal(c, SystemConfigName, "/etc", rootUser, "400"); err != nil {
 		return err
 	}
+	if err := DeployLocal(c, ServeConfigName, "/etc", rootUser, "444"); err != nil {
+		return err
+	}
 
 	// Deploy static templates
 	if err := DeployTemplate(c, "ssl-params.conf", "/etc/nginx/snippets/ssl-params.conf", rootUser, "444"); err != nil {
@@ -75,6 +78,7 @@ func runDeploy(c *cli.Context) error {
 			"--exclude=secrets.json",
 			"--exclude=data",
 			"--exclude=" + SystemConfigName,
+			"--exclude=" + ServeConfigName,
 		},
 		Local:    localPath + "/",
 		Receiver: toolsUser,

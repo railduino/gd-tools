@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-09 13:42+0200\n"
+"POT-Creation-Date: 2025-05-10 08:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -169,24 +169,24 @@ msgstr ""
 msgid "secrets-err-parse-failed"
 msgstr ""
 
-#: cmd_serve.go:23
+#: cmd_serve.go:25
 msgid "serve-cmd-usage"
 msgstr ""
 
-#: cmd_serve.go:24
+#: cmd_serve.go:26
 msgid "serve-cmd-describe"
 msgstr ""
 
-#: cmd_serve.go:31
+#: cmd_serve.go:33
 msgid "serve-not-as-root"
 msgstr ""
 
 #: cmd_setup.go:19
-msgid "setup-flag-hetzner"
+msgid "setup-flag-hetzner-volume"
 msgstr ""
 
 #: cmd_setup.go:24
-msgid "setup-flag-raid"
+msgid "setup-flag-raid-device"
 msgstr ""
 
 #: cmd_setup.go:29
@@ -349,19 +349,19 @@ msgstr ""
 msgid "install-err-unique-exist"
 msgstr ""
 
-#: serve_home.go:11
+#: serve_home.go:14
 msgid "web-home-title"
 msgstr ""
 
-#: serve_status.go:13
+#: serve_status.go:16
 msgid "web-status-title"
 msgstr ""
 
-#: system.go:67
+#: system.go:64
 msgid "system-err-missing-file"
 msgstr ""
 
-#: system.go:91
+#: system.go:88
 msgid "system-err-missing-ids"
 msgstr ""
 

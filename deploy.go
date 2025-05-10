@@ -30,7 +30,7 @@ func (rs *DeployRsync) Execute() error {
 func DeployTemplate(c *cli.Context, fileName, destPath, receiver, chmod string) error {
 	content, err := TemplateLoad(fileName)
 	if err != nil {
-		return fmt.Errorf("TemplateLoad(%s) failed: %w", fileName, err)
+		return fmt.Errorf("TemplateLoad(%s) failed: %s", fileName, err.Error())
 	}
 
 	tmpFile, err := os.CreateTemp("", filepath.Base(fileName)+"-*")
@@ -65,7 +65,7 @@ func DeployTemplate(c *cli.Context, fileName, destPath, receiver, chmod string) 
 func DeployParsedTemplate(c *cli.Context, tmplName, destPath, receiver, chmod string, data any) error {
 	rendered, err := TemplateParse(tmplName, data)
 	if err != nil {
-		return fmt.Errorf("TemplateParse(%s) failed: %w", tmplName, err)
+		return fmt.Errorf("TemplateParse(%s) failed: %s", tmplName, err.Error())
 	}
 
 	tmpFile, err := os.CreateTemp("", filepath.Base(tmplName)+"-*")

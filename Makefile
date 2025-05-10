@@ -4,10 +4,11 @@ VERSION := $(shell git describe --tags --always 2>/dev/null || echo "dev")
 BUILD_TIME := $(shell date +"%Y-%m-%d/%H:%M:%S")
 TEMPLATES := $(shell find templates/ -type f)
 LOCALES := $(shell find locales/ -type f)
+WWW_DATA := $(shell find www/ -type f)
 
 all: replaces gd-tools
 
-gd-tools: *.go messages.pot $(TEMPLATES) $(LOCALES)
+gd-tools: *.go messages.pot $(TEMPLATES) $(LOCALES) $(WWW_DATA)
 	go mod tidy
 	go fmt ./...
 	@xgettext --language=Python -kT -kT_out -kT_err  -kTf_out -kTf -kTn:1,2 -kTnf:1,2 -o messages.pot *.go
