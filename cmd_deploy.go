@@ -68,7 +68,21 @@ func runDeploy(c *cli.Context) error {
 	if err := DeployTemplate(c, "nginx.conf", "/etc/nginx/nginx.conf", rootUser, "444"); err != nil {
 		return err
 	}
-	if err := DeployTemplate(c, "gd-tools-serve.service", "/etc/systemd/system/gd-tools-serve.service", rootUser, "644"); err != nil {
+
+	serveService := "/etc/systemd/system/gd-tools-serve.service"
+	if err := DeployTemplate(c, "gd-tools-serve.service", serveService, rootUser, "644"); err != nil {
+		return err
+	}
+
+	data := struct {
+		HostName string
+		Address  string
+	}{
+		HostName: hostName,
+		Address:  "127.0.0.1:3000",
+	}
+	hostConfig := fmt.Sprintf("/etc/nginx/sites-available/%s.conf", hostName)
+	if err := DeployParsedTemplate(c, "system-nginx.conf", hostConfig, rootUser, "444", data); err != nil {
 		return err
 	}
 

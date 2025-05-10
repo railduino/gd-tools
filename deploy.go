@@ -62,7 +62,7 @@ func DeployTemplate(c *cli.Context, fileName, destPath, receiver, chmod string) 
 }
 
 // Typ 2: DeployParsedTemplate: rendert templates mit Platzhaltern und überträgt sie
-func DeployParsedTemplate(c *cli.Context, tmplName, destPath, receiver, chmod string, data any) error {
+func DeployParsedTemplate(c *cli.Context, tmplName, destPath, receiver, chmod string, data interface{}) error {
 	rendered, err := TemplateParse(tmplName, data)
 	if err != nil {
 		return fmt.Errorf("TemplateParse(%s) failed: %s", tmplName, err.Error())
