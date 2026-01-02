@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# BorgBackup exec (called from cron)
+#
+
+set -euo pipefail
+
+export LANG=C
+export BORG_PASSPHRASE="{{.PassPhrase}}"
+BORG_REPO="{{.BorgRepo}}"
+DATA_DIR="{{.DataDir}}"
+HOOK_DIR="{{.HookDir}}"
+
+LOG_DIR="/var/log/borg"
+mkdir -p "$LOG_DIR"
+exec >"$LOG_DIR/backup.log.$(date +%A)" 2>&1
+
+# Check repository
+if ! borg list $BORG_REPO >/dev/null 2>&1; then
+    echo "Borg-Repo not initialized – trying to create one..."
+    borg init --encryption=repokey-blake2 $BORG_REPO 2>&1
+fi
+
+echo "Backup started: $(date)"
+
+# Run pre-hooks (if any)
+if [[ -d $HOOK_DIR ]]; then
+    for hook in $HOOK_DIR/backup-pre-*; do
+        [[ -x $hook ]] || continue
+        echo "Running pre-hook: $hook"
+        $hook 2>&1
+    done
+fi
+
+# Backup
+borg create -v --stats \
+    $BORG_REPO::"backup-$(date +%Y-%m-%d_%H-%M)" \
+    $DATA_DIR \
+    --exclude lost+found 2>&1
+
+# Prune
+borg prune \
+    --keep-daily {{.KeepDays}} \
+    --keep-weekly {{.KeepWeeks}} \
+    --keep-monthly {{.KeepMonths}} \
+    --glob-archives 'backup*' \
+    $BORG_REPO 2>&1
+
+# Run post-hooks (if any)
+if [[ -d $HOOK_DIR ]]; then
+    for hook in $HOOK_DIR/backup-post-*; do
+        [[ -x $hook ]] || continue
+        echo "Running post-hook: $hook"
+        $hook 2>&1
+    done
+fi
+
+echo "Backup finished: $(date)"
+

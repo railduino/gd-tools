@@ -1,0 +1,20 @@
+[Unit]
+Description=ownCloud Infinite Scale (OCIS)
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=ocis
+Group=ocis
+WorkingDirectory={{.RootDir}}
+EnvironmentFile={{.RootDir}}/.ocis/config/ocis.env
+
+ExecStart={{.ExecPath}} server
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+

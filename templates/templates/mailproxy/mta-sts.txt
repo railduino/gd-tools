@@ -1,0 +1,7 @@
+version: STSv1
+mode: testing
+{{- range .MXs}}
+mx: {{.}}
+{{- end}}
+max_age: 86400
+

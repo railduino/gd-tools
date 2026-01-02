@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="{{.Domain}}">
+    <domain>{{.Domain}}</domain>
+    <displayName>{{.Domain}} Mail</displayName>
+
+    <!-- Incoming Mail Server (IMAP) -->
+    <incomingServer type="imap">
+      <hostname>imap.{{.Domain}}</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+
+    <!-- Outgoing Mail Server (SMTP) - SSL/TLS -->
+    <outgoingServer type="smtp" >
+      <hostname>smtp.{{.Domain}}</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+
+    <!-- Outgoing Mail Server (SMTP) - STARTTLS (Fallback) -->
+    <outgoingServer type="smtp" >
+      <hostname>smtp.{{.Domain}}</hostname>
+      <port>587</port>
+      <socketType>STARTTLS</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+
+    <documentation url="https://{{.Domain}}/mailinfo" />
+  </emailProvider>
+</clientConfig>
+

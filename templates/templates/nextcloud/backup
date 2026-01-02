@@ -1,0 +1,16 @@
+#!/bin/bash
+# Prepare {{.Name}} Nextcloud database backup
+
+set -euo pipefail
+
+DB_NAME="nc_{{.Name}}"
+BACKUP_FILE="{{.RootDir}}/{{.Name}}-backup.sql"
+
+/usr/bin/mysqldump \
+  --single-transaction \
+  --routines \
+  --default-character-set=utf8mb4 \
+  "$DB_NAME" > "$BACKUP_FILE"
+
+echo "Backup for $DB_NAME written to $BACKUP_FILE"
+

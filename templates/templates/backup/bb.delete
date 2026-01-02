@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# BorgBackup delete
+#
+
+while getopts ":f" opt ; do
+	case $opt in
+		f)
+			_force=yes
+		;;
+	esac
+done
+shift $(($OPTIND-1))
+
+if [[ ! $_force ]] ; then
+	echo "May the force be with you!" >&2
+	exit 1
+fi
+
+export BORG_PASSPHRASE="{{.PassPhrase}}"
+
+if [[ $1 ]] ; then
+  _archive="::$1"
+  shift
+  _archive="$_archive $*"
+fi
+
+borg delete {{.BorgRepo}}$_archive
+

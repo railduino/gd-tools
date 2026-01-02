@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# BorgBackup mount
+#
+
+umount /mnt/restore 2>/dev/null
+
+export BORG_PASSPHRASE="{{.PassPhrase}}"
+
+if [[ $1 ]] ; then
+  _archive="::$1"
+else
+  echo "Syntax: $0 <archive>" >&2
+  exit 1
+fi
+
+mkdir -p /mnt/restore
+
+borg mount {{.BorgRepo}}$_archive /mnt/restore
+

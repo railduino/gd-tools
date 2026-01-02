@@ -1,0 +1,83 @@
+package account
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/railduino/gd-tools/config"
+	"github.com/railduino/gd-tools/email"
+	"github.com/railduino/gd-tools/utils"
+	"github.com/urfave/cli/v2"
+)
+
+var DNSCommand = &cli.Command{
+	Name:  "dns",
+	Usage: "list or update DNS provider for domain",
+	Flags: []cli.Flag{
+		config.FlagVerbose,
+		config.FlagDry,
+	},
+	ArgsUsage: "<domain> [<provider>]",
+	Action:    DNSRun,
+}
+
+func DNSRun(c *cli.Context) error {
+	cfg, err := config.ReadConfig(c)
+	if err != nil {
+		return err
+	}
+
+	var name string
+	var key utils.Key
+	switch c.NArg() {
+	case 0:
+		return fmt.Errorf("missing domain")
+	case 1:
+		name = c.Args().Get(0)
+	case 2:
+		name = c.Args().Get(0)
+		dns := c.Args().Get(1)
+		for _, entry := range cfg.API_Keys {
+			if entry.Name == dns && entry.Mode == "DNS" {
+				key = *entry
+				break
+			}
+		}
+		if key.Name == "" {
+			return fmt.Errorf("[dns] provider '%s' name not found", dns)
+		}
+	}
+
+	domainList, domainMap, err := email.GetDomains(nil)
+	if err != nil {
+		return err
+	}
+
+	domain, ok := domainMap[name]
+	if !ok {
+		return fmt.Errorf("[dns] domain '%s' not found", name)
+	}
+
+	if key.Name != "" {
+		domain.DNS_API = key.Name
+	}
+
+	var entries []string
+	for _, entry := range cfg.API_Keys {
+		if entry.Mode != "DNS" {
+			continue
+		}
+		if entry.Name == domain.DNS_API {
+			entries = append(entries, "*"+entry.Name+"*")
+		} else {
+			entries = append(entries, entry.Name)
+		}
+	}
+	fmt.Printf("[dns] provider for %s: %s\n", name, strings.Join(entries, " "))
+
+	if err := domainList.Save(); err != nil {
+		return err
+	}
+
+	return nil
+}

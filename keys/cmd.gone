@@ -1,0 +1,101 @@
+package keys
+
+import (
+	"fmt"
+	"sort"
+
+	"github.com/railduino/gd-tools/utils"
+	"github.com/urfave/cli/v2"
+)
+
+var Command = &cli.Command{
+	Name:   "keys",
+	Usage:  "List, add or delete (API) keys",
+	Action: Run,
+	Subcommands: []*cli.Command{
+		addCommand,
+		deleteCommand,
+	},
+}
+
+func Run(c *cli.Context) error {
+	if err := utils.EnsureBaseDir(); err != nil {
+		return err
+	}
+
+	if c.Args().Len() > 0 {
+		return cli.ShowSubcommandHelp(c)
+	}
+
+	list, err := utils.LoadKeyList()
+	if err != nil {
+		return err
+	}
+
+	sort.Slice(list.Entries, func(i, j int) bool {
+		return list.Entries[i].Name < list.Entries[j].Name
+	})
+
+	fmt.Printf("%-20s  %-6s  %-32s  %s\n", "NAME", "MODE", "KEY", "PSWD")
+	for _, e := range list.Entries {
+		fmt.Printf("%-20s  %-6s  %-32s  %s\n", e.Name, e.Mode, e.Key, e.Pswd)
+	}
+
+	return nil
+}
+
+var addCommand = &cli.Command{
+	Name:      "add",
+	Usage:     "Add or update a key",
+	ArgsUsage: "<name>[:<project>] <mode> <key> [<pswd>]",
+	Action: func(c *cli.Context) error {
+		if c.NArg() < 3 || c.NArg() > 4 {
+			return cli.Exit("usage: gdt keys add <name>[:<project>] <mode> <key> [<pswd>]", 1)
+		}
+
+		name := c.Args().Get(0)
+		mode := c.Args().Get(1)
+		key := c.Args().Get(2)
+		pswd := ""
+		if c.NArg() == 4 {
+			pswd = c.Args().Get(3)
+		}
+
+		list, err := utils.LoadKeyList()
+		if err != nil {
+			return err
+		}
+
+		if err := list.Add(&utils.Key{Name: name, Mode: mode, Key: key, Pswd: pswd}); err != nil {
+			return err
+		}
+
+		fmt.Printf("Added/updated %q.\n", name)
+		return nil
+	},
+}
+
+var deleteCommand = &cli.Command{
+	Name:      "delete",
+	Usage:     "Delete a key",
+	ArgsUsage: "<name>",
+	Action: func(c *cli.Context) error {
+		if c.NArg() != 1 {
+			return cli.Exit("usage: gdt keys delete <name>", 2)
+		}
+
+		name := c.Args().Get(0)
+
+		list, err := utils.LoadKeyList()
+		if err != nil {
+			return err
+		}
+
+		if err := list.Delete(name); err != nil {
+			return err
+		}
+
+		fmt.Printf("Deleted %q.\n", name)
+		return nil
+	},
+}

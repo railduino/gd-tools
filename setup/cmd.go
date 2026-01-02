@@ -1,0 +1,200 @@
+package setup
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/config"
+	"github.com/railduino/gd-tools/php"
+	"github.com/railduino/gd-tools/templates"
+	"github.com/railduino/gd-tools/utils"
+	"github.com/urfave/cli/v2"
+)
+
+const (
+	Version = "1.0"
+)
+
+var Describe = `The setup command does something useful.
+
+The details will be elaborated when the command is stable.`
+
+var Command = &cli.Command{
+	Name:        "setup",
+	Usage:       "Initialize a new production server",
+	Description: Describe,
+	Flags: []cli.Flag{
+		config.FlagVerbose,
+		config.FlagDry,
+		&cli.StringFlag{
+			Name:  "hetzner-volume",
+			Usage: "add a Hetzner Cloud Volume for /var/gd-tools",
+		},
+		&cli.StringFlag{
+			Name:  "raid-device",
+			Usage: "add a /dev/mdX RAID device for /var/gd-tools",
+		},
+		&cli.StringFlag{
+			Name:  "swap-size",
+			Usage: "e.g. '4G' - create or verify swapfile",
+			Value: "0",
+		},
+		&cli.StringFlag{
+			Name:  "dmarc",
+			Usage: "default DMARC level: relaxed, strict, (any = medium)",
+			Value: "medium",
+		},
+		&cli.StringFlag{
+			Name:  "company",
+			Usage: "Company name, used e.g. for Webmail",
+		},
+		&cli.StringFlag{
+			Name:  "help-url",
+			Usage: "Support URL for this server",
+		},
+		// TODO add Hetzner/IONOS/whatever API key
+	},
+	ArgsUsage: "<host> <domain>",
+	Action:    Run,
+}
+
+func Run(c *cli.Context) error {
+	basics, err := utils.ReadBasics()
+	if err != nil {
+		return err
+	}
+
+	if c.NArg() != 2 {
+		return fmt.Errorf("Usage: gdt setup <host> <domain>")
+	}
+	host := c.Args().Get(0)
+	domain := c.Args().Get(1)
+
+	cfg := config.Config{
+		Version:    Version,
+		Verbose:    c.Bool("verbose"),
+		Dry:        c.Bool("dry"),
+		TimeZone:   basics.TimeZone,
+		Language:   basics.Language,
+		Region:     basics.Region,
+		RegTTL:     basics.RegTTL,
+		HostName:   host,
+		DomainName: domain,
+		DMARC:      c.String("dmarc"),
+		SwapSize:   c.String("swap-size"),
+		SysAdmin:   basics.SysAdmin,
+		Company:    c.String("company"),
+		HelpURL:    c.String("help-url"),
+	}
+
+	fqdn := cfg.FQDN()
+	configPath := filepath.Join(fqdn, config.ConfigName)
+
+	if cfg.DMARC != "relaxed" && cfg.DMARC != "strict" {
+		cfg.DMARC = "medium"
+	}
+
+	if cfg.Company == "" {
+		cfg.Company = basics.Company
+	}
+
+	if _, err := os.Stat(configPath); err == nil {
+		return fmt.Errorf("Server %s exists - will not overwrite", fqdn)
+	}
+
+	reservedNames := []string{
+		"autoconfig",
+		"autodiscover",
+		"mta-sts",
+		"imap",
+		"smtp",
+		"vmail",
+		"webmail",
+		"www",
+	}
+	for _, name := range reservedNames {
+		if host == name {
+			return fmt.Errorf("hostname '%s' is reserved", name)
+		}
+	}
+
+	// collect default DEB packages
+	cfg.Packages, err = templates.Lines("packages.txt", "#", cfg.Verbose, php.GetTemplateData())
+	if err != nil {
+		return err
+	}
+
+	// read default downloads and known_hosts
+	downloads, err := os.ReadFile(agent.DownloadsName)
+	if err != nil {
+		return fmt.Errorf("failed to read %s: %w", agent.DownloadsName, err)
+	}
+	khContent, khErr := os.ReadFile("known_hosts")
+
+	// check for filesystems to be mounted
+	// N.B. mounts given here are mutually exclusive
+	if volume := c.String("hetzner-volume"); volume != "" {
+		mount := agent.Mount{
+			Provider: "Hetzner",
+			ID:       volume,
+			Dir:      agent.GetToolsDir(""),
+		}
+		cfg.Mounts = append(cfg.Mounts, &mount)
+	} else if device := c.String("raid-device"); device != "" {
+		mount := agent.Mount{
+			Provider: "RAID",
+			ID:       device,
+			Dir:      agent.GetToolsDir(""),
+		}
+		cfg.Mounts = append(cfg.Mounts, &mount)
+	}
+
+	if cfg.Dry {
+		content, err := json.MarshalIndent(cfg, "", "  ")
+		if err != nil {
+			return fmt.Errorf("failed to marshal %s: %w", fqdn, err)
+		}
+		cfg.Sayf("Config: >%s<", string(content))
+
+		return nil
+	}
+
+	// From here the real work is done - in the prod server dir
+	if err := os.Mkdir(fqdn, 0755); err != nil {
+		return err
+	}
+	if err := os.Chdir(fqdn); err != nil {
+		return err
+	}
+
+	if err := cfg.SetupCA(); err != nil {
+		return err
+	}
+
+	if err := os.WriteFile(agent.DownloadsName, downloads, 0644); err != nil {
+		return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
+	}
+
+	if khErr == nil {
+		if err := os.WriteFile("known_hosts", khContent, 0600); err != nil {
+			return fmt.Errorf("failed to write known_hosts: %w", err)
+		}
+	}
+
+	if _, _, err := utils.GetRSAKeyPair(fqdn); err != nil {
+		return err
+	}
+
+	if err := cfg.Save(); err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(config.ACME_Cert_Dir, 0755); err != nil {
+		return err
+	}
+
+	return nil
+}

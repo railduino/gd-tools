@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# BorgBackup list
+#
+
+export BORG_PASSPHRASE="{{.PassPhrase}}"
+
+if [[ $1 ]] ; then
+  _archive="::$1"
+  shift
+  _archive="$_archive $*"
+fi
+
+borg list {{.BorgRepo}}$_archive
+

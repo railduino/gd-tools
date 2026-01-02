@@ -1,0 +1,321 @@
+package config
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/railduino/gd-tools/dns"
+	"github.com/railduino/gd-tools/email"
+)
+
+func (cfg *Config) DNSProvider() (dns.DNSProvider, error) {
+	if cfg.SkipDNS {
+		return dns.NewNoopProvider("SkipDNS")
+	}
+
+	if cfg.HetznerToken != "" {
+		return dns.NewHetznerProvider(cfg.HetznerToken)
+	}
+	if cfg.IonosToken != "" {
+		return dns.NewIonosProvider(cfg.IonosToken)
+	}
+	// TODO (later) add more providers here
+
+	return dns.NewNoopProvider("NoDNS")
+}
+
+func (cfg *Config) SetA(zone, name, ip string) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: ip,
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetA %s -> %s = %v (ttl=%d)\n", zone, name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	p, err := cfg.DNSProvider()
+	if err != nil {
+		return "", err
+	}
+	if p == nil {
+		return "", fmt.Errorf("missing DNS provider")
+	}
+	ctx := context.Background()
+
+	return p.UpsertRRSet(ctx, zone, dns.RRSet{
+		Name:    name, // relative: "www", "autodiscover", ...
+		Type:    dns.RR_A,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetAAAA(zone, name, ip string) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: ip,
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetAAAA %s -> %s = %v (ttl=%d)\n", zone, name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	p, err := cfg.DNSProvider()
+	if err != nil {
+		return "", err
+	}
+	if p == nil {
+		return "", fmt.Errorf("missing DNS provider")
+	}
+	ctx := context.Background()
+
+	return p.UpsertRRSet(ctx, zone, dns.RRSet{
+		Name:    name, // relative: "www", "autodiscover", ...
+		Type:    dns.RR_AAAA,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetCNAME(zone, name string) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: cfg.FQDN(),
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetCNAME %s -> %s = %v (ttl=%d)\n", zone, name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	p, err := cfg.DNSProvider()
+	if err != nil {
+		return "", err
+	}
+	if p == nil {
+		return "", fmt.Errorf("missing DNS provider")
+	}
+	ctx := context.Background()
+
+	return p.UpsertRRSet(ctx, zone, dns.RRSet{
+		Name:    name, // relative: "www", "autodiscover", ...
+		Type:    dns.RR_CNAME,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) UpdateDomainDNS(domain *email.Domain) ([]string, error) {
+	var result []string
+
+	p, err := cfg.DNSProvider()
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, fmt.Errorf("missing DNS provider")
+	}
+	ctx := context.Background()
+
+	// SPF
+	if status, err := cfg.SetApexTXT(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set ApexTXT: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
+	// MTA-STS
+	if status, err := cfg.SetSTS(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set STS: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
+	// DKIM
+	if status, err := cfg.SetDKIM(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set DKIM: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
+	// DMARC
+	if status, err := cfg.SetDMARC(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set DMARC: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
+	// MX
+	if status, err := cfg.SetMX(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set MX: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
+	return result, nil
+}
+
+func (cfg *Config) SetApexTXT(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: domain.GetSPF("ip4:"+cfg.IPv4Addr, "ip6:"+cfg.IPv6Addr),
+	}
+	records := []dns.RRecord{record}
+
+	if domain.Verify != "" {
+		records = append(records, dns.RRecord{
+			Prio:  0,
+			Value: domain.Verify,
+		})
+	}
+	// TODO (later) add more top-level (Apex) records here, like:
+	// Google-site-verification, apple-domain-verification, MS, etc.
+
+	msg := fmt.Sprintf("SetApexTXT %s -> %v (ttl=%d)", domain.Name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    "@",
+		Type:    dns.RR_TXT,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetSTS(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: "v=STSv1; id=20250724", // My birthday, in gd-tools first year :-)
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetSTS %s -> %v (ttl=%d)", domain.Name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    "_mta-sts",
+		Type:    dns.RR_TXT,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	selector := domain.DKIM.Selector + "._domainkey"
+	pubValue := "v=DKIM1; k=rsa; s=email; t=s; p=" + domain.DKIM.PubValue
+	record := dns.RRecord{
+		Prio:  0,
+		Value: pubValue,
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetDKIM %s (%s) -> '%.32s...' (ttl=%d)", domain.Name, selector, pubValue, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    selector,
+		Type:    dns.RR_TXT,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetDMARC(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	var policy string
+	addr := "mailto:" + cfg.SysAdmin
+
+	switch domain.DMARC {
+	case "relaxed":
+		policy = fmt.Sprintf("p=none; ruf=%s", addr)
+	case "strict":
+		policy = fmt.Sprintf("p=reject; rua=%s; ruf=%s; fo=1; adkim=s; aspf=s", addr, addr)
+	default:
+		policy = fmt.Sprintf("p=quarantine; ruf=%s; fo=1", addr)
+	}
+	dmarcTXT := "v=DMARC1; " + policy
+
+	record := dns.RRecord{
+		Prio:  0,
+		Value: dmarcTXT,
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetDMARC %s (_dmarc) -> '%s' (ttl=%d)", domain.Name, dmarcTXT, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    "_dmarc",
+		Type:    dns.RR_TXT,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetMX(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	if cfg.SkipMX {
+		return fmt.Sprintf("✅ DNS (mx) for %s skipped", domain.Name), nil
+	}
+
+	// Build "prio fqdn" list
+	var records []dns.RRecord
+	for _, mx := range domain.MXs {
+		if mx.FQDN == "" || mx.Prio <= 0 {
+			continue
+		}
+		record := dns.RRecord{
+			Prio:  mx.Prio,
+			Value: mx.FQDN,
+		}
+		records = append(records, record)
+	}
+
+	msg := fmt.Sprintf("SetMX %s -> %v (ttl=%d)", domain.Name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    "@",
+		Type:    dns.RR_MX,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}

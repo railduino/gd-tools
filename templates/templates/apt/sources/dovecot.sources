@@ -1,0 +1,6 @@
+Types: deb
+URIs: https://repo.dovecot.org/ce-2.4-latest/ubuntu/noble
+Suites: noble
+Components: main
+Signed-By: /etc/apt/keyrings/dovecot.gpg
+

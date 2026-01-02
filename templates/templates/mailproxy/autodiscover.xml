@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+
+      <!-- IMAP über SSL/TLS (Port 993) -->
+      <Protocol>
+        <Type>IMAP</Type>
+        <Server>imap.{{.Domain}}</Server>
+        <Port>993</Port>
+        <DomainRequired>off</DomainRequired>
+        <LoginName>%EMAILADDRESS%</LoginName>
+        <SPA>off</SPA>
+        <SSL>on</SSL>
+        <TLS>off</TLS>
+        <AuthRequired>on</AuthRequired>
+      </Protocol>
+
+      <!-- SMTP über STARTTLS (Port 587) -->
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>smtp.{{.Domain}}</Server>
+        <Port>587</Port>
+        <DomainRequired>off</DomainRequired>
+        <LoginName>%EMAILADDRESS%</LoginName>
+        <SPA>off</SPA>
+        <SSL>off</SSL>
+        <TLS>on</TLS>
+        <AuthRequired>on</AuthRequired>
+      </Protocol>
+
+      <!-- Optional: SMTP über SSL/TLS (Port 465) -->
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>smtp.{{.Domain}}</Server>
+        <Port>465</Port>
+        <DomainRequired>off</DomainRequired>
+        <LoginName>%EMAILADDRESS%</LoginName>
+        <SPA>off</SPA>
+        <SSL>on</SSL>
+        <TLS>off</TLS>
+        <AuthRequired>on</AuthRequired>
+      </Protocol>
+
+    </Account>
+  </Response>
+</Autodiscover>
+

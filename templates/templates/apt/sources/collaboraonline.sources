@@ -1,0 +1,5 @@
+Types: deb
+URIs: https://www.collaboraoffice.com/repos/CollaboraOnline/CODE-deb
+Suites: ./
+Signed-By: /etc/apt/keyrings/collaboraonline.gpg
+
