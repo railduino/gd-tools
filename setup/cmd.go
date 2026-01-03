@@ -18,9 +18,13 @@ const (
 	Version = "1.0"
 )
 
-var Describe = `The setup command does something useful.
+var Describe = `Initialize a new production server
 
-The details will be elaborated when the command is stable.`
+Creates the initial configuration on the development workstation.
+Does not modify the production server.
+
+For detailed documentation and usage examples, see:
+https://github.com/railduino/gd-tools/wiki/10-Setup`
 
 var Command = &cli.Command{
 	Name:        "setup",
@@ -55,7 +59,22 @@ var Command = &cli.Command{
 			Name:  "help-url",
 			Usage: "Support URL for this server",
 		},
-		// TODO add Hetzner/IONOS/whatever API key
+		&cli.StringFlag{
+			Name:  "hetzner-dns",
+			Usage: "configure Hetzner Cloud DNS API token for declarative DNS management",
+		},
+		&cli.StringFlag{
+			Name:  "ionos-dns",
+			Usage: "configure IONOS DNS API token for declarative DNS management",
+		},
+		&cli.StringFlag{
+			Name:  "ubuntu-pro",
+			Usage: "attach Ubuntu Pro subscription using the provided token",
+		},
+		&cli.StringFlag{
+			Name:  "spambarrier",
+			Usage: "configure SpamBarrier API key for mail filtering services",
+		},
 	},
 	ArgsUsage: "<host> <domain>",
 	Action:    Run,
@@ -68,26 +87,30 @@ func Run(c *cli.Context) error {
 	}
 
 	if c.NArg() != 2 {
-		return fmt.Errorf("Usage: gdt setup <host> <domain>")
+		return fmt.Errorf("expected arguments: <host> <domain>")
 	}
 	host := c.Args().Get(0)
 	domain := c.Args().Get(1)
 
 	cfg := config.Config{
-		Version:    Version,
-		Verbose:    c.Bool("verbose"),
-		Dry:        c.Bool("dry"),
-		TimeZone:   basics.TimeZone,
-		Language:   basics.Language,
-		Region:     basics.Region,
-		RegTTL:     basics.RegTTL,
-		HostName:   host,
-		DomainName: domain,
-		DMARC:      c.String("dmarc"),
-		SwapSize:   c.String("swap-size"),
-		SysAdmin:   basics.SysAdmin,
-		Company:    c.String("company"),
-		HelpURL:    c.String("help-url"),
+		Version:      Version,
+		Verbose:      c.Bool("verbose"),
+		Dry:          c.Bool("dry"),
+		TimeZone:     basics.TimeZone,
+		Language:     basics.Language,
+		Region:       basics.Region,
+		RegTTL:       basics.RegTTL,
+		HostName:     host,
+		DomainName:   domain,
+		DMARC:        c.String("dmarc"),
+		SwapSize:     c.String("swap-size"),
+		SysAdmin:     basics.SysAdmin,
+		Company:      c.String("company"),
+		HelpURL:      c.String("help-url"),
+		Spambarrier:  c.String("spambarrier"),
+		UbuntuPro:    c.String("ubuntu-pro"),
+		HetznerToken: c.String("hetzner-dns"),
+		IonosToken:   c.String("ionos-dns"),
 	}
 
 	fqdn := cfg.FQDN()
@@ -153,7 +176,13 @@ func Run(c *cli.Context) error {
 	}
 
 	if cfg.Dry {
-		content, err := json.MarshalIndent(cfg, "", "  ")
+		cfg2 := cfg
+		cfg2.Spambarrier = "***"
+		cfg2.UbuntuPro = "***"
+		cfg2.HetznerToken = "***"
+		cfg2.IonosToken = "***"
+
+		content, err := json.MarshalIndent(cfg2, "", "  ")
 		if err != nil {
 			return fmt.Errorf("failed to marshal %s: %w", fqdn, err)
 		}
@@ -162,7 +191,7 @@ func Run(c *cli.Context) error {
 		return nil
 	}
 
-	// From here the real work is done - in the prod server dir
+	// From here on, we operate inside the host directory on the development workstation.
 	if err := os.Mkdir(fqdn, 0755); err != nil {
 		return err
 	}

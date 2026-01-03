@@ -6,9 +6,14 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var Describe = `The update command changes various config.json parts.
+var Describe = `Update selected parts of config.json for an existing host
 
-The details will be elaborated when the command is stable.`
+This command is meant to be executed from within a host directory. It updates
+local configuration on the development workstation and does not directly modify
+the production server.
+
+For detailed documentation and usage examples, see:
+https://github.com/railduino/gd-tools/wiki/11-Update`
 
 var Command = &cli.Command{
 	Name:        "update",
@@ -29,7 +34,22 @@ var Command = &cli.Command{
 			Name:  "help-url",
 			Usage: "Support URL for this server",
 		},
-		// TODO add Hetzner/IONOS/whatever API key
+		&cli.StringFlag{
+			Name:  "hetzner-dns",
+			Usage: "configure Hetzner Cloud DNS API token for declarative DNS management",
+		},
+		&cli.StringFlag{
+			Name:  "ionos-dns",
+			Usage: "configure IONOS DNS API token for declarative DNS management",
+		},
+		&cli.StringFlag{
+			Name:  "ubuntu-pro",
+			Usage: "attach Ubuntu Pro subscription using the provided token",
+		},
+		&cli.StringFlag{
+			Name:  "spambarrier",
+			Usage: "configure SpamBarrier API key for mail filtering services",
+		},
 	},
 	Action: Run,
 }
@@ -40,12 +60,12 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	basics, err := utils.GetBasics()
-	if err != nil {
-		return err
-	}
-
+	// Update from basics.json if requested.
 	if c.Bool("basics") {
+		basics, err := utils.GetBasics()
+		if err != nil {
+			return err
+		}
 		cfg.TimeZone = basics.TimeZone
 		cfg.Language = basics.Language
 		cfg.Region = basics.Region
@@ -53,17 +73,27 @@ func Run(c *cli.Context) error {
 		cfg.SysAdmin = basics.SysAdmin
 	}
 
-	if company := c.String("company"); company != "" {
-		cfg.Company = company
+	// Use IsSet so values can be explicitly cleared with --company "" etc.
+	if c.IsSet("company") {
+		cfg.Company = c.String("company")
+	}
+	if c.IsSet("help-url") {
+		cfg.HelpURL = c.String("help-url")
 	}
 
-	if help := c.String("help-url"); help != "" {
-		cfg.HelpURL = help
+	// Tokens / keys (also allow explicit clearing).
+	if c.IsSet("hetzner-dns") {
+		cfg.HetznerToken = c.String("hetzner-dns")
+	}
+	if c.IsSet("ionos-dns") {
+		cfg.IonosToken = c.String("ionos-dns")
+	}
+	if c.IsSet("ubuntu-pro") {
+		cfg.UbuntuPro = c.String("ubuntu-pro")
+	}
+	if c.IsSet("spambarrier") {
+		cfg.Spambarrier = c.String("spambarrier")
 	}
 
-	if err := cfg.Save(); err != nil {
-		return err
-	}
-
-	return nil
+	return cfg.Save()
 }
