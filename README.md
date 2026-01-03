@@ -47,6 +47,7 @@ Start here:
 
 Further reading:
 - [Design Goals](https://github.com/railduino/gd-tools/wiki/90-Design-Goals)
-- [Core Concepts](https://github.com/railduino/gd-tools/wiki/91-Core-Concepts)
-- [Reference Environment: Hetzner](https://github.com/railduino/gd-tools/wiki/92-Reference-Environment:-Hetzner)
+- [Non-Goals](https://github.com/railduino/gd-tools/wiki/91-Non-Goals)
+- [Core Concepts](https://github.com/railduino/gd-tools/wiki/92-Core-Concepts)
+- [Reference Environment: Hetzner](https://github.com/railduino/gd-tools/wiki/93-Reference-Environment:-Hetzner)
 
