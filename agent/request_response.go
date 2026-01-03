@@ -44,6 +44,8 @@ type Request struct {
 	Checks   []string `json:"checks,omitempty"`
 	Services []string `json:"services,omitempty"` // services to (re)start
 	Firewall []string `json:"firewall,omitempty"` // ports or apps to open
+
+	UbuntuPro string `json:"ubuntu_pro,omitempty"` // token if attaching to Ubuntu Pro
 }
 
 // Response is the structure for Prod back to Dev

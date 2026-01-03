@@ -1,8 +1,10 @@
 package agent
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -11,13 +13,20 @@ const (
 	Ubuntu = "noble"
 )
 
+type proStatusJSON struct {
+	Attached *bool `json:"attached"`
+}
+
 // PackagesTest checks if there is work to be done
 func PackagesTest(req *Request) bool {
 	marker := GetRootDir(FirstRunMarker)
 	if _, err := os.Stat(marker); os.IsNotExist(err) {
 		return true
 	}
-	return req != nil && len(req.Packages) > 0
+	if req == nil {
+		return false
+	}
+	return len(req.Packages) > 0 || req.Upgrade || req.UbuntuPro != ""
 }
 
 func PackagesHandler(req *Request, resp *Response) error {
@@ -32,6 +41,10 @@ func PackagesHandler(req *Request, resp *Response) error {
 
 	if len(req.Packages) == 0 && req.Upgrade == false {
 		return nil
+	}
+
+	if err := handleUbuntuPro(req, resp); err != nil {
+		return err
 	}
 
 	if _, err := RunCommand("apt-get", "update", "--quiet"); err != nil {
@@ -67,7 +80,10 @@ func PackagesHandler(req *Request, resp *Response) error {
 		resp.Sayf(" - successfully installed %s", pkg)
 	}
 
-	if err := EnsureDockerComposeSymlink(); err != nil {
+	// N.B. Docker is not installed by default. It must be requested by an app.
+	// But the official Docker Repo is already prepared.
+	// And if Docker is installed, make sure there is a docker-compose command in PATH
+	if err := ensureDockerComposeSymlink(); err != nil {
 		return err
 	}
 
@@ -80,7 +96,84 @@ func PackagesHandler(req *Request, resp *Response) error {
 	return nil
 }
 
-func EnsureDockerComposeSymlink() error {
+func handleUbuntuPro(req *Request, resp *Response) error {
+	if req == nil || resp == nil {
+		return nil
+	}
+
+	// Ubuntu Pro not desired → do not introduce Ubuntu dependency
+	if req.UbuntuPro == "" {
+		if _, err := exec.LookPath("pro"); err == nil {
+			attached, _ := isUbuntuProAttached()
+			if attached {
+				if _, err := RunCommand("pro", "detach", "--assume-yes"); err != nil {
+					return err
+				}
+			}
+		}
+		resp.Sayf("⭕ No Ubuntu Pro")
+		return nil
+	}
+
+	// Ubuntu Pro explicitly desired → now Ubuntu assumptions are allowed
+	if err := ensureUbuntuProClientInstalled(resp); err != nil {
+		return err
+	}
+
+	attached, _ := isUbuntuProAttached()
+	if attached {
+		resp.Sayf("✅ Ubuntu Pro is already attached")
+		return nil
+	}
+
+	if _, err := RunCommand("pro", "attach", req.UbuntuPro); err != nil {
+		return err
+	}
+	resp.Sayf("✅ Ubuntu Pro has been attached")
+
+	return nil
+}
+
+func isUbuntuProAttached() (bool, error) {
+	out, err := RunCommand("pro", "status", "--format", "json")
+	if err != nil {
+		// If pro is not available or fails, treat as not attached.
+		return false, nil
+	}
+
+	var st proStatusJSON
+	if err := json.Unmarshal([]byte(out), &st); err != nil {
+		// JSON is marked experimental; be conservative.
+		return false, nil
+	}
+	if st.Attached == nil {
+		return false, nil
+	}
+
+	return *st.Attached, nil
+}
+
+func ensureUbuntuProClientInstalled(resp *Response) error {
+	if _, err := exec.LookPath("pro"); err == nil {
+		return nil
+	}
+
+	// We need package metadata before installing the client
+	if _, err := RunCommand("apt-get", "update", "--quiet"); err != nil {
+		return err
+
+	}
+
+	// Install ubuntu-pro-client.
+	if _, err := RunCommand("apt-get", "--quiet", "--yes", "install", "ubuntu-pro-client"); err != nil {
+		return err
+	}
+	resp.Sayf(" - successfully installed ubuntu-pro-client")
+
+	return nil
+}
+
+func ensureDockerComposeSymlink() error {
 	src := "/usr/libexec/docker/cli-plugins/docker-compose"
 	dst := "/usr/local/bin/docker-compose"
 

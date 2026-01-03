@@ -14,7 +14,6 @@ var SPFCommand = &cli.Command{
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,
-		// TODO --update to update the DNS for SPF changes now
 	},
 	ArgsUsage: "<domain> add|delete <sender>",
 	Action:    SPFRun,

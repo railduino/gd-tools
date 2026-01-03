@@ -24,6 +24,7 @@ func (cfg *Config) DeployPackages(upgrade bool) error {
 	req.Packages = cfg.Packages
 	req.Upgrade = upgrade
 	req.Firewall = cfg.Firewall
+	req.UbuntuPro = cfg.UbuntuPro
 
 	if err := req.Send(); err != nil {
 		return err
