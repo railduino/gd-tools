@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Volker Wiegand
+# Copyright (c) 2025-2026 Volker Wiegand
 
 VERSION     := $(shell git describe --tags --always 2>/dev/null || echo "dev")
 BUILD_TIME  := $(shell date +"%Y-%m-%d/%H:%M:%S")

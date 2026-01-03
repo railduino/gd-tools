@@ -42,9 +42,11 @@ Comprehensive documentation lives in the project wiki:
 👉 **https://github.com/railduino/gd-tools/wiki**
 
 Start here:
-- [Installation & Bootstrap](https://github.com/railduino/gd-tools/wiki/Installation-&-Bootstrap)
-- [Design Goals](https://github.com/railduino/gd-tools/wiki/Design-Goals)
-- [Non-Goals](https://github.com/railduino/gd-tools/wiki/Non-Goals)
-- [Core Concepts](https://github.com/railduino/gd-tools/wiki/Core-Concepts)
-- [Reference Environment: Hetzner](https://github.com/railduino/gd-tools/wiki/Reference-Environment:-Hetzner)
+- [Installation & Bootstrap](https://github.com/railduino/gd-tools/wiki/01-Installation-&-Bootstrap)
+- [Your first production server](https://github.com/railduino/gd-tools/wiki/02-Your-first-production-server)
+
+Further reading:
+- [Design Goals](https://github.com/railduino/gd-tools/wiki/90-Design-Goals)
+- [Core Concepts](https://github.com/railduino/gd-tools/wiki/91-Core-Concepts)
+- [Reference Environment: Hetzner](https://github.com/railduino/gd-tools/wiki/92-Reference-Environment:-Hetzner)
 
