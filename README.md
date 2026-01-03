@@ -20,3 +20,31 @@ changes are intentional, reviewable, and repeatable.
 gd-tools is opinionated by design and aims to stay small, inspectable, and
 adaptable over time.
 
+While gd-tools is designed to stay adaptable, it does make a set of explicit
+assumptions about the target environment.
+
+The reference environment for gd-tools is a self-hosted setup on Hetzner
+infrastructure. This includes virtual machines hosted as Hetzner Cloud servers,
+DNS management via the Hetzner Cloud API, and off-site backups using Hetzner
+Storage Boxes.
+
+These assumptions are not hard requirements, but they strongly influence the
+default workflows, integrations, and abstractions provided by gd-tools. Other
+providers can be integrated (e.g. the IONOS DNS API), but Hetzner is treated
+as the primary, well-tested baseline.
+
+---
+
+## Documentation
+
+Comprehensive documentation lives in the project wiki:
+
+👉 **https://github.com/railduino/gd-tools/wiki**
+
+Start here:
+- [Installation & Bootstrap](https://github.com/railduino/gd-tools/wiki/Installation-&-Bootstrap)
+- [Design Goals](https://github.com/railduino/gd-tools/wiki/Design-Goals)
+- [Non-Goals](https://github.com/railduino/gd-tools/wiki/Non-Goals)
+- [Core Concepts](https://github.com/railduino/gd-tools/wiki/Core-Concepts)
+- [Reference Environment: Hetzner](https://github.com/railduino/gd-tools/wiki/Reference-Environment:-Hetzner)
+
