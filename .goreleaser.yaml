@@ -1,0 +1,43 @@
+version: 2
+
+builds:
+  - id: gdt
+    main: ./cmd/gdt/main.go
+    binary: gdt
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    env: [CGO_ENABLED=0]
+
+  - id: gd-tools
+    main: ./cmd/gd-tools/main.go
+    binary: gd-tools
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    env: [CGO_ENABLED=0]
+
+  - id: gd-occ
+    main: ./cmd/gd-occ/main.go
+    binary: gd-occ
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    env: [CGO_ENABLED=0]
+
+  - id: gd-wp-cli
+    main: ./cmd/gd-wp-cli/main.go
+    binary: gd-wp-cli
+    goos: [linux, darwin]
+    goarch: [amd64, arm64]
+    env: [CGO_ENABLED=0]
+
+archives:
+  - id: default
+    builds: [gdt, gd-tools, gd-occ, gd-wp-cli]
+    format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README*
+      - LICENSE*
+
+checksum:
+  name_template: "checksums.txt"
+
