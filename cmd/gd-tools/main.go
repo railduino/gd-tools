@@ -19,9 +19,6 @@ import (
 )
 
 var (
-	version   string // injected by ldflags
-	buildTime string
-
 	lockFile *os.File
 )
 

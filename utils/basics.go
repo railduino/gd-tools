@@ -14,7 +14,7 @@ const (
 	BasicsName = "basics.json"
 
 	DefaultTimeZone = "Europe/Berlin"
-	DefaultCompany  = "gd-tools"
+	DefaultCompany  = "My Company"
 	DefaultRegTTL   = 3600
 )
 
@@ -30,23 +30,6 @@ type Basics struct {
 
 func (basics *Basics) Locale() string {
 	return basics.Language + "_" + basics.Region
-}
-
-func EnsureBaseDir() error {
-	currDir, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to verify current dir: %w", err)
-	}
-
-	baseDir := os.Getenv("GD_TOOLS_BASE")
-	if baseDir == "" {
-		return fmt.Errorf("missing GD_TOOLS_BASE env-var - please add")
-	}
-	if baseDir != currDir {
-		return fmt.Errorf("seems we are not in $GD_TOOLS_BASE, are we?")
-	}
-
-	return nil
 }
 
 func ReadBasics() (*Basics, error) {

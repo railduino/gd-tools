@@ -27,14 +27,13 @@ import (
 )
 
 var (
-	version   string // will be loaded via -ldflags
-	buildTime string
+	version string // will be loaded via -ldflags
 )
 
 func main() {
 	app := &cli.App{
 		Name:     "gdt",
-		Version:  fmt.Sprintf("%s (built %s)", version, buildTime),
+		Version:  fmt.Sprintf("%s", version),
 		Usage:    "gdt (short for gd-tools or go-deployment-tools) helps managing Ubuntu/Debian servers",
 		Commands: getCommands(),
 		Action: func(c *cli.Context) error {
