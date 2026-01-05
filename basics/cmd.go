@@ -77,6 +77,11 @@ func Run(c *cli.Context) error {
 		}
 	}
 
+	if !basicsHasChanges(c) {
+		printBasics(basics)
+		return nil
+	}
+
 	if value := c.String("company"); value != "" {
 		basics.Company = value
 	}
@@ -104,4 +109,27 @@ func Run(c *cli.Context) error {
 	}
 
 	return nil
+}
+
+func basicsHasChanges(c *cli.Context) bool {
+	return c.String("company") != "" ||
+		c.String("sysadmin") != "" ||
+		c.String("help-url") != "" ||
+		c.String("timezone") != "" ||
+		c.String("language") != "" ||
+		c.String("region") != "" ||
+		c.Int("reg-ttl") != utils.DefaultRegTTL
+}
+
+func printBasics(b utils.Basics) {
+	fmt.Printf("%-12s  %s\n", "KEY", "VALUE")
+	fmt.Printf("%-12s  %s\n", "------------", "------------------------------")
+
+	fmt.Printf("%-12s  %s\n", "Company", b.Company)
+	fmt.Printf("%-12s  %s\n", "SysAdmin", b.SysAdmin)
+	fmt.Printf("%-12s  %s\n", "HelpURL", b.HelpURL)
+	fmt.Printf("%-12s  %s\n", "TimeZone", b.TimeZone)
+	fmt.Printf("%-12s  %s\n", "Language", b.Language)
+	fmt.Printf("%-12s  %s\n", "Region", b.Region)
+	fmt.Printf("%-12s  %d\n", "RegTTL", b.RegTTL)
 }
