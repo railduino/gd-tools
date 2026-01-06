@@ -1,0 +1,92 @@
+# Basics
+openssh-server
+xauth
+git
+rsync
+file
+tree
+unzip
+bzip2
+curl
+wget
+mdadm
+rclone
+vim
+jq
+plocate
+apt-transport-https
+software-properties-common
+ca-certificates
+gnupg2
+lsb-release
+dirmngr
+less
+htop
+net-tools
+whois
+
+# Databases
+sqlite3
+libsqlite3-0
+redis
+mariadb-server
+mariadb-client
+
+# Image processing
+imagemagick
+libmagickcore-6.q16-7-extra
+
+# PHP (Ubuntu has 8.3, good for Wordpress and Nextcloud)
+php{{.PhpVersion}}-cli
+php{{.PhpVersion}}-common
+php{{.PhpVersion}}-apcu
+php{{.PhpVersion}}-bcmath
+php{{.PhpVersion}}-bz2
+php{{.PhpVersion}}-curl
+php{{.PhpVersion}}-fpm
+php{{.PhpVersion}}-gd
+php{{.PhpVersion}}-gmp
+php{{.PhpVersion}}-imagick
+php{{.PhpVersion}}-intl
+php{{.PhpVersion}}-mbstring
+php{{.PhpVersion}}-mysql
+php{{.PhpVersion}}-opcache
+php{{.PhpVersion}}-readline
+php{{.PhpVersion}}-redis
+php{{.PhpVersion}}-soap
+php{{.PhpVersion}}-xml
+php{{.PhpVersion}}-xmlrpc
+php{{.PhpVersion}}-zip
+
+# Webserver (uses Lego for certificates)
+apache2
+
+# Mail server
+postfix
+postfix-mysql
+libsasl2-modules
+dovecot-core
+dovecot-imapd
+dovecot-lmtpd
+dovecot-managesieved
+dovecot-sieve
+dovecot-mysql
+mailutils
+
+# System security
+rspamd
+fail2ban
+ufw
+unbound
+
+# Backup
+borgbackup
+fuse3
+python3-pyfuse3
+
+# Docker (infrastructure only)
+# docker-ce
+# docker-ce-cli
+# containerd.io
+# docker-compose-plugin
+

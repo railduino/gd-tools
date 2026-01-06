@@ -1,9 +1,10 @@
 # Copyright (c) 2025-2026 Volker Wiegand
 
-VERSION     := $(shell git describe --tags --always 2>/dev/null || echo "dev")
+VERSION   := $(shell git describe --tags --always 2>/dev/null || echo "dev")
 
-SRC         := $(shell find . -name '*.go')
-TEMPLATES   := $(shell find templates/templates/ -type f)
+SRC       := $(shell find . -name '*.go')
+ASSETS    := $(shell find assets/ -type f)
+TEMPLATES := $(shell find templates/templates/ -type f)
 
 .PHONY: all gdt gd-tools gd-occ gd-wp-cli clean test completion pull push
 
@@ -17,7 +18,9 @@ gd-occ: bin/gd-occ
 
 gd-wp-cli: bin/gd-wp-cli
 
-bin/gdt: $(SRC) $(TEMPLATES)
+bin/gdt: $(SRC) $(ASSETS) $(TEMPLATES)
+	mkdir -p templates/templates/assets
+	cp -a assets/* templates/templates/assets/
 	go mod tidy
 	go fmt ./...
 	go vet ./...
