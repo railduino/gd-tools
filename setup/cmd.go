@@ -145,7 +145,8 @@ func Run(c *cli.Context) error {
 	}
 
 	// collect default DEB packages
-	cfg.Packages, err = templates.Lines("packages.txt", "#", cfg.Verbose, php.GetTemplateData())
+	packagesPath := filepath.Join("assets", "packages.txt")
+	cfg.Packages, err = templates.Lines(packagesPath, "#", cfg.Verbose, php.GetTemplateData())
 	if err != nil {
 		return err
 	}

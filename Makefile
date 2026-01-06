@@ -19,7 +19,7 @@ gd-occ: bin/gd-occ
 gd-wp-cli: bin/gd-wp-cli
 
 bin/gdt: $(SRC) $(ASSETS) $(TEMPLATES)
-	mkdir -p templates/templates/assets
+	@mkdir -p templates/templates/assets
 	cp -a assets/* templates/templates/assets/
 	go mod tidy
 	go fmt ./...

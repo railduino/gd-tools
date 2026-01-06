@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"path/filepath"
 	"sort"
 
 	"github.com/railduino/gd-tools/agent"
@@ -226,7 +227,8 @@ func ReadConfig(c *cli.Context) (*Config, error) {
 		cfg.RegTTL = basics.RegTTL
 	}
 
-	packages, err := templates.Lines("packages.txt", "#", cfg.Verbose, php.GetTemplateData())
+	packagesPath := filepath.Join("assets", "packages.txt")
+	packages, err := templates.Lines(packagesPath, "#", cfg.Verbose, php.GetTemplateData())
 	if err != nil {
 		return nil, err
 	}
