@@ -91,7 +91,7 @@ gd-tools is well suited for:
 
 The recommended entry point is:
 
-- **Installation & Bootstrap[](https://github.com/railduino/gd-tools/wiki/01-Installation-&-Bootstrap)**
+- **[Installation & Bootstrap](https://github.com/railduino/gd-tools/wiki/01-Installation-&-Bootstrap)**
 
 This chapter establishes the baseline of a gd-tools managed system.
 It explains which components are installed, which artefacts are generated,
