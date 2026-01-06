@@ -30,10 +30,15 @@ type CMS struct {
 	Region     string   `json:"region"`
 	Password   string   `json:"password"`
 	DirName    string   `json:"dir_name"`
-	Salt       string   `json:"salt"`
 	AdminName  string   `json:"admin_name"`
 	AdminEmail string   `json:"admin_email"`
 	AdminPswd  string   `json:"admin_pswd"`
+
+	// for WordPress
+	Salt string `json:"salt,omitempty"`
+
+	// for MediaWiki
+	Title string `json:"title,omitempty"`
 }
 
 type CMSList struct {
@@ -143,17 +148,9 @@ func (cms *CMS) NameList() []string {
 	return list
 }
 
-func (cms *CMS) SaltEntry(num int) string {
-	return fmt.Sprintf("%s_%d", cms.Salt, num)
-}
-
 func (cms *CMS) CronPath() string {
 	name := cms.Product + "_" + cms.Name()
 	return agent.GetEtcDir("cron.d", name)
-}
-
-func (cms *CMS) WP_CLI_Path() string {
-	return agent.GetBinDir("wp-" + cms.Name())
 }
 
 func LoadCMSList(update *CMS) (*CMSList, error) {
@@ -186,18 +183,15 @@ func LoadCMSList(update *CMS) (*CMSList, error) {
 			return nil, fmt.Errorf("found CMS without Product")
 		}
 
+		if entry.DirName == "" {
+			return nil, fmt.Errorf("missing DirName for CMS %s", entry.FQDN())
+		}
+
 		if update != nil && update.Password != "" {
 			entry.Password = update.Password
 		}
 		if entry.Password == "" {
 			return nil, fmt.Errorf("missing Password for CMS %s", entry.FQDN())
-		}
-
-		if update != nil && update.Salt != "" {
-			entry.Salt = update.Salt
-		}
-		if entry.Salt == "" {
-			return nil, fmt.Errorf("missing Salt for CMS %s", entry.FQDN())
 		}
 
 		if update != nil && update.AdminName != "" {
@@ -219,6 +213,22 @@ func LoadCMSList(update *CMS) (*CMSList, error) {
 		}
 		if entry.AdminPswd == "" {
 			return nil, fmt.Errorf("missing AdminPswd for CMS %s", entry.FQDN())
+		}
+
+		// place CMS specific code here
+		switch entry.Product {
+		case "wordpress":
+			if update != nil && update.Salt != "" {
+				entry.Salt = update.Salt
+			}
+			if entry.Salt == "" {
+				return nil, fmt.Errorf("missing Salt for WordPress %s", entry.FQDN())
+			}
+		case "mediawiki":
+			if update != nil && update.Title != "" {
+				entry.Title = update.Title
+			}
+
 		}
 	}
 
@@ -294,8 +304,14 @@ func (cfg *Config) DeployCMS() error {
 		return err
 	}
 
-	if cms.Product == "wordpress" {
-		if err := cfg.WordPressWpCLI(cms); err != nil {
+	// place CMS specific code here
+	switch cms.Product {
+	case "wordpress":
+		if err := cfg.WordPressExtras(cms); err != nil {
+			return err
+		}
+	case "mediawiki":
+		if err := cfg.MediaWikiInstall(cms); err != nil {
 			return err
 		}
 	}
@@ -469,6 +485,9 @@ func (cfg *Config) CMSConfig(cms *CMS) error {
 		confTmpl, err = templates.Parse("wordpress/wp-config.php", cfg.Verbose, cms)
 		confPath = cms.BaseDir("wp-config.php")
 		confUser = "www-data"
+	case "mediawiki":
+		// no template here; LocalSettings.php is created by the installer on Prod
+		confTmpl = nil
 	default:
 		return fmt.Errorf("unknown CMS product '%s'", cms.Product)
 	}
@@ -476,16 +495,18 @@ func (cfg *Config) CMSConfig(cms *CMS) error {
 		return err
 	}
 
-	confFile := agent.File{
-		Task:    "write",
-		Path:    confPath,
-		Content: confTmpl,
-		Mode:    "0644",
-		User:    confUser,
-		Group:   confUser,
-		Service: "apache2",
+	if len(confTmpl) > 0 {
+		confFile := agent.File{
+			Task:    "write",
+			Path:    confPath,
+			Content: confTmpl,
+			Mode:    "0644",
+			User:    confUser,
+			Group:   confUser,
+			Service: "apache2",
+		}
+		req.AddFile(&confFile)
 	}
-	req.AddFile(&confFile)
 
 	poolName := filepath.Join(cms.Product, "php-fpm-pool.conf")
 	poolTmpl, err := templates.Parse(poolName, cfg.Verbose, cms)
@@ -579,43 +600,6 @@ func (cfg *Config) CMSSetupVhost(cms *CMS) error {
 	}
 	req.AddFile(&vhostFile)
 	req.AddService("apache2")
-
-	if err := req.Send(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (cfg *Config) WordPressWpCLI(cms *CMS) error {
-	wpSrc := agent.GetBinDir("gd-wp-cli")
-	wpDst := agent.GetBinDir("wp-" + cms.Name())
-	if _, err := cfg.LocalCommand(
-		"rsync",
-		cfg.RsyncFlags(),
-		"--chown=root:root",
-		"--chmod=0755",
-		wpSrc,
-		cfg.RootUser()+":"+wpDst,
-	); err != nil {
-		return fmt.Errorf("failed to install %s: %w", wpDst, err)
-	}
-
-	req := cfg.NewRequest()
-
-	cronTmpl, err := templates.Parse("wordpress/cron.d", cfg.Verbose, cms)
-	if err != nil {
-		return err
-	}
-	cronFile := agent.File{
-		Task:    "write",
-		Path:    cms.CronPath(),
-		Content: cronTmpl,
-		Mode:    "0644",
-		User:    "root",
-		Group:   "root",
-	}
-	req.AddFile(&cronFile)
 
 	if err := req.Send(); err != nil {
 		return err

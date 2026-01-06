@@ -38,14 +38,21 @@ type Request struct {
 	Downloads []*Download `json:"downloads,omitempty"`
 	SQL       []string    `json:"sql,omitempty"`
 	MySQLs    []*MySQL    `json:"mysqls,omitempty"`
-	Nextcloud *Nextcloud  `json:"nextcloud,omitempty"`
-	NextConf  string      `json:"next_conf,omitempty"`
 
 	Checks   []string `json:"checks,omitempty"`
 	Services []string `json:"services,omitempty"` // services to (re)start
 	Firewall []string `json:"firewall,omitempty"` // ports or apps to open
 
-	UbuntuPro string `json:"ubuntu_pro,omitempty"` // token if attaching to Ubuntu Pro
+	// for Nextcloud
+	Nextcloud *Nextcloud `json:"nextcloud,omitempty"`
+	NextConf  string     `json:"next_conf,omitempty"`
+
+	// for MediaWiki
+	MediaWiki *MediaWiki `json:"mediawiki,omitempty"`
+	MWConf    string     `json:"mw_conf,omitempty"`
+
+	// for Ubuntu Pro (https://ubuntu.com/pro)
+	UbuntuPro string `json:"ubuntu_pro,omitempty"`
 }
 
 // Response is the structure for Prod back to Dev

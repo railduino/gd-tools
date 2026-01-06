@@ -76,6 +76,11 @@ var Handlers = []Handler{
 		Func: agent.MySQLHandler,
 	},
 	{
+		Name: "MediaWiki",
+		Test: agent.MediaWikiTest,
+		Func: agent.MediaWikiHandler,
+	},
+	{
 		Name: "Nextcloud",
 		Test: agent.NextcloudTest,
 		Func: agent.NextcloudHandler,
