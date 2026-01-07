@@ -1,6 +1,11 @@
 package update
 
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/config"
 	"github.com/railduino/gd-tools/utils"
 	"github.com/urfave/cli/v2"
@@ -25,6 +30,10 @@ var Command = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "basics",
 			Usage: "update values from basics.json",
+		},
+		&cli.BoolFlag{
+			Name:  "downloads",
+			Usage: "update downloads.json from server root directory",
 		},
 		&cli.StringFlag{
 			Name:  "company",
@@ -60,7 +69,7 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	// Update from basics.json if requested.
+	// Update from basics.json if requested
 	if c.Bool("basics") {
 		basics, err := utils.GetBasics()
 		if err != nil {
@@ -73,6 +82,18 @@ func Run(c *cli.Context) error {
 		cfg.SysAdmin = basics.SysAdmin
 	}
 
+	// Update downloads.json if requested
+	if c.Bool("downloads") {
+		path := filepath.Join("..", agent.DownloadsName)
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read %s: %w", agent.DownloadsName, err)
+		}
+		if err := os.WriteFile(agent.DownloadsName, content, 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
+		}
+	}
+
 	// Use IsSet so values can be explicitly cleared with --company "" etc.
 	if c.IsSet("company") {
 		cfg.Company = c.String("company")
@@ -81,7 +102,7 @@ func Run(c *cli.Context) error {
 		cfg.HelpURL = c.String("help-url")
 	}
 
-	// Tokens / keys (also allow explicit clearing).
+	// Tokens / keys (also allow explicit clearing)
 	if c.IsSet("hetzner-dns") {
 		cfg.HetznerToken = c.String("hetzner-dns")
 	}

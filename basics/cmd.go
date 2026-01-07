@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/config"
+	"github.com/railduino/gd-tools/templates"
 	"github.com/railduino/gd-tools/utils"
 	"github.com/urfave/cli/v2"
 )
@@ -53,6 +55,17 @@ var Command = &cli.Command{
 func Run(c *cli.Context) error {
 	if err := utils.EnsureBaseDir(); err != nil {
 		return err
+	}
+
+	if _, err := os.Stat(agent.DownloadsName); err != nil {
+		tmpl := filepath.Join("assets", agent.DownloadsName)
+		content, err := templates.Load(tmpl, false)
+		if err != nil {
+			return fmt.Errorf("failed to load %s: %w", agent.DownloadsName, err)
+		}
+		if err := os.WriteFile(agent.DownloadsName, content, 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
+		}
 	}
 
 	var basics utils.Basics
