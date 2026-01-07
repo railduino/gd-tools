@@ -25,6 +25,7 @@ type Nextcloud struct {
 	Region     string   `json:"region"`
 	HostName   string   `json:"host_name"`
 	DomainName string   `json:"domain_name"`
+	ServerFQDN string   `json:"server_fqdn"`
 	Subdir     string   `json:"subdir"`
 	Password   string   `json:"password"`
 	InstanceID string   `json:"instance_id"`

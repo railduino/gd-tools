@@ -72,6 +72,7 @@ func Run(c *cli.Context) error {
 	entry := agent.Nextcloud{
 		HostName:   host,
 		DomainName: domain,
+		ServerFQDN: cfg.FQDN(),
 		Subdir:     c.String("subdir"),
 		Language:   cfg.Language,
 		Region:     cfg.Region,

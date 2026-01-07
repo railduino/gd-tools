@@ -118,15 +118,17 @@ func (nc *Nextcloud) Configure(resp *Response, key string) error {
 		return nil
 	}
 
-	args := []string{keyParts[0]}
+	var args []string
 	if len(keyParts) == 2 {
-		args = append(args, keyParts[1])
+		args = append(args, keyParts[0], keyParts[1])
+	} else {
+		args = append(args, key)
 	}
 	args = append(args, "--type", entry.Typ, "--value", entry.Value)
 	if _, err := nc.RunOCC(resp, OCC_Config_Set, args...); err != nil {
-		return fmt.Errorf("set config %s failed: %w", key, err)
+		return fmt.Errorf("set config %s to '%q' failed: %w", key, args, err)
 	}
-	resp.Sayf("updated config %s ==> '%s' -> '%s'", key, value, entry.Value)
+	resp.Sayf("updated config %s ==> '%s'", key, entry.Value)
 
 	if nc.Subdir != "" {
 		if _, err := nc.RunOCC(resp, "maintenance:update:htaccess"); err != nil {
@@ -153,6 +155,7 @@ func (nc *Nextcloud) GetConfigList() []NextConfigEntry {
 		{"trusted_domains:0", "string", nc.FQDN()},
 		{"trusted_proxies:0", "string", "127.0.0.1"},
 		{"trusted_proxies:1", "string", "::1"},
+		{"trusted_domains:1", "string", nc.ServerFQDN},
 		{"passwordsalt", "string", nc.Salt},
 		{"secret", "string", nc.Secret},
 		{"default_language", "string", nc.Language},
@@ -160,6 +163,7 @@ func (nc *Nextcloud) GetConfigList() []NextConfigEntry {
 		{"mysql.utf8mb4", "boolean", "true"},
 		{"memcache.local", "string", "\\OC\\Memcache\\Redis"},
 		{"memcache.locking", "string", "\\OC\\Memcache\\Redis"},
+		{"versions_retention_obligation", "string", "0"},
 		{"maintenance_window_start", "integer", "1"},
 		{"simpleSignUpLink.shown", "boolean", "false"},
 		{"mail_from_address", "string", mailFrom},
@@ -210,6 +214,11 @@ func (nc *Nextcloud) RunOCC(resp *Response, cmd string, args ...string) (string,
 	command.Stderr = &output
 
 	if err := command.Run(); err != nil {
+		out := output.String()
+		// Treat missing config keys as "empty" for idempotent setup runs
+		if cmd == "config:system:get" && strings.Contains(out, "config key not found") {
+			return "", nil
+		}
 		return "", fmt.Errorf("RunOCC failed: %w\n%s", err, output.String())
 	}
 
