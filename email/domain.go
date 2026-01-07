@@ -32,7 +32,7 @@ type Domain struct {
 	DMARC    string   `json:"dmarc"`              // DMARC level: relaxed, medium, strict
 	MXs      []MX     `json:"mxs,omitempty"`      // (external) MX records
 	Aliases  []string `json:"aliases,omitempty"`  // alias name(s) - mainly for legacy
-	Includes []string `json:"includes,omitempty"` // SPF includes
+	SPFs     []string `json:"spfs,omitempty"`     // SPF additions (ip4:... or include:...)
 	Verify   string   `json:"verify,omitempty"`   // Verification, currently for SpamBarrier
 
 	UserList []*User          `json:"users"` // List of all users within the domain
@@ -189,19 +189,19 @@ func (dom *Domain) DeleteAlias(alias string) {
 }
 
 func (dom *Domain) AddSPF(sender string) {
-	for _, current := range dom.Includes {
+	for _, current := range dom.SPFs {
 		if current == sender {
 			return
 		}
 	}
 
-	dom.Includes = append(dom.Includes, sender)
+	dom.SPFs = append(dom.SPFs, sender)
 }
 
 func (dom *Domain) DeleteSPF(sender string) {
-	for i, current := range dom.Includes {
+	for i, current := range dom.SPFs {
 		if current == sender {
-			dom.Includes = append(dom.Includes[:i], dom.Includes[i+1:]...)
+			dom.SPFs = append(dom.SPFs[:i], dom.SPFs[i+1:]...)
 			break
 		}
 	}
@@ -212,8 +212,8 @@ func (dom *Domain) GetSPF(args ...string) string {
 	for _, arg := range args {
 		text += " " + arg
 	}
-	for _, inc := range dom.Includes {
-		text += " include:" + inc
+	for _, inc := range dom.SPFs {
+		text += " " + inc
 	}
 	return text + " -all"
 }
