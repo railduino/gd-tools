@@ -27,13 +27,13 @@ type MX struct {
 }
 
 type Domain struct {
-	Name     string   `json:"name"`               // The domain name (e.g. example.com)
-	DKIM     DKIM     `json:"dkim"`               // DKIM record value
-	DMARC    string   `json:"dmarc"`              // DMARC level: relaxed, medium, strict
-	MXs      []MX     `json:"mxs,omitempty"`      // (external) MX records
-	Aliases  []string `json:"aliases,omitempty"`  // alias name(s) - mainly for legacy
-	SPFs     []string `json:"spfs,omitempty"`     // SPF additions (ip4:... or include:...)
-	Verify   string   `json:"verify,omitempty"`   // Verification, currently for SpamBarrier
+	Name    string   `json:"name"`              // The domain name (e.g. example.com)
+	DKIM    DKIM     `json:"dkim"`              // DKIM record value
+	DMARC   string   `json:"dmarc"`             // DMARC level: relaxed, medium, strict
+	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
+	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
+	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)
+	Verify  string   `json:"verify,omitempty"`  // Verification, currently for SpamBarrier
 
 	UserList []*User          `json:"users"` // List of all users within the domain
 	UserMap  map[string]*User `json:"-"`
