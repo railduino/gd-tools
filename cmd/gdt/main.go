@@ -13,6 +13,7 @@ import (
 	"github.com/railduino/gd-tools/hello"
 	"github.com/railduino/gd-tools/install"
 	"github.com/railduino/gd-tools/login"
+	"github.com/railduino/gd-tools/mediawiki"
 	"github.com/railduino/gd-tools/nextcloud"
 	"github.com/railduino/gd-tools/ocis"
 	"github.com/railduino/gd-tools/redirect"
@@ -80,6 +81,7 @@ func getCommands() []*cli.Command {
 		hello.Command,
 		install.Command,
 		login.Command,
+		mediawiki.Command,
 		nextcloud.Command,
 		ocis.Command,
 		redirect.Command,
