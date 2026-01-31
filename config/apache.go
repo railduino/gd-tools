@@ -41,6 +41,14 @@ func (cfg *Config) DeployApache() error {
 		return err
 	}
 
+	// TODO set DNS entries (including imap/smtp)
+
+	if status, err := cfg.SetHostSPF(cfg.DomainName, cfg.HostName, cfg.IPv4Addr, cfg.IPv6Addr); err != nil {
+		return err
+	} else if status != "" {
+		cfg.Say(status)
+	}
+
 	if err := cfg.ApacheVhost(); err != nil {
 		return err
 	}
