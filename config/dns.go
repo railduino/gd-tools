@@ -88,6 +88,41 @@ func (cfg *Config) SetAAAA(zone, name, ip string) (string, error) {
 	})
 }
 
+// SetHostSPF sets an explicit SPF record for an SMTP host.
+// This is required by modern receivers (Microsoft, Apple, Google)
+// which validate SPF against the envelope/HELO domain, not only the From domain.
+func (cfg *Config) SetHostSPF(zone, name, ip4, ip6 string) (string, error) {
+	record := dns.RRecord{
+		Prio:  0,
+		Value: fmt.Sprintf("v=spf1 ip4:%s ip6:%s -all", ip4, ip6),
+	}
+	records := []dns.RRecord{record}
+
+	msg := fmt.Sprintf("SetHostSPF %s -> %s = %v (ttl=%d)\n", zone, name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	p, err := cfg.DNSProvider()
+	if err != nil {
+		return "", err
+	}
+	if p == nil {
+		return "", fmt.Errorf("missing DNS provider")
+	}
+	ctx := context.Background()
+
+	return p.UpsertRRSet(ctx, zone, dns.RRSet{
+		Name:    name, // relative: "www", "autodiscover", ...
+		Type:    dns.RR_TXT,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
 func (cfg *Config) SetCNAME(zone, name string) (string, error) {
 	record := dns.RRecord{
 		Prio:  0,
