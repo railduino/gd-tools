@@ -43,6 +43,9 @@ type Request struct {
 	Services []string `json:"services,omitempty"` // services to (re)start
 	Firewall []string `json:"firewall,omitempty"` // ports or apps to open
 
+	// for RustDesk
+	RustDesk *RustDesk `json:"rust_desk,omitempty"`
+
 	// for Nextcloud
 	Nextcloud *Nextcloud `json:"nextcloud,omitempty"`
 	NextConf  string     `json:"next_conf,omitempty"`
@@ -57,10 +60,11 @@ type Request struct {
 
 // Response is the structure for Prod back to Dev
 type Response struct {
-	Result   []string `json:"result,omitempty"`
-	Services []string `json:"services,omitempty"`
-	UserIDs  []UserID `json:"user_ids,omitempty"`
-	Err      string   `json:"err"`
+	Result   []string  `json:"result,omitempty"`
+	Services []string  `json:"services,omitempty"`
+	UserIDs  []UserID  `json:"user_ids,omitempty"`
+	RustDesk *RustDesk `json:"rust_desk,omitempty"`
+	Err      string    `json:"err"`
 }
 
 var (

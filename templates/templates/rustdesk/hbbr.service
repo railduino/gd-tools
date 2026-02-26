@@ -1,0 +1,25 @@
+[Unit]
+Description=RustDesk HBBR (Relay Server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rustdesk
+Group=rustdesk
+WorkingDirectory=/var/gd-tools/data/rustdesk
+
+ExecStart=/usr/local/bin/hbbr -p 21117
+
+Restart=always
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/gd-tools/data/rustdesk
+
+[Install]
+WantedBy=multi-user.target
+

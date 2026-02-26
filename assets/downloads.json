@@ -25,20 +25,19 @@
       "binary": "ocis"
     },
     {
-      "name": "ocis-app-tokens",
-      "releases": "https://github.com/mschlachter/ocis-app-tokens/releases",
-      "url": "https://github.com/mschlachter/ocis-app-tokens/releases/download/v0.0.4/ocis-app-tokens-v0.0.4.zip",
-      "sha256": "18e4b94f5a0a9f3938030d2a8a78dff0dd7223f19973e5b8326c38710ca1a55a",
-      "file_name": "ocis-app-tokens-v0.0.4.zip",
-      "dir_name": "ocis-app-tokens"
-    },
-    {
       "name": "roundcube",
       "releases": "https://github.com/roundcube/roundcubemail/releases",
       "url": "https://github.com/roundcube/roundcubemail/releases/download/1.6.11/roundcubemail-1.6.11-complete.tar.gz",
       "sha256": "a230e432065555bfa27bea3fcf4ac672f2359ef28ad84f5945ea3ccf702e7466",
       "file_name": "roundcubemail-1.6.11-complete.tar.gz",
       "dir_name": "roundcubemail-1.6.11"
+    },
+    {
+      "name": "rustdesk",
+      "releases": "https://github.com/rustdesk/rustdesk-server/releases",
+      "url": "https://github.com/rustdesk/rustdesk-server/releases/download/1.1.15/rustdesk-server-linux-amd64.zip",
+      "sha256": "c553972fd844c0224bc18eb3776f48ee5e018c6d4748729e1cfb14d32a46b394",
+      "file_name": "rustdesk-server-linux-amd64.zip"
     },
     {
       "name": "wbce",

@@ -17,6 +17,7 @@ import (
 	"github.com/railduino/gd-tools/nextcloud"
 	"github.com/railduino/gd-tools/ocis"
 	"github.com/railduino/gd-tools/redirect"
+	"github.com/railduino/gd-tools/rustdesk"
 	"github.com/railduino/gd-tools/setup"
 	"github.com/railduino/gd-tools/ssh"
 	"github.com/railduino/gd-tools/status"
@@ -54,6 +55,7 @@ func main() {
 			fmt.Println("nextcloud")
 			fmt.Println("ocis")
 			fmt.Println("redirect")
+			fmt.Println("rustdesk")
 			fmt.Println("setup")
 			fmt.Println("ssh")
 			fmt.Println("status")
@@ -85,6 +87,7 @@ func getCommands() []*cli.Command {
 		nextcloud.Command,
 		ocis.Command,
 		redirect.Command,
+		rustdesk.Command,
 		setup.Command,
 		ssh.Command,
 		status.Command,
