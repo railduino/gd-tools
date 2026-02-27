@@ -26,7 +26,7 @@ var Command = &cli.Command{
 		config.FlagVerbose,
 		config.FlagDry,
 	},
-	ArgsUsage: "<host>",
+	ArgsUsage: "<host> <domain>",
 	Action:    Run,
 }
 
@@ -36,13 +36,15 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	if c.NArg() != 1 {
-		return fmt.Errorf("Usage: gdt rustdesk <host>")
+	if c.NArg() != 2 {
+		return fmt.Errorf("Usage: gdt rustdesk <host> <domain>")
 	}
 	host := c.Args().Get(0)
+	domain := c.Args().Get(1)
 
 	rdCfg := &agent.RustDesk{
-		HostName: host,
+		HostName:   host,
+		DomainName: domain,
 	}
 
 	// Prevent accidental collision with the main system FQDN
@@ -50,8 +52,7 @@ func Run(c *cli.Context) error {
 		return fmt.Errorf("cannot use the server name for RustDesk")
 	}
 
-	// Persist via config layer (analog zu OCIS)
-	if err := config.SaveRustDesk(rdCfg); err != nil {
+	if err := rdCfg.Save(); err != nil {
 		return err
 	}
 

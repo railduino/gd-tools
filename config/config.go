@@ -42,6 +42,7 @@ type Config struct {
 	Nextcloud *agent.Nextcloud `json:"-"`
 	OCIS      *OCIS            `json:"-"`
 	CMS       *CMS             `json:"-"`
+	RustDesk  *agent.RustDesk  `json:"-"`
 	Password  string           `json:"-"`
 	RootDir   string           `json:"-"`
 	BaseDir   string           `json:"-"`
