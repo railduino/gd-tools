@@ -25,15 +25,15 @@ func (cfg *Config) DeployRustDesk() error {
 	}
 	cfg.RustDesk = &rd
 
-	if err := cfg.RustDeskDownload(); err != nil {
-		return err
-	}
-
 	if err := cfg.RustDeskUser(); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskConfig(); err != nil {
+	if err := cfg.RustDeskDownload(); err != nil {
+		return err
+	}
+
+	if err := cfg.RustDeskInstall(); err != nil {
 		return err
 	}
 
@@ -52,6 +52,43 @@ func (cfg *Config) DeployRustDesk() error {
 	}
 
 	cfg.Debug("Leave pkg/config/rustdesk.go")
+	return nil
+}
+
+func (cfg *Config) RustDeskUser() error {
+	req := cfg.NewRequest()
+	rd := cfg.RustDesk
+
+	rustdeskUser := agent.User{
+		Name:    "rustdesk",
+		Comment: "RustDesk Server User",
+		System:  true,
+		HomeDir: rd.DataDir(),
+		Shell:   "/usr/sbin/nologin",
+	}
+	req.Users = append(req.Users, &rustdeskUser)
+
+	dataMkdir := agent.File{
+		Task:  "mkdir",
+		Path:  rd.DataDir(),
+		Mode:  "0750",
+		User:  "rustdesk",
+		Group: "rustdesk",
+	}
+	req.AddFile(&dataMkdir)
+
+	logsMkdir := agent.File{
+		Task:  "mkdir",
+		Path:  rd.LogsDir(),
+		Mode:  "0750",
+		User:  "rustdesk",
+		Group: "rustdesk",
+	}
+	req.AddFile(&logsMkdir)
+
+	if err := req.Send(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -84,51 +121,7 @@ func (cfg *Config) RustDeskDownload() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskUser() error {
-	req := cfg.NewRequest()
-	rd := cfg.RustDesk
-
-	rustdeskUser := agent.User{
-		Name:    "rustdesk",
-		Comment: "RustDesk Server User",
-		System:  true,
-		HomeDir: rd.DataDir(),
-		Shell:   "/usr/sbin/nologin",
-	}
-	req.Users = append(req.Users, &rustdeskUser)
-
-	if err := req.Send(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (cfg *Config) RustDeskConfig() error {
-	/* TODO
-	req := cfg.NewRequest()
-
-	dataMkdir := agent.File{
-		Task:  "mkdir",
-		Path:  rustDeskDataDir(),
-		Mode:  "0750",
-		User:  "rustdesk",
-		Group: "rustdesk",
-	}
-	req.AddFile(&dataMkdir)
-
-	logsMkdir := agent.File{
-		Task:  "mkdir",
-		Path:  rustDeskLogsDir(),
-		Mode:  "0750",
-		User:  "rustdesk",
-		Group: "rustdesk",
-	}
-	req.AddFile(&logsMkdir)
-
-	if err := req.Send(); err != nil {
-		return err
-	}
-	*/
+func (cfg *Config) RustDeskInstall() error {
 	return nil
 }
 

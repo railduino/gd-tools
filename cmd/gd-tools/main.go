@@ -90,6 +90,11 @@ var Handlers = []Handler{
 		Test: agent.OCISTest,
 		Func: agent.OCISHandler,
 	},
+	{
+		Name: "RustDesk",
+		Test: agent.RustDeskTest,
+		Func: agent.RustDeskHandler,
+	},
 }
 
 func acquireAgentLock() {

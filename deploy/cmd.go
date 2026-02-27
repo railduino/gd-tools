@@ -37,6 +37,8 @@ Valid arguments are:
             WordPress, WBCE CMS, CMS Made Simple, etc.
   - 31...39 CMS system (individual)
 
+  - 41-rustdesk
+
   - 90-finish (includes backup ... fail2ban)
   - 91-backup (Borg)
   - 92-fail2ban
@@ -96,6 +98,10 @@ var Command = &cli.Command{
 			for _, cms := range cmsList.Entries {
 				fmt.Printf("%02d-%s\n", cms.Number, cms.FQDN())
 			}
+		}
+
+		if info, err := os.Stat(agent.RustDeskName); err == nil && info.Size() > 0 {
+			fmt.Println("41-rustdesk")
 		}
 
 		fmt.Println("90-finish")
@@ -224,6 +230,14 @@ func Run(c *cli.Context) error {
 		if ShouldRun(args, "30-wordpress", "30", fqdn, num) {
 			cfg.CMS = cms
 			if err := cfg.DeployCMS(); err != nil {
+				return err
+			}
+		}
+	}
+
+	if info, err := os.Stat(agent.RustDeskName); err == nil && info.Size() > 0 {
+		if ShouldRun(args, "41-rustdesk", "41") {
+			if err := cfg.DeployRustDesk(); err != nil {
 				return err
 			}
 		}

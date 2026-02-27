@@ -80,3 +80,11 @@ func (rd *RustDesk) Save() error {
 func RustDeskTest(req *Request) bool {
 	return req != nil && req.RustDesk != nil
 }
+
+func RustDeskHandler(req *Request, resp *Response) error {
+	if RustDeskTest(req) == false {
+		return nil
+	}
+
+	return nil
+}
