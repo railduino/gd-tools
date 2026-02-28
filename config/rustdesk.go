@@ -33,7 +33,7 @@ func (cfg *Config) DeployRustDesk() error {
 		return err
 	}
 
-	if err := cfg.RustDeskInstall(); err != nil {
+	if err := cfg.RustDeskExtract(); err != nil {
 		return err
 	}
 
@@ -95,25 +95,11 @@ func (cfg *Config) RustDeskUser() error {
 func (cfg *Config) RustDeskDownload() error {
 	req := cfg.NewRequest()
 
-	// downloads.json entry:
-	// { "name": "rustdesk", "url": "...rustdesk-server-linux-amd64.zip", ... }
 	zip, err := agent.GetDownload("rustdesk")
 	if err != nil {
 		return err
 	}
 	req.Downloads = append(req.Downloads, zip)
-
-	// IMPORTANT:
-	// This download is a ZIP containing hbbs/hbbr. After downloading,
-	// the prod side must extract and install binaries into /usr/local/bin.
-	//
-	// If your agent already supports "unzip + install" as file tasks, add them here.
-	// Otherwise implement it in the prod download handler for "rustdesk".
-	//
-	// Example (only if you support such tasks):
-	// req.AddFile(&agent.File{Task:"unzip", Path:"/var/gd-tools/cache/rustdesk.zip", Dest:"/var/gd-tools/cache/rustdesk-unpack"})
-	// req.AddFile(&agent.File{Task:"install", Path:"/var/gd-tools/cache/rustdesk-unpack/hbbs", Dest:"/usr/local/bin/hbbs", Mode:"0755"})
-	// req.AddFile(&agent.File{Task:"install", Path:"/var/gd-tools/cache/rustdesk-unpack/hbbr", Dest:"/usr/local/bin/hbbr", Mode:"0755"})
 
 	if err := req.Send(); err != nil {
 		return err
@@ -121,7 +107,29 @@ func (cfg *Config) RustDeskDownload() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskInstall() error {
+func (cfg *Config) RustDeskExtract() error {
+	req := cfg.NewRequest()
+	rd := cfg.RustDesk
+
+	download, err := agent.GetDownload("rustdesk")
+	if err != nil {
+		return err
+	}
+
+	extract := agent.File{
+		Task:   "extract",
+		Path:   agent.GetDownloadsDir(download.FileName),
+		Target: rd.DataDir(),
+		Mode:   "0750",
+		User:   "rustdesk",
+		Group:  "rustdesk",
+	}
+	req.AddFile(&extract)
+
+	if err := req.Send(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -171,20 +179,16 @@ func (cfg *Config) RustDeskService() error {
 }
 
 func (cfg *Config) RustDeskFirewall() error {
-	/* TODO
 	req := cfg.NewRequest()
 
-	// Minimal ports for typical hbbs/hbbr usage.
-	req.Firewall = append(req.Firewall,
-		"21115/tcp",
-		"21116/tcp",
-		"21116/udp",
-		"21117/tcp",
-	)
+	cfg.AddFirewall("21115/tcp")
+	cfg.AddFirewall("21116/tcp")
+	cfg.AddFirewall("21116/udp")
+	cfg.AddFirewall("21117/tcp")
 
 	if err := req.Send(); err != nil {
 		return err
 	}
-	*/
+
 	return nil
 }

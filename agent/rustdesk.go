@@ -41,6 +41,11 @@ func (rd *RustDesk) FQDN() string {
 	return rd.HostName + "." + rd.DomainName
 }
 
+// This is for mount checking
+func (rd *RustDesk) ToolsDir() string {
+	return GetToolsDir()
+}
+
 func (rd *RustDesk) DataDir(paths ...string) string {
 	root := GetToolsDir("data", "rustdesk")
 	if len(paths) == 0 {
@@ -85,6 +90,8 @@ func RustDeskHandler(req *Request, resp *Response) error {
 	if RustDeskTest(req) == false {
 		return nil
 	}
+
+	// TODO check cert and act upon it
 
 	return nil
 }
