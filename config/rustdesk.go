@@ -40,6 +40,10 @@ func (cfg *Config) DeployRustDesk() error {
 		return err
 	}
 
+	if err := cfg.RustDeskKeys(); err != nil {
+		return err
+	}
+
 	if err := cfg.RustDeskFirewall(); err != nil {
 		return err
 	}
@@ -176,6 +180,17 @@ func (cfg *Config) RustDeskService() error {
 	return nil
 }
 
+func (cfg *Config) RustDeskKeys() error {
+	req := cfg.NewRequest()
+
+	req.RustDesk = cfg.RustDesk
+	if err := req.Send(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (cfg *Config) RustDeskFirewall() error {
 	cfg.AddFirewall("21115/tcp")
 	cfg.AddFirewall("21116/tcp")
@@ -186,7 +201,6 @@ func (cfg *Config) RustDeskFirewall() error {
 	}
 
 	req := cfg.NewRequest()
-	req.RustDesk = cfg.RustDesk
 	req.AddFirewall("21115/tcp")
 	req.AddFirewall("21116/tcp")
 	req.AddFirewall("21116/udp")

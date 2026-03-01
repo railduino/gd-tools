@@ -45,6 +45,25 @@ func (req *Request) Send() error {
 		}
 	}
 
+	if req.RustDesk != nil && resp.RustDesk != nil {
+
+		reqPub := req.RustDesk.GetPublic()
+		respPub := resp.RustDesk.GetPublic()
+		if reqPub != "" && respPub != "" && reqPub != respPub {
+			return fmt.Errorf("rustdesk public key mismatch")
+		}
+
+		if req.RustDesk.PrivateB64 != "" &&
+			resp.RustDesk.PrivateB64 != "" &&
+			req.RustDesk.PrivateB64 != resp.RustDesk.PrivateB64 {
+			return fmt.Errorf("rustdesk private key mismatch")
+		}
+
+		if err := resp.RustDesk.Save(); err != nil {
+			return err
+		}
+	}
+
 	if req.Verbose {
 		fmt.Printf("[run] Response: '%v'\n", &resp)
 	} else if !req.Quiet {
