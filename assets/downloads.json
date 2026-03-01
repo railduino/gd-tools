@@ -37,7 +37,8 @@
       "releases": "https://github.com/rustdesk/rustdesk-server/releases",
       "url": "https://github.com/rustdesk/rustdesk-server/releases/download/1.1.15/rustdesk-server-linux-amd64.zip",
       "sha256": "c553972fd844c0224bc18eb3776f48ee5e018c6d4748729e1cfb14d32a46b394",
-      "file_name": "rustdesk-server-linux-amd64.zip"
+      "file_name": "rustdesk-server-linux-amd64.zip",
+      "dir_name": "rustdesk-server-linux-amd64"
     },
     {
       "name": "wbce",

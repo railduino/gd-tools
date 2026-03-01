@@ -1,14 +1,13 @@
 package config
 
 import (
-	// "bytes"
 	"encoding/json"
 	"fmt"
 	"os"
-	// "path/filepath"
+	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
-	// "github.com/railduino/gd-tools/templates"
+	"github.com/railduino/gd-tools/templates"
 )
 
 func (cfg *Config) DeployRustDesk() error {
@@ -134,12 +133,11 @@ func (cfg *Config) RustDeskExtract() error {
 }
 
 func (cfg *Config) RustDeskService() error {
-	/* TODO
 	req := cfg.NewRequest()
 
 	// hbbs unit
 	{
-		path := filepath.Join("rustdesk", "rustdesk-hbbs.service")
+		path := filepath.Join("rustdesk", "hbbs.service")
 		content, err := templates.Parse(path, cfg.Verbose, cfg.RustDesk)
 		if err != nil {
 			return err
@@ -156,7 +154,7 @@ func (cfg *Config) RustDeskService() error {
 
 	// hbbr unit
 	{
-		path := filepath.Join("rustdesk", "rustdesk-hbbr.service")
+		path := filepath.Join("rustdesk", "hbbr.service")
 		content, err := templates.Parse(path, cfg.Verbose, cfg.RustDesk)
 		if err != nil {
 			return err
@@ -174,18 +172,25 @@ func (cfg *Config) RustDeskService() error {
 	if err := req.Send(); err != nil {
 		return err
 	}
-	*/
+
 	return nil
 }
 
 func (cfg *Config) RustDeskFirewall() error {
-	req := cfg.NewRequest()
-
 	cfg.AddFirewall("21115/tcp")
 	cfg.AddFirewall("21116/tcp")
 	cfg.AddFirewall("21116/udp")
 	cfg.AddFirewall("21117/tcp")
+	if err := cfg.Save(); err != nil {
+		return err
+	}
 
+	req := cfg.NewRequest()
+	req.RustDesk = cfg.RustDesk
+	req.AddFirewall("21115/tcp")
+	req.AddFirewall("21116/tcp")
+	req.AddFirewall("21116/udp")
+	req.AddFirewall("21117/tcp")
 	if err := req.Send(); err != nil {
 		return err
 	}
