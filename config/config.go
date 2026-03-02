@@ -68,8 +68,11 @@ type Config struct {
 	Mounts     []*agent.Mount `json:"mounts"`      // mounted filesystem (which can grow)
 	Firewall   []string       `json:"firewall"`    // ufw ports to open, e.g. 22/tcp
 
-	Spambarrier  string `json:"spambarrier"`   // spambarrier.de API key (see https://www.spambarrier.de/)
-	UbuntuPro    string `json:"ubuntu_pro"`    // Ubuntu Pro Key (see https://ubuntu.com/pro)
+	Spambarrier string `json:"spambarrier"` // spambarrier.de API key (see https://www.spambarrier.de/)
+	BrevoCode   string `json:"brevo_code"`  // brevo.com verification code (see https://www.brevo.com/de/)
+	BrevoKey    string `json:"brevo_key"`   // brevo.com SASL auth-key (see https://www.brevo.com/de/)
+	UbuntuPro   string `json:"ubuntu_pro"`  // Ubuntu Pro Key (see https://ubuntu.com/pro)
+
 	HetznerToken string `json:"hetzner_token"` // Token for Hetzner Cloud API
 	IonosToken   string `json:"ionos_token"`   // Token for IONOS Cloud API
 	// add more provider token here

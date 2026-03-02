@@ -57,7 +57,15 @@ var Command = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "spambarrier",
-			Usage: "configure SpamBarrier API key for mail filtering services",
+			Usage: "SpamBarrier API key for inbound email",
+		},
+		&cli.StringFlag{
+			Name:  "brevo-code",
+			Usage: "Brevo Code for for outbound email (domain verification)",
+		},
+		&cli.StringFlag{
+			Name:  "brevo-key",
+			Usage: "Brevo SMTP-Key for for outbound email (sasl authentication)",
 		},
 	},
 	Action: Run,
@@ -103,17 +111,23 @@ func Run(c *cli.Context) error {
 	}
 
 	// Tokens / keys (also allow explicit clearing)
+	if c.IsSet("spambarrier") {
+		cfg.Spambarrier = c.String("spambarrier")
+	}
+	if c.IsSet("brevo-code") {
+		cfg.BrevoCode = c.String("brevo-code")
+	}
+	if c.IsSet("brevo-key") {
+		cfg.BrevoKey = c.String("brevo-key")
+	}
+	if c.IsSet("ubuntu-pro") {
+		cfg.UbuntuPro = c.String("ubuntu-pro")
+	}
 	if c.IsSet("hetzner-dns") {
 		cfg.HetznerToken = c.String("hetzner-dns")
 	}
 	if c.IsSet("ionos-dns") {
 		cfg.IonosToken = c.String("ionos-dns")
-	}
-	if c.IsSet("ubuntu-pro") {
-		cfg.UbuntuPro = c.String("ubuntu-pro")
-	}
-	if c.IsSet("spambarrier") {
-		cfg.Spambarrier = c.String("spambarrier")
 	}
 
 	return cfg.Save()

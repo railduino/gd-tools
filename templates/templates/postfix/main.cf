@@ -33,7 +33,6 @@ smtpd_recipient_restrictions =
     reject_unauth_destination,
     reject_unauth_pipelining
 
-
 # Virtual Mail Setup (see: https://www.postfix.org/MYSQL_README.html)
 virtual_mailbox_base = {{.MailPath}}
 virtual_mailbox_domains = mysql:/etc/postfix/mailbox-domains.cf
@@ -42,11 +41,20 @@ virtual_alias_maps = mysql:/etc/postfix/alias-maps.cf
 virtual_uid_maps = static:{{.VmailUID}}
 virtual_gid_maps = static:{{.VmailGID}}
 virtual_transport = lmtp:unix:private/dovecot-lmtp
-
+{{ if .RelayHost }}
+# Outbound via relay
+relayhost = [{{ .RelayHost }}]:{{ .RelayPort }}
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous
+smtp_tls_security_level = encrypt
+smtp_tls_loglevel = 1
+{{ else }}
 # Direct send (no relayhost)
 relayhost =
 smtp_use_tls = yes
 smtp_tls_security_level = may
+{{- end }}
 
 # Weitere Einstellungen
 alias_maps =

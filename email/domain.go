@@ -21,6 +21,15 @@ type DKIM struct {
 	PubValue string `json:"pub_value"`
 }
 
+type OutboundProvider string
+
+type OutboundAuth struct {
+	Provider OutboundProvider `json:"provider"`          // brevo | mailjet
+	Enabled  bool             `json:"enabled,omitempty"` // allow turning it off without deleting
+	SPF      string           `json:"spf,omitempty"`     // e.g. "include:spf.brevo.com"
+	DKIMs    []DKIM           `json:"dkims,omitempty"`   // provider selectors (CNAME or TXT)
+}
+
 type MX struct {
 	FQDN string `json:"fqdn"`
 	Prio int    `json:"prio"`

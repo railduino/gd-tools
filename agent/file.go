@@ -361,18 +361,30 @@ func (file *File) Process(resp *Response) (string, error) {
 }
 
 func (file *File) Postmap(resp *Response) (string, error) {
-	if err := os.WriteFile(file.Path, file.Content, 0644); err != nil {
-		return "", fmt.Errorf("failed to write %s: %w", file.Path, err)
+	srcPath := file.Path
+	dbPath := srcPath + ".db"
+	tmpPath := srcPath + ".tmp"
+
+	if err := os.WriteFile(tmpPath, file.Content, 0644); err != nil {
+		return "", fmt.Errorf("failed to write %s: %w", tmpPath, err)
+	}
+	defer func() { _ = os.Remove(tmpPath) }()
+
+	if err := os.Rename(tmpPath, srcPath); err != nil {
+		return "", fmt.Errorf("failed to rename %s -> %s: %w", tmpPath, srcPath, err)
 	}
 
-	cmds := []string{
-		fmt.Sprintf("postmap %s", file.Path),
-		fmt.Sprintf("rm %s", file.Path),
-	}
-	if _, err := RunShell(cmds); err != nil {
+	if _, err := RunCommand("postmap", srcPath); err != nil {
 		return "", err
 	}
-	file.Path += ".db"
+
+	if err := os.Remove(srcPath); err != nil && !os.IsNotExist(err) {
+		return "", fmt.Errorf("failed to remove %s: %w", srcPath, err)
+	}
+
+	oldPath := file.Path
+	file.Path = dbPath
+	defer func() { file.Path = oldPath }()
 
 	if err := file.postProcess(); err != nil {
 		return "", err

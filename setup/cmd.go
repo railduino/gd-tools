@@ -73,7 +73,15 @@ var Command = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "spambarrier",
-			Usage: "configure SpamBarrier API key for mail filtering services",
+			Usage: "SpamBarrier API key for inbound email",
+		},
+		&cli.StringFlag{
+			Name:  "brevo-code",
+			Usage: "Brevo Code for for outbound email (domain verification)",
+		},
+		&cli.StringFlag{
+			Name:  "brevo-key",
+			Usage: "Brevo SMTP-Key for for outbound email (sasl authentication)",
 		},
 	},
 	ArgsUsage: "<host> <domain>",
@@ -108,6 +116,8 @@ func Run(c *cli.Context) error {
 		Company:      c.String("company"),
 		HelpURL:      c.String("help-url"),
 		Spambarrier:  c.String("spambarrier"),
+		BrevoCode:    c.String("brevo-code"),
+		BrevoKey:     c.String("brevo-key"),
 		UbuntuPro:    c.String("ubuntu-pro"),
 		HetznerToken: c.String("hetzner-dns"),
 		IonosToken:   c.String("ionos-dns"),
@@ -179,6 +189,8 @@ func Run(c *cli.Context) error {
 	if cfg.Dry {
 		cfg2 := cfg
 		cfg2.Spambarrier = "***"
+		cfg2.BrevoCode = "***"
+		cfg2.BrevoKey = "***"
 		cfg2.UbuntuPro = "***"
 		cfg2.HetznerToken = "***"
 		cfg2.IonosToken = "***"

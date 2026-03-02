@@ -17,6 +17,8 @@ type Postfix struct {
 	VmailGID  string
 	MilterIn  string
 	MilterOut string
+	RelayHost string
+	RelayPort int
 }
 
 func (cfg *Config) DeployPostfix() error {
