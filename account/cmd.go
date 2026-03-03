@@ -18,6 +18,7 @@ var Command = &cli.Command{
 	Subcommands: []*cli.Command{
 		AddCommand,
 		AliasCommand,
+		BrevoCommand,
 		DeployCommand,
 		ListCommand,
 		SPFCommand,
