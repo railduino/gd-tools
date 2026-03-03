@@ -48,8 +48,7 @@ var Command = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
-			Usage: "default DMARC level: relaxed, strict, (any = medium)",
-			Value: "medium",
+			Usage: "DMARC value (p=none, rua=mailto:<admin>)",
 		},
 		&cli.StringFlag{
 			Name:  "company",
@@ -116,8 +115,8 @@ func Run(c *cli.Context) error {
 	fqdn := cfg.FQDN()
 	configPath := filepath.Join(fqdn, config.ConfigName)
 
-	if cfg.DMARC != "relaxed" && cfg.DMARC != "strict" {
-		cfg.DMARC = "medium"
+	if cfg.DMARC == "" {
+		cfg.DMARC = fmt.Sprintf("v=DMARC1; p=none; rua=mailto:%s", cfg.SysAdmin)
 	}
 
 	if cfg.Company == "" {

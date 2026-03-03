@@ -36,6 +36,10 @@ var Command = &cli.Command{
 			Usage: "update downloads.json from server root directory",
 		},
 		&cli.StringFlag{
+			Name:  "dmarc",
+			Usage: "DMARC value (p=none, rua=mailto:<admin>)",
+		},
+		&cli.StringFlag{
 			Name:  "company",
 			Usage: "Company name, used e.g. for Webmail",
 		},
@@ -95,6 +99,9 @@ func Run(c *cli.Context) error {
 	}
 
 	// Use IsSet so values can be explicitly cleared with --company "" etc.
+	if c.IsSet("dmarc") {
+		cfg.DMARC = c.String("dmarc")
+	}
 	if c.IsSet("company") {
 		cfg.Company = c.String("company")
 	}

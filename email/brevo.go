@@ -34,7 +34,7 @@ type BrevoRec struct {
 	Status   bool   `json:"status"`
 }
 
-type BrevoStatus struct {
+type BrevoData struct {
 	Domain        string `json:"domain"`
 	Verified      bool   `json:"verified"`
 	Authenticated bool   `json:"authenticated"`
@@ -136,22 +136,27 @@ func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
 		)
 	}
 
-	var status BrevoStatus
-	if err := json.Unmarshal(body, &status); err != nil {
+	var data BrevoData
+	if err := json.Unmarshal(body, &data); err != nil {
 		return false, fmt.Errorf("brevo: parse failed: %w body=%s", err, strings.TrimSpace(string(body)))
 	}
-	fmt.Printf("Status: '%+v'\n", status)
 
-	dom.BrevoValid = status.Verified && status.Authenticated
+	dom.BrevoValid = data.Verified && data.Authenticated
+	// fmt.Printf("Valid: '%v'\n", dom.BrevoValid)
 
-	if status.DNSRecords.BrevoCode != nil {
-		dom.BrevoCode = status.DNSRecords.BrevoCode.Value
-		fmt.Printf("Code: '%s'\n", dom.BrevoCode)
+	if code := data.DNSRecords.BrevoCode; code != nil && code.Value != "" {
+		dom.BrevoCode = code.Value
+		// fmt.Printf("Code: '%+v'\n", code)
+	}
+
+	if dmarc := data.DNSRecords.DMARCRecord; dmarc != nil && dmarc.Value != "" {
+		dom.DMARC = dmarc.Value
+		// fmt.Printf("DMARC: '%+v'\n", dmarc)
 	}
 
 	// Helper: extract DKIM selector from "<selector>._domainkey"
 	addDKIM := func(rec *BrevoRec) {
-		if rec == nil || !rec.Status {
+		if rec == nil {
 			return
 		}
 		host := strings.TrimSpace(rec.HostName)
@@ -166,7 +171,7 @@ func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
 		if selector == "" {
 			return
 		}
-		dkim := DKIMRecord{Selector: selector}
+		dkim := DKIM{Selector: selector}
 		switch typ {
 		case "CNAME":
 			dkim.CNAME = val
@@ -179,9 +184,9 @@ func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
 	}
 
 	// Brevo DKIM records
-	addDKIM(raw.DNSRecords.DKIMRecord)
-	addDKIM(raw.DNSRecords.DKIM1Record)
-	addDKIM(raw.DNSRecords.DKIM2Record)
+	addDKIM(data.DNSRecords.DKIMRecord)
+	addDKIM(data.DNSRecords.DKIM1Record)
+	addDKIM(data.DNSRecords.DKIM2Record)
 
 	return true, nil
 }

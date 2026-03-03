@@ -23,8 +23,7 @@ var SyncCommand = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
-			Usage: "default DMARC level: relaxed, *medium, strict",
-			Value: "medium",
+			Usage: "specific DMARC value (Brevo will override)",
 		},
 	},
 	ArgsUsage: "<domain>",
@@ -63,8 +62,14 @@ func SyncRun(c *cli.Context) error {
 		return nil
 	}
 
-	if _, err := domain.EnsureDKIM(); err != nil {
+	if _, err := domain.EnsureLocalDKIM(); err != nil {
 		return fmt.Errorf("failed to generate DKIM for %s: %w", domain.Name, err)
+	}
+
+	if c.IsSet("dmarc") {
+		domain.DMARC = c.String("dmarc")
+	} else if domain.DMARC == "" {
+		domain.DMARC = cfg.DMARC
 	}
 
 	brevo, err := email.GetBrevo()
@@ -80,8 +85,6 @@ func SyncRun(c *cli.Context) error {
 			return fmt.Errorf("domain %s is missing in Brevo", domain.Name)
 		}
 	}
-
-	domain.DMARC = c.String("dmarc")
 
 	if cfg.Spambarrier != "" {
 		domain.AddSpamBarrier()

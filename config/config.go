@@ -61,7 +61,7 @@ type Config struct {
 	DomainName string         `json:"domain_name"` // domain part of FQDN
 	IPv4Addr   string         `json:"ipv4_addr"`   // must be set manually
 	IPv6Addr   string         `json:"ipv6_addr"`   // must be set manually
-	DMARC      string         `json:"dmarc"`       // default DMARC policy for domains
+	DMARC      string         `json:"dmarc"`       // DMARC value (p=none, rua=mailto:<admin>)
 	SwapSize   string         `json:"swap_size"`   // e.g. 500M or 2G, or 0
 	Timeout    int            `json:"timeout"`     // connection timeout, default 10 seconds
 	Packages   []string       `json:"packages"`    // required DEB packages
@@ -202,9 +202,6 @@ func ReadConfig(c *cli.Context) (*Config, error) {
 	if cfg.Timeout == 0 {
 		cfg.Timeout = ConfigTimeout
 	}
-	if cfg.DMARC == "" {
-		cfg.DMARC = "relaxed"
-	}
 
 	basics, err := utils.GetBasics()
 	if err != nil {
@@ -227,6 +224,9 @@ func ReadConfig(c *cli.Context) (*Config, error) {
 	}
 	if cfg.RegTTL == 0 {
 		cfg.RegTTL = basics.RegTTL
+	}
+	if cfg.DMARC == "" {
+		cfg.DMARC = fmt.Sprintf("v=DMARC1; p=none; rua=mailto:%s", cfg.SysAdmin)
 	}
 
 	packagesPath := filepath.Join("assets", "packages.txt")

@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/railduino/gd-tools/dns"
 	"github.com/railduino/gd-tools/email"
@@ -220,6 +221,12 @@ func (cfg *Config) SetApexTXT(ctx context.Context, p dns.DNSProvider, domain *em
 			Value: domain.SpamBarrier,
 		})
 	}
+	if domain.BrevoCode != "" {
+		records = append(records, dns.RRecord{
+			Prio:  0,
+			Value: domain.BrevoCode,
+		})
+	}
 	// TODO (later) add more top-level (Apex) records here, like:
 	// Google-site-verification, apple-domain-verification, MS, etc.
 
@@ -264,14 +271,39 @@ func (cfg *Config) SetSTS(ctx context.Context, p dns.DNSProvider, domain *email.
 
 func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email.Domain, dkim email.DKIM) (string, error) {
 	selector := dkim.Selector + "._domainkey"
-	pubValue := "v=DKIM1; k=rsa; s=email; t=s; p=" + dkim.PubValue
-	record := dns.RRecord{
-		Prio:  0,
-		Value: pubValue,
-	}
-	records := []dns.RRecord{record}
 
-	msg := fmt.Sprintf("SetDKIM %s (%s) -> '%.32s...' (ttl=%d)", domain.Name, selector, pubValue, cfg.RegTTL)
+	// Decide record type
+	var (
+		rrType  dns.RRSetType
+		rrValue string
+	)
+
+	if dkim.PubValue != "" {
+		// Classic DKIM via TXT record (public key)
+		rrType = dns.RR_TXT
+		rrValue = "v=DKIM1; k=rsa; s=email; t=s; p=" + dkim.PubValue
+	} else if dkim.CNAME != "" {
+		// Provider-managed DKIM via CNAME delegation
+		rrType = dns.RR_CNAME
+		rrValue = normalizeFQDN(dkim.CNAME)
+	} else {
+		return "", fmt.Errorf("DKIM for %s: neither PubValue (TXT) nor CNAME target provided", domain.Name)
+	}
+
+	records := []dns.RRecord{{
+		Prio:  0,
+		Value: rrValue,
+	}}
+
+	preview := rrValue
+	if rrType == dns.RR_TXT && len(preview) > 32 {
+		preview = preview[:32] + "..."
+	}
+
+	msg := fmt.Sprintf("SetDKIM %s (%s) %s -> '%s' (ttl=%d)",
+		domain.Name, selector, rrType, preview, cfg.RegTTL,
+	)
+
 	if cfg.Verbose {
 		cfg.Debug(msg)
 	} else if cfg.Dry {
@@ -281,33 +313,26 @@ func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email
 
 	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
 		Name:    selector,
-		Type:    dns.RR_TXT,
+		Type:    rrType,
 		TTL:     cfg.RegTTL,
 		Records: records,
 	})
 }
 
+func normalizeFQDN(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.TrimSuffix(s, ".")
+	return s + "."
+}
+
 func (cfg *Config) SetDMARC(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
-	var policy string
-	addr := "mailto:" + cfg.SysAdmin
-
-	switch domain.DMARC {
-	case "relaxed":
-		policy = fmt.Sprintf("p=none; ruf=%s", addr)
-	case "strict":
-		policy = fmt.Sprintf("p=reject; rua=%s; ruf=%s; fo=1; adkim=s; aspf=s", addr, addr)
-	default:
-		policy = fmt.Sprintf("p=quarantine; ruf=%s; fo=1", addr)
-	}
-	dmarcTXT := "v=DMARC1; " + policy
-
 	record := dns.RRecord{
 		Prio:  0,
-		Value: dmarcTXT,
+		Value: domain.DMARC,
 	}
 	records := []dns.RRecord{record}
 
-	msg := fmt.Sprintf("SetDMARC %s (_dmarc) -> '%s' (ttl=%d)", domain.Name, dmarcTXT, cfg.RegTTL)
+	msg := fmt.Sprintf("SetDMARC %s (_dmarc) -> '%s' (ttl=%d)", domain.Name, domain.DMARC, cfg.RegTTL)
 	if cfg.Verbose {
 		cfg.Debug(msg)
 	} else if cfg.Dry {

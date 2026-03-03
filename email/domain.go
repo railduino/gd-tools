@@ -36,7 +36,7 @@ type MX struct {
 type Domain struct {
 	Name    string   `json:"name"`              // The domain name (e.g. example.com)
 	DKIMs   []DKIM   `json:"dkims,omitempty"`   // DKIM record value(s)
-	DMARC   string   `json:"dmarc"`             // DMARC level: relaxed, medium, strict
+	DMARC   string   `json:"dmarc"`             // DMARC value (p=none, rua=mailto:<admin>)
 	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
 	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
 	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)
@@ -128,9 +128,6 @@ func GetDomains(sel map[string]bool) (*DomainList, map[string]*Domain, error) {
 
 	for index := range rawList.Domains {
 		domain := rawList.Domains[index]
-		if domain.DMARC != "relaxed" && domain.DMARC != "strict" {
-			domain.DMARC = "medium"
-		}
 		if sel != nil {
 			if _, ok := sel[domain.Name]; !ok {
 				continue
@@ -192,9 +189,6 @@ func (list *DomainList) GetDKIMs(root string) []string {
 
 func (list *DomainList) Save() error {
 	for _, domain := range list.Domains {
-		if domain.DMARC != "relaxed" && domain.DMARC != "strict" {
-			domain.DMARC = "medium"
-		}
 		sort.Slice(domain.UserList, func(i, j int) bool {
 			return domain.UserList[i].Local < domain.UserList[j].Local
 		})
