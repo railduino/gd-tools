@@ -48,11 +48,15 @@ func (cfg *Config) DeployRspamd() error {
 	req.AddFile(&dkimMkdir)
 
 	for _, domain := range domainList.Domains {
-		dkimPath := filepath.Join(DKIM_Base(), domain.NameDKIM())
+		dkim, err := domain.EnsureDKIM()
+		if err != nil {
+			return err
+		}
+		dkimPath := filepath.Join(DKIM_Base(), domain.DKIM_File())
 		dkimFile := agent.File{
 			Task:    "write",
 			Path:    dkimPath,
-			Content: []byte(domain.DKIM.PrivKey),
+			Content: []byte(dkim.PrivKey),
 			Mode:    "0600",
 			User:    "_rspamd",
 			Group:   "_rspamd",

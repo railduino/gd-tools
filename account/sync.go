@@ -1,11 +1,6 @@
 package account
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"fmt"
 
 	"github.com/railduino/gd-tools/config"
@@ -25,10 +20,6 @@ var SyncCommand = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "add",
 			Usage: "add new domain, update existing if not given",
-		},
-		&cli.StringFlag{
-			Name:  "dkim",
-			Usage: "DKIM selector, defaults to gd-tools",
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
@@ -66,31 +57,28 @@ func SyncRun(c *cli.Context) error {
 		emailMap[domain.Name] = domain
 		cfg.Force = true
 	} else {
-		return fmt.Errorf("domain %s neither found nor added", domain.Name)
+		return fmt.Errorf("domain %s neither found nor added", domainName)
 	}
 	if !cfg.Force {
 		return nil
 	}
 
-	if dkim := c.String("dkim"); dkim != "" {
-		domain.DKIM.Selector = dkim
-	} else if domain.DKIM.Selector == "" {
-		domain.DKIM.Selector = "gd-tools"
+	if _, err := domain.EnsureDKIM(); err != nil {
+		return fmt.Errorf("failed to generate DKIM for %s: %w", domain.Name, err)
 	}
-	if domain.DKIM.PrivKey == "" || domain.DKIM.PubValue == "" {
-		privKey, err := rsa.GenerateKey(rand.Reader, 2048)
-		if err != nil {
-			return fmt.Errorf("failed to generate private key for %s: %w", domain.Name, err)
-		}
-		privData := x509.MarshalPKCS1PrivateKey(privKey)
-		privBlk := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privData}
-		domain.DKIM.PrivKey = string(pem.EncodeToMemory(privBlk))
 
-		der, err := x509.MarshalPKIXPublicKey(&privKey.PublicKey)
+	brevo, err := email.GetBrevo()
+	if err != nil {
+		return err
+	}
+	if brevo != nil && brevo.API_Key != "" {
+		enabled, err := domain.GetBrevo(brevo.API_Key)
 		if err != nil {
-			return fmt.Errorf("failed to marshal public key for %s: %w", domain.Name, err)
+			return err
 		}
-		domain.DKIM.PubValue = base64.StdEncoding.EncodeToString(der)
+		if !enabled {
+			return fmt.Errorf("domain %s is missing in Brevo", domain.Name)
+		}
 	}
 
 	domain.DMARC = c.String("dmarc")

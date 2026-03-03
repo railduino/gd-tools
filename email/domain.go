@@ -2,14 +2,20 @@ package email
 
 import (
 	"bytes"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"os"
 	"sort"
 )
 
 const (
-	AccountsName = "accounts.json"
+	AccountsName  = "accounts.json"
+	DKIM_Selector = "gd-tools"
 
 	SpamBarrier1 = "mx1.spambarrier.de"
 	SpamBarrier2 = "mx2.spambarrier.de"
@@ -17,17 +23,9 @@ const (
 
 type DKIM struct {
 	Selector string `json:"selector"`
+	CNAME    string `json:"cname"`
 	PrivKey  string `json:"priv_key"`
 	PubValue string `json:"pub_value"`
-}
-
-type OutboundProvider string
-
-type OutboundAuth struct {
-	Provider OutboundProvider `json:"provider"`          // brevo | mailjet
-	Enabled  bool             `json:"enabled,omitempty"` // allow turning it off without deleting
-	SPF      string           `json:"spf,omitempty"`     // e.g. "include:spf.brevo.com"
-	DKIMs    []DKIM           `json:"dkims,omitempty"`   // provider selectors (CNAME or TXT)
 }
 
 type MX struct {
@@ -37,12 +35,15 @@ type MX struct {
 
 type Domain struct {
 	Name    string   `json:"name"`              // The domain name (e.g. example.com)
-	DKIM    DKIM     `json:"dkim"`              // DKIM record value
+	DKIMs   []DKIM   `json:"dkims,omitempty"`   // DKIM record value(s)
 	DMARC   string   `json:"dmarc"`             // DMARC level: relaxed, medium, strict
 	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
 	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
 	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)
-	Verify  string   `json:"verify,omitempty"`  // Verification, currently for SpamBarrier
+
+	SpamBarrier string `json:"spam_barrier,omitempty"` // Verification for SpamBarrier (inbound)
+	BrevoCode   string `json:"brevo_code,omitempty"`   // Verification for Brevo (outbound)
+	BrevoValid  bool   `json:"brevo_valid,omitempty"`  // Brevo: Verified and Authenticated
 
 	UserList []*User          `json:"users"` // List of all users within the domain
 	UserMap  map[string]*User `json:"-"`
@@ -60,8 +61,53 @@ func (dom *Domain) NameDot() string {
 	return dom.Name + "."
 }
 
-func (dom *Domain) NameDKIM() string {
-	return dom.Name + "." + dom.DKIM.Selector + ".key"
+func (dom *Domain) DKIM_File() string {
+	for _, dkim := range dom.DKIMs {
+		if dkim.Selector == DKIM_Selector {
+			return dom.Name + "." + dkim.Selector + ".key"
+		}
+	}
+	return dom.Name + "." + DKIM_Selector + ".key"
+}
+
+func (dom *Domain) AddDKIM(dkim DKIM) {
+	for index, check := range dom.DKIMs {
+		if check.Selector == dkim.Selector {
+			dom.DKIMs[index] = dkim
+			return
+		}
+	}
+
+	dom.DKIMs = append(dom.DKIMs, dkim)
+}
+
+func (dom *Domain) EnsureLocalDKIM() (*DKIM, error) {
+	for _, dkim := range dom.DKIMs {
+		if dkim.Selector == DKIM_Selector {
+			return &dkim, nil
+		}
+	}
+
+	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate private key for %s: %w", dom.Name, err)
+	}
+	privData := x509.MarshalPKCS1PrivateKey(privKey)
+	privBlk := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privData}
+	privValue := string(pem.EncodeToMemory(privBlk))
+
+	pubDER := x509.MarshalPKCS1PublicKey(&privKey.PublicKey)
+	pubValue := base64.StdEncoding.EncodeToString(pubDER)
+
+	dkim := DKIM{
+		Selector: DKIM_Selector, // "gd-tools"
+		CNAME:    "",
+		PrivKey:  privValue,
+		PubValue: pubValue,
+	}
+	dom.DKIMs = append(dom.DKIMs, dkim)
+
+	return &dkim, nil
 }
 
 func GetDomains(sel map[string]bool) (*DomainList, map[string]*Domain, error) {
@@ -128,10 +174,14 @@ func (list *DomainList) GetDKIMs(root string) []string {
 	dkimList := []string{}
 
 	for _, domain := range list.Domains {
+		dkim, err := domain.EnsureLocalDKIM()
+		if err != nil {
+			continue
+		}
 		dkimList = append(dkimList,
 			fmt.Sprintf("  %s {", domain.Name),
-			fmt.Sprintf(`    selector = "%s";`, domain.DKIM.Selector),
-			fmt.Sprintf(`    path = "%s/%s";`, root, domain.NameDKIM()),
+			fmt.Sprintf(`    selector = "%s";`, dkim.Selector),
+			fmt.Sprintf(`    path = "%s/%s";`, root, domain.DKIM_File()),
 			fmt.Sprintf(`    sign_authenticated = true;`),
 			fmt.Sprintf("  }"),
 		)

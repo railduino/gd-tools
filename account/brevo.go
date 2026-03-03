@@ -14,11 +14,8 @@ var BrevoCommand = &cli.Command{
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,
-		&cli.BoolFlag{
-			Name:  "enabled",
-			Usage: "activity status",
-			Value: false,
-		},
+		config.FlagDelete,
+		config.FlagForce,
 		&cli.StringFlag{
 			Name:  "server",
 			Usage: "SMTP server",
@@ -30,21 +27,16 @@ var BrevoCommand = &cli.Command{
 			Value: 587,
 		},
 		&cli.StringFlag{
-			Name:  "id",
-			Usage: "identifier (user ID)",
+			Name:  "api (admin access)",
+			Usage: "API key",
 		},
 		&cli.StringFlag{
-			Name:  "code",
-			Usage: "Code for domain verification",
+			Name:  "id",
+			Usage: "SMTP identifier",
 		},
 		&cli.StringFlag{
 			Name:  "key",
-			Usage: "SMTP-Key for SASL authentication",
-		},
-		&cli.StringFlag{
-			Name:  "dmarc",
-			Usage: "proposed DMARC value",
-			Value: "v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com",
+			Usage: "SMTP key",
 		},
 	},
 	Action: BrevoRun,
@@ -56,26 +48,35 @@ func BrevoRun(c *cli.Context) error {
 		return err
 	}
 
+	if c.Bool("delete") && c.Bool("force") {
+		// TODO remove brevo.json if it exists
+		return nil
+	}
+
 	brevo, err := email.ReadBrevo(c)
 	if err != nil {
 		return err
 	}
 
 	updated := false
-	if c.IsSet("enabled") {
-		brevo.Enabled = c.Bool("enabled")
+	if c.IsSet("server") {
+		brevo.Server = c.String("server")
+		updated = true
+	}
+	if c.IsSet("port") {
+		brevo.Port = c.Int("port")
+		updated = true
+	}
+	if c.IsSet("api") {
+		brevo.API_Key = c.String("api")
 		updated = true
 	}
 	if c.IsSet("id") {
-		brevo.ID = c.String("id")
-		updated = true
-	}
-	if c.IsSet("code") {
-		brevo.Code = c.String("code")
+		brevo.SMTP_ID = c.String("id")
 		updated = true
 	}
 	if c.IsSet("key") {
-		brevo.Key = c.String("key")
+		brevo.SMTP_Key = c.String("key")
 		updated = true
 	}
 

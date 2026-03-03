@@ -181,11 +181,13 @@ func (cfg *Config) UpdateDomainDNS(domain *email.Domain) ([]string, error) {
 		result = append(result, status)
 	}
 
-	// DKIM
-	if status, err := cfg.SetDKIM(ctx, p, domain); err != nil {
-		return nil, fmt.Errorf("[dns] failed to set DKIM: %w", err)
-	} else if status != "" {
-		result = append(result, status)
+	// DKIM(s)
+	for _, dkim := range domain.DKIMs {
+		if status, err := cfg.SetDKIM(ctx, p, domain, dkim); err != nil {
+			return nil, fmt.Errorf("[dns] failed to set DKIM: %w", err)
+		} else if status != "" {
+			result = append(result, status)
+		}
 	}
 
 	// DMARC
@@ -212,10 +214,10 @@ func (cfg *Config) SetApexTXT(ctx context.Context, p dns.DNSProvider, domain *em
 	}
 	records := []dns.RRecord{record}
 
-	if domain.Verify != "" {
+	if domain.SpamBarrier != "" {
 		records = append(records, dns.RRecord{
 			Prio:  0,
-			Value: domain.Verify,
+			Value: domain.SpamBarrier,
 		})
 	}
 	// TODO (later) add more top-level (Apex) records here, like:
@@ -260,9 +262,9 @@ func (cfg *Config) SetSTS(ctx context.Context, p dns.DNSProvider, domain *email.
 	})
 }
 
-func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
-	selector := domain.DKIM.Selector + "._domainkey"
-	pubValue := "v=DKIM1; k=rsa; s=email; t=s; p=" + domain.DKIM.PubValue
+func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email.Domain, dkim email.DKIM) (string, error) {
+	selector := dkim.Selector + "._domainkey"
+	pubValue := "v=DKIM1; k=rsa; s=email; t=s; p=" + dkim.PubValue
 	record := dns.RRecord{
 		Prio:  0,
 		Value: pubValue,
