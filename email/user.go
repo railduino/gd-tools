@@ -18,6 +18,10 @@ type User struct {
 	Locked   bool     `json:"locked"`   // Whether the account is locked
 	Aliases  []string `json:"aliases"`  // Additional aliases for this user
 	Quota    string   `json:"quota"`    // Optional mailbox quota
+
+	// Forwarding (dev-only config, rendered into sieve_after)
+	ForwardKeepCopy *bool    `json:"forward_keep_copy,omitempty"` // true => redirect :copy
+	Forwards        []string `json:"forwards"`                    // 0..n forwarding targets
 }
 
 func (u User) Email() string {
@@ -49,4 +53,47 @@ func MakeUser(addr string) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+func (u User) HasForwards() bool {
+	return len(u.Forwards) > 0
+}
+
+func (u User) ForwardKeep() bool {
+	if len(u.Forwards) == 0 {
+		return false
+	}
+
+	if u.ForwardKeepCopy == nil {
+		return true // default: keep local copy
+	}
+
+	return *u.ForwardKeepCopy
+}
+
+func (u *User) NormalizeAndValidateForwards() error {
+	seen := map[string]bool{}
+	out := make([]string, 0, len(u.Forwards))
+
+	for _, f := range u.Forwards {
+		f = strings.TrimSpace(f)
+		if f == "" {
+			continue
+		}
+		pa, err := mail.ParseAddress(f)
+		if err != nil {
+			return fmt.Errorf("invalid forward address '%s' for %s: %w", f, u.Email(), err)
+		}
+		addr := strings.ToLower(pa.Address)
+		if addr == strings.ToLower(u.Email()) {
+			return fmt.Errorf("forward loop: %s forwards to itself", u.Email())
+		}
+		if !seen[addr] {
+			seen[addr] = true
+			out = append(out, addr)
+		}
+	}
+
+	u.Forwards = out
+	return nil
 }

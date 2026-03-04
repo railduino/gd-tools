@@ -232,5 +232,43 @@ func (dom *Domain) BrevoStatus(apiKey string) (string, bool, error) {
 		return "   *** Brevo:Verified", false, nil
 	}
 
-	return "   ??? Brevo:Unknown", false, nil
+	return "   ??? Brevo:Pending", false, nil
+}
+
+func CheckBrevo() (*Brevo, error) {
+	brevo, err := GetBrevo()
+	if err != nil {
+		return nil, err
+	}
+	if brevo == nil || brevo.API_Key == "" {
+		return nil, nil
+	}
+	if brevo.SMTP_ID == "" || brevo.SMTP_Key == "" {
+		return nil, nil
+	}
+	if brevo.Server == "" || brevo.Port == 0 {
+		return nil, nil
+	}
+
+	domainList, _, err := GetDomains(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var brevoMissing []string
+	for _, dom := range domainList.Domains {
+		_, valid, err := dom.BrevoStatus(brevo.API_Key)
+		if err != nil {
+			return nil, err
+		}
+		if !valid {
+			brevoMissing = append(brevoMissing, dom.Name)
+		}
+	}
+
+	if len(brevoMissing) > 0 {
+		return nil, fmt.Errorf("missing Brevo domains: %s", strings.Join(brevoMissing, ", "))
+	}
+
+	return brevo, nil
 }

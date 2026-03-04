@@ -1,24 +1,27 @@
 package config
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/email"
 	"github.com/railduino/gd-tools/templates"
 	"github.com/railduino/gd-tools/utils"
 )
 
 type Postfix struct {
-	HostName  string
-	Password  string
-	CertDir   string
-	MailPath  string
-	VmailUID  string
-	VmailGID  string
-	MilterIn  string
-	MilterOut string
-	RelayHost string
-	RelayPort int
+	HostName   string
+	DomainName string
+	Password   string
+	CertDir    string
+	MailPath   string
+	VmailUID   string
+	VmailGID   string
+	MilterIn   string
+	MilterOut  string
+	RelayHost  string
+	RelayPort  int
 }
 
 func (cfg *Config) DeployPostfix() error {
@@ -37,12 +40,13 @@ func (cfg *Config) DeployPostfix() error {
 	}
 
 	cfg.Postfix = &Postfix{
-		HostName: cfg.FQDN(),
-		Password: password,
-		CertDir:  agent.GetToolsDir("data", "certs", cfg.FQDN()),
-		VmailUID: mailer.VmailUID,
-		VmailGID: mailer.VmailGID,
-		MailPath: mailer.MailPath,
+		HostName:   cfg.FQDN(),
+		DomainName: cfg.DomainName,
+		Password:   password,
+		CertDir:    agent.GetToolsDir("data", "certs", cfg.FQDN()),
+		VmailUID:   mailer.VmailUID,
+		VmailGID:   mailer.VmailGID,
+		MailPath:   mailer.MailPath,
 	}
 
 	if cfg.Spambarrier != "" {
@@ -120,6 +124,29 @@ func (cfg *Config) PostfixTables() error {
 
 func (cfg *Config) PostfixMain() error {
 	req := cfg.NewRequest()
+
+	brevo, err := email.CheckBrevo()
+	if err != nil {
+		return err
+	}
+	if brevo != nil {
+		content := fmt.Sprintf("[%s]:%d %s:%s\n",
+			brevo.Server,
+			brevo.Port,
+			brevo.SMTP_ID,
+			brevo.SMTP_Key,
+		)
+		file := agent.File{
+			Task:    "postmap",
+			Path:    agent.GetEtcDir("postfix", "sasl_passwd"),
+			Content: []byte(content),
+			Mode:    "0600",
+			Service: "postfix",
+		}
+		req.AddFile(&file)
+		cfg.Postfix.RelayHost = brevo.Server
+		cfg.Postfix.RelayPort = brevo.Port
+	}
 
 	tmpl := filepath.Join("postfix", "main.cf")
 	content, err := templates.Parse(tmpl, cfg.Verbose, cfg.Postfix)

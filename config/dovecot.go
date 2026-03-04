@@ -8,6 +8,11 @@ import (
 	"github.com/railduino/gd-tools/utils"
 )
 
+type Forward struct {
+	FromAddress string   `json:"from_address"`
+	ToAddresses []string `json:"to_addresses"`
+}
+
 func (cfg *Config) DeployDovecot() error {
 	cfg.Debug("Enter pkg/config/dovecot.go")
 
@@ -71,6 +76,10 @@ func (cfg *Config) SieveBefore() string {
 	return agent.GetToolsDir("data", "sieve_before")
 }
 
+func (cfg *Config) SieveAfter() string {
+	return agent.GetToolsDir("data", "sieve_after")
+}
+
 func (cfg *Config) DovecotFiles() error {
 	req := cfg.NewRequest()
 
@@ -82,6 +91,15 @@ func (cfg *Config) DovecotFiles() error {
 		Group: "vmail",
 	}
 	req.AddFile(&beforeMkdir)
+
+	afterMkdir := agent.File{
+		Task:  "mkdir",
+		Path:  cfg.SieveAfter(),
+		Mode:  "0755",
+		User:  "vmail",
+		Group: "vmail",
+	}
+	req.AddFile(&afterMkdir)
 
 	if cfg.Spambarrier != "" {
 		sieveName := "10-spambarrier.sieve"
@@ -100,6 +118,8 @@ func (cfg *Config) DovecotFiles() error {
 			Service: "dovecot",
 		})
 	}
+
+	// TODO compile sieve_after
 
 	files := []string{
 		"conf.d/10-auth.conf",

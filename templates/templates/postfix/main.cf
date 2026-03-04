@@ -6,8 +6,9 @@ message_size_limit = 52428800
 
 # Host und Netzwerk
 myhostname = {{.HostName}}
+mydomain = {{.DomainName}}
 myorigin = $mydomain
-mydestination =
+mydestination = $myhostname, localhost.$mydomain, localhost
 mynetworks = 127.0.0.0/8, 172.16.0.0/16, [::1]/128
 inet_interfaces = all
 inet_protocols = all
@@ -44,18 +45,23 @@ virtual_transport = lmtp:unix:private/dovecot-lmtp
 {{ if .RelayHost }}
 # Outbound via relay
 relayhost = [{{ .RelayHost }}]:{{ .RelayPort }}
+smtp_helo_name = $myhostname
 smtp_sasl_auth_enable = yes
 smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtp_sasl_security_options = noanonymous
+smtp_sasl_mechanism_filter = plain, login
 smtp_tls_security_level = encrypt
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 smtp_tls_loglevel = 1
+minimal_backoff_time = 2m
+maximal_backoff_time = 10m
+queue_run_delay = 5m
 {{ else }}
 # Direct send (no relayhost)
 relayhost =
 smtp_use_tls = yes
 smtp_tls_security_level = may
-{{- end }}
-
+{{ end }}
 # Weitere Einstellungen
 alias_maps =
 alias_database =
@@ -63,6 +69,10 @@ alias_database =
 # Milter für Spamfilter (rspamd)
 milter_default_action = accept
 milter_protocol = 6
-smtpd_milters = {{.MilterIn}}
+{{- if .MilterIn }}
+smtpd_milters = {{ .MilterIn }}
+{{- else }}
+# inbound filtering is handled externally (e.g. SpamBarrier), no smtpd_milters
+{{- end }}
 non_smtpd_milters = inet:localhost:11332
 
