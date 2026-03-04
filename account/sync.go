@@ -77,7 +77,7 @@ func SyncRun(c *cli.Context) error {
 		return err
 	}
 	if brevo != nil && brevo.API_Key != "" {
-		enabled, err := domain.GetBrevo(brevo.API_Key)
+		enabled, err := domain.BrevoUpdate(brevo.API_Key)
 		if err != nil {
 			return err
 		}

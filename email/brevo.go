@@ -106,7 +106,7 @@ func (brv *Brevo) Save() error {
 	return nil
 }
 
-func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
+func (dom *Domain) BrevoUpdate(apiKey string) (bool, error) {
 	path := BrevoBaseURL + url.PathEscape(dom.Name)
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
@@ -141,17 +141,12 @@ func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
 		return false, fmt.Errorf("brevo: parse failed: %w body=%s", err, strings.TrimSpace(string(body)))
 	}
 
-	dom.BrevoValid = data.Verified && data.Authenticated
-	// fmt.Printf("Valid: '%v'\n", dom.BrevoValid)
-
 	if code := data.DNSRecords.BrevoCode; code != nil && code.Value != "" {
 		dom.BrevoCode = code.Value
-		// fmt.Printf("Code: '%+v'\n", code)
 	}
 
 	if dmarc := data.DNSRecords.DMARCRecord; dmarc != nil && dmarc.Value != "" {
 		dom.DMARC = dmarc.Value
-		// fmt.Printf("DMARC: '%+v'\n", dmarc)
 	}
 
 	// Helper: extract DKIM selector from "<selector>._domainkey"
@@ -188,5 +183,54 @@ func (dom *Domain) GetBrevo(apiKey string) (bool, error) {
 	addDKIM(data.DNSRecords.DKIM1Record)
 	addDKIM(data.DNSRecords.DKIM2Record)
 
+	// Looks good, add Brevo to the SPF list
+	dom.AddSPF("include:spf.brevo.com")
+
 	return true, nil
+}
+
+func (dom *Domain) BrevoStatus(apiKey string) (string, bool, error) {
+	path := BrevoBaseURL + url.PathEscape(dom.Name)
+	req, err := http.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return "", false, err
+	}
+	req.Header.Set("accept", "application/json")
+	req.Header.Set("api-key", apiKey)
+
+	client := &http.Client{
+		Timeout: 15 * time.Second,
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", false, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode == http.StatusNotFound {
+		return "   --- Brevo:missing", false, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return "", false, fmt.Errorf("brevo: status=%d body=%s",
+			resp.StatusCode,
+			strings.TrimSpace(string(body)),
+		)
+	}
+
+	var data BrevoData
+	if err := json.Unmarshal(body, &data); err != nil {
+		return "", false, fmt.Errorf("brevo: parse failed: %w body=%s", err, strings.TrimSpace(string(body)))
+	}
+
+	if data.Authenticated {
+		return "   +++ Brevo:Authenticated", true, nil
+	}
+
+	if data.Verified {
+		return "   *** Brevo:Verified", false, nil
+	}
+
+	return "   ??? Brevo:Unknown", false, nil
 }

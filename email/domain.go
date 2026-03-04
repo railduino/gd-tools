@@ -43,7 +43,6 @@ type Domain struct {
 
 	SpamBarrier string `json:"spam_barrier,omitempty"` // Verification for SpamBarrier (inbound)
 	BrevoCode   string `json:"brevo_code,omitempty"`   // Verification for Brevo (outbound)
-	BrevoValid  bool   `json:"brevo_valid,omitempty"`  // Brevo: Verified and Authenticated
 
 	UserList []*User          `json:"users"` // List of all users within the domain
 	UserMap  map[string]*User `json:"-"`
