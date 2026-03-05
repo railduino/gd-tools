@@ -8,11 +8,6 @@ import (
 	"github.com/railduino/gd-tools/utils"
 )
 
-type Forward struct {
-	FromAddress string   `json:"from_address"`
-	ToAddresses []string `json:"to_addresses"`
-}
-
 func (cfg *Config) DeployDovecot() error {
 	cfg.Debug("Enter pkg/config/dovecot.go")
 

@@ -63,6 +63,18 @@ func ListRun(c *cli.Context) error {
 				fmt.Printf("Domain ........: %-24s%s\n", dom.Name, status)
 				for _, user := range dom.UserList {
 					fmt.Printf("  User ........: %s\n", user.Email())
+					for _, alias := range user.Aliases {
+						fmt.Printf("                 Alias: %s\n", alias)
+					}
+					if len(user.Forwards) > 0 {
+						label := "Forward"
+						if user.Dismiss {
+							label = "Forward-Only"
+						}
+						for _, forward := range user.Forwards {
+							fmt.Printf("                 %s: %s\n", label, forward)
+						}
+					}
 				}
 				fmt.Println()
 				break

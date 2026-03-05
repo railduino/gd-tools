@@ -166,6 +166,8 @@ func FilesHandler(req *Request, resp *Response) error {
 			result, err = file.Process(resp)
 		case "postmap":
 			result, err = file.Postmap(resp)
+		case "validity":
+			result, err = file.Validity(resp)
 		default:
 			return fmt.Errorf("unknown task '%s' for %s", file.Task, file.Path)
 		}
@@ -395,6 +397,27 @@ func (file *File) Postmap(resp *Response) (string, error) {
 	}
 
 	return fmt.Sprintf("✅ %s postmapped", file.Path), nil
+}
+
+func (file *File) Validity(resp *Response) (string, error) {
+	if stat, err := os.Stat(file.Path); err != nil || !stat.IsDir() {
+		return "", fmt.Errorf("missing dir to validate: %s", file.Path)
+	}
+	if file.Target == "" {
+		return "", fmt.Errorf("missing pattern for validate: %s", file.Path)
+	}
+
+	validFiles := strings.Split(file.Target, "\n")
+	resp.Sayf("Validity: sparing %d valid files", len(validFiles))
+
+	/* do the killing
+	if err := os.Remove(file.Path); err != nil {
+		return "", fmt.Errorf("failed to delete %s: %w", file.Path, err)
+	}
+	return fmt.Sprintf("✅ deleted: %s", file.Path), nil
+	*/
+
+	return "", nil
 }
 
 func (file *File) postProcess() error {

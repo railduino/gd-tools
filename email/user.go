@@ -19,9 +19,8 @@ type User struct {
 	Aliases  []string `json:"aliases"`  // Additional aliases for this user
 	Quota    string   `json:"quota"`    // Optional mailbox quota
 
-	// Forwarding (dev-only config, rendered into sieve_after)
-	ForwardKeepCopy *bool    `json:"forward_keep_copy,omitempty"` // true => redirect :copy
-	Forwards        []string `json:"forwards"`                    // 0..n forwarding targets
+	Forwards []string `json:"forwards,omitempty"` // 0..n forwarding targets
+	Dismiss  bool     `json:"dismiss,omitempty"`  // if true: do not keep local copy
 }
 
 func (u User) Email() string {
@@ -59,41 +58,61 @@ func (u User) HasForwards() bool {
 	return len(u.Forwards) > 0
 }
 
-func (u User) ForwardKeep() bool {
-	if len(u.Forwards) == 0 {
-		return false
+func (u User) KeepLocal() bool {
+	if !u.HasForwards() {
+		return true
 	}
-
-	if u.ForwardKeepCopy == nil {
-		return true // default: keep local copy
-	}
-
-	return *u.ForwardKeepCopy
+	return !u.Dismiss
 }
 
-func (u *User) NormalizeAndValidateForwards() error {
-	seen := map[string]bool{}
-	out := make([]string, 0, len(u.Forwards))
-
-	for _, f := range u.Forwards {
-		f = strings.TrimSpace(f)
-		if f == "" {
-			continue
-		}
-		pa, err := mail.ParseAddress(f)
-		if err != nil {
-			return fmt.Errorf("invalid forward address '%s' for %s: %w", f, u.Email(), err)
-		}
-		addr := strings.ToLower(pa.Address)
-		if addr == strings.ToLower(u.Email()) {
-			return fmt.Errorf("forward loop: %s forwards to itself", u.Email())
-		}
-		if !seen[addr] {
-			seen[addr] = true
-			out = append(out, addr)
-		}
+func (u *User) AddForward(addr string) error {
+	parsed, err := mail.ParseAddress(strings.TrimSpace(addr))
+	if err != nil {
+		return fmt.Errorf("invalid forward address '%s': %w", addr, err)
 	}
 
-	u.Forwards = out
+	target := strings.ToLower(parsed.Address)
+	self := strings.ToLower(u.Email())
+	if target == self {
+		return fmt.Errorf("forward to itself is not allowed")
+	}
+
+	for _, f := range u.Forwards {
+		if strings.ToLower(strings.TrimSpace(f)) == target {
+			return nil // ignore duplicates
+		}
+	}
+	u.Forwards = append(u.Forwards, target)
+
 	return nil
+}
+
+func (u *User) DeleteForward(addr string) error {
+	parsed, err := mail.ParseAddress(strings.TrimSpace(addr))
+	if err != nil {
+		return fmt.Errorf("invalid forward address '%s': %w", addr, err)
+	}
+	target := strings.ToLower(parsed.Address)
+
+	out := u.Forwards[:0]
+	found := false
+	for _, f := range u.Forwards {
+		if strings.ToLower(strings.TrimSpace(f)) == target {
+			found = true
+			continue
+		}
+		out = append(out, f)
+	}
+	u.Forwards = out
+
+	if !found {
+		return fmt.Errorf("forward target not found: %s", target)
+	}
+
+	return nil
+}
+
+func (u *User) ClearForwards() {
+	u.Forwards = nil
+	u.Dismiss = false
 }
