@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"gopkg.in/ini.v1"
 )
@@ -17,7 +16,7 @@ const (
 	DefaultTimeZone = "Europe/Berlin"
 	DefaultCompany  = "My Company"
 	DefaultRegTTL   = 3600
-	DefaultDMARC    = "v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>"
+	DefaultDMARC    = "v=DMARC1; p=quarantine; pct=100; adkim=s; aspf=s"
 )
 
 type Basics struct {
@@ -54,7 +53,7 @@ func ReadBasics() (*Basics, error) {
 	}
 
 	if basics.DMARC == "" {
-		basics.DMARC = GetDMARC()
+		basics.DMARC = DefaultDMARC
 	}
 
 	return &basics, nil
@@ -74,7 +73,7 @@ func GetBasics() (*Basics, error) {
 	}
 
 	if basics.DMARC == "" {
-		basics.DMARC = GetDMARC()
+		basics.DMARC = DefaultDMARC
 	}
 
 	return &basics, nil
@@ -121,8 +120,4 @@ func GetSysAdmin() string {
 	}
 
 	return "admin@" + DefaultCompany
-}
-
-func GetDMARC() string {
-	return strings.ReplaceAll(DefaultDMARC, "<admin>", GetSysAdmin())
 }

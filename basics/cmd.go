@@ -105,7 +105,7 @@ func Run(c *cli.Context) error {
 				Language: agent.GetLanguage(),
 				Region:   agent.GetRegion(),
 				RegTTL:   utils.DefaultRegTTL,
-				DMARC:    utils.GetDMARC(),
+				DMARC:    utils.DefaultDMARC,
 			}
 		} else {
 			return fmt.Errorf("failed to read %s: %w", utils.BasicsName, err)
@@ -148,7 +148,7 @@ func Run(c *cli.Context) error {
 		basics.DMARC = c.String("dmarc")
 	}
 	if basics.DMARC == "" {
-		basics.DMARC = utils.GetDMARC()
+		basics.DMARC = utils.DefaultDMARC
 	}
 
 	if err := basics.Save(); err != nil {

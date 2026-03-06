@@ -27,7 +27,7 @@ var SyncCommand = &cli.Command{
 		},
 		&cli.BoolFlag{
 			Name:  "dkim",
-			Usage: "replace the local DKIM signature",
+			Usage: "update DKIM signature for OpenDKIM",
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",

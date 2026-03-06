@@ -7,6 +7,7 @@ import (
 
 	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/config"
+	"github.com/railduino/gd-tools/setup"
 	"github.com/railduino/gd-tools/utils"
 	"github.com/urfave/cli/v2"
 )
@@ -39,34 +40,14 @@ var Command = &cli.Command{
 			Name:  "routing",
 			Usage: "update routing.json from server root directory",
 		},
-		&cli.StringFlag{
-			Name:  "dmarc",
-			Usage: "DMARC value (v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>)",
-		},
-		&cli.StringFlag{
-			Name:  "company",
-			Usage: "Company name, used e.g. for Webmail",
-		},
-		&cli.StringFlag{
-			Name:  "help-url",
-			Usage: "Support URL for this server",
-		},
-		&cli.StringFlag{
-			Name:  "hetzner-dns",
-			Usage: "configure Hetzner Cloud DNS API token for declarative DNS management",
-		},
-		&cli.StringFlag{
-			Name:  "ionos-dns",
-			Usage: "configure IONOS DNS API token for declarative DNS management",
-		},
-		&cli.StringFlag{
-			Name:  "ubuntu-pro",
-			Usage: "attach Ubuntu Pro subscription using the provided token",
-		},
-		&cli.StringFlag{
-			Name:  "spambarrier",
-			Usage: "SpamBarrier API key for inbound email",
-		},
+		setup.FlagDMARC,
+		setup.FlagCompany,
+		setup.FlagSysAdmin,
+		setup.FlagHelpURL,
+		setup.FlagUbuntuPro,
+		setup.FlagSpamBarrier,
+		setup.FlagHetznerDNS,
+		setup.FlagIonosDNS,
 	},
 	Action: Run,
 }
@@ -77,7 +58,7 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	// Update from basics.json if requested (except company)
+	// Update from basics.json if requested (except company/sysadmin/help-url)
 	if c.Bool("basics") {
 		basics, err := utils.GetBasics()
 		if err != nil {
@@ -87,7 +68,6 @@ func Run(c *cli.Context) error {
 		cfg.Language = basics.Language
 		cfg.Region = basics.Region
 		cfg.RegTTL = basics.RegTTL
-		cfg.SysAdmin = basics.SysAdmin
 		cfg.DMARC = basics.DMARC
 	}
 
@@ -120,12 +100,15 @@ func Run(c *cli.Context) error {
 		cfg.DMARC = c.String("dmarc")
 	}
 	if cfg.DMARC == "" {
-		cfg.DMARC = utils.GetDMARC()
+		cfg.DMARC = utils.DefaultDMARC
 	}
 
 	// Use IsSet so values can be explicitly cleared with --company "" etc.
 	if c.IsSet("company") {
 		cfg.Company = c.String("company")
+	}
+	if c.IsSet("sysadmin") {
+		cfg.SysAdmin = c.String("sysadmin")
 	}
 	if c.IsSet("help-url") {
 		cfg.HelpURL = c.String("help-url")

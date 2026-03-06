@@ -36,7 +36,7 @@ type MX struct {
 type Domain struct {
 	Name    string   `json:"name"`              // The domain name (e.g. example.com)
 	DKIMs   []DKIM   `json:"dkims,omitempty"`   // DKIM record value(s)
-	DMARC   string   `json:"dmarc"`             // DMARC value (p=none, rua=mailto:<admin>)
+	DMARC   string   `json:"dmarc"`             // DMARC value (p=quarantine; pct=100; adkim=s; aspf=s)
 	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
 	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
 	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)

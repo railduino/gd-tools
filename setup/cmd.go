@@ -26,6 +26,41 @@ Does not modify the production server.
 For detailed documentation and usage examples, see:
 https://github.com/railduino/gd-tools/wiki/10-Setup`
 
+var (
+	FlagDMARC = &cli.StringFlag{
+		Name:  "dmarc",
+		Usage: "DMARC value (p=quarantine; pct=100; adkim=s; aspf=s)",
+	}
+	FlagCompany = &cli.StringFlag{
+		Name:  "company",
+		Usage: "Company name, used e.g. for Webmail",
+	}
+	FlagSysAdmin = &cli.StringFlag{
+		Name:  "sysadmin",
+		Usage: "System Administrator email address",
+	}
+	FlagHelpURL = &cli.StringFlag{
+		Name:  "help-url",
+		Usage: "Support URL for this server",
+	}
+	FlagUbuntuPro = &cli.StringFlag{
+		Name:  "ubuntu-pro",
+		Usage: "attach Ubuntu Pro subscription using the provided token",
+	}
+	FlagSpamBarrier = &cli.StringFlag{
+		Name:  "spambarrier",
+		Usage: "SpamBarrier API key for inbound email",
+	}
+	FlagHetznerDNS = &cli.StringFlag{
+		Name:  "hetzner-dns",
+		Usage: "configure Hetzner Cloud DNS API token for declarative DNS management",
+	}
+	FlagIonosDNS = &cli.StringFlag{
+		Name:  "ionos-dns",
+		Usage: "configure IONOS DNS API token for declarative DNS management",
+	}
+)
+
 var Command = &cli.Command{
 	Name:        "setup",
 	Usage:       "Initialize a new production server",
@@ -46,34 +81,14 @@ var Command = &cli.Command{
 			Usage: "e.g. '4G' - create or verify swapfile",
 			Value: "0",
 		},
-		&cli.StringFlag{
-			Name:  "dmarc",
-			Usage: "DMARC value (v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>)",
-		},
-		&cli.StringFlag{
-			Name:  "company",
-			Usage: "Company name, used e.g. for Webmail",
-		},
-		&cli.StringFlag{
-			Name:  "help-url",
-			Usage: "Support URL for this server",
-		},
-		&cli.StringFlag{
-			Name:  "hetzner-dns",
-			Usage: "configure Hetzner Cloud DNS API token for declarative DNS management",
-		},
-		&cli.StringFlag{
-			Name:  "ionos-dns",
-			Usage: "configure IONOS DNS API token for declarative DNS management",
-		},
-		&cli.StringFlag{
-			Name:  "ubuntu-pro",
-			Usage: "attach Ubuntu Pro subscription using the provided token",
-		},
-		&cli.StringFlag{
-			Name:  "spambarrier",
-			Usage: "SpamBarrier API key for inbound email",
-		},
+		FlagDMARC,
+		FlagCompany,
+		FlagSysAdmin,
+		FlagHelpURL,
+		FlagUbuntuPro,
+		FlagSpamBarrier,
+		FlagHetznerDNS,
+		FlagIonosDNS,
 	},
 	ArgsUsage: "<host> <domain>",
 	Action:    Run,
@@ -101,9 +116,9 @@ func Run(c *cli.Context) error {
 		RegTTL:       basics.RegTTL,
 		HostName:     host,
 		DomainName:   domain,
-		DMARC:        c.String("dmarc"),
 		SwapSize:     c.String("swap-size"),
-		SysAdmin:     basics.SysAdmin,
+		DMARC:        c.String("dmarc"),
+		SysAdmin:     c.String("sysadmin"),
 		Company:      c.String("company"),
 		HelpURL:      c.String("help-url"),
 		Spambarrier:  c.String("spambarrier"),
@@ -116,11 +131,16 @@ func Run(c *cli.Context) error {
 	configPath := filepath.Join(fqdn, config.ConfigName)
 
 	if cfg.DMARC == "" {
-		cfg.DMARC = fmt.Sprintf("v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:%s", cfg.SysAdmin)
+		cfg.DMARC = basics.DMARC
 	}
-
 	if cfg.Company == "" {
 		cfg.Company = basics.Company
+	}
+	if cfg.SysAdmin == "" {
+		cfg.SysAdmin = basics.SysAdmin
+	}
+	if cfg.HelpURL == "" {
+		cfg.HelpURL = basics.HelpURL
 	}
 
 	if _, err := os.Stat(configPath); err == nil {

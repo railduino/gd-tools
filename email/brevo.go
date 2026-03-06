@@ -43,7 +43,7 @@ type BrevoData struct {
 		DKIM1Record *BrevoRec `json:"dkim1Record"`
 		DKIM2Record *BrevoRec `json:"dkim2Record"`
 		BrevoCode   *BrevoRec `json:"brevo_code"`
-		DMARCRecord *BrevoRec `json:"dmarc_record"`
+		DMARCRecord *BrevoRec `json:"dmarc_record"` // not used
 	} `json:"dns_records"`
 }
 
@@ -178,12 +178,6 @@ func (dom *Domain) BrevoUpdate(apiKey string) (bool, error) {
 	if code := data.DNSRecords.BrevoCode; code != nil && code.Value != "" {
 		dom.BrevoCode = code.Value
 	}
-
-	/* TODO leave DMARC alone
-	if dmarc := data.DNSRecords.DMARCRecord; dmarc != nil && dmarc.Value != "" {
-		dom.DMARC = dmarc.Value
-	}
-	*/
 
 	// Helper: extract DKIM selector from "<selector>._domainkey"
 	addDKIM := func(rec *BrevoRec) {
