@@ -12,7 +12,7 @@ import (
 var Describe = `The deploy command is used to update the production system.
 
 Valid arguments are:
-  - 00-system (includes bootstrap ... unbound)
+  - 00-system (includes bootstrap ... redirect)
   - 01-bootstrap
   - 02-packages
   - 03-filesystem
@@ -20,7 +20,6 @@ Valid arguments are:
   - 05-php      (currently 8.3)
   - 06-apache   (with ACME certs)
   - 07-redirect
-  - 08-unbound  (local DNS resolver)
 
   - 10-email (includes dovecot ... roundcube)
   - 11-postfix
@@ -28,7 +27,6 @@ Valid arguments are:
   - 13-auth (OpenDKIM, OpenDMARC)
   - 14-accounts
   - 15-roundcube
-  - TODO 16-rspamd
 
   - 20      nextcloud (all)
   - 21...24 nextcloud (individual)
@@ -72,7 +70,6 @@ var Command = &cli.Command{
 		fmt.Println("05-php")
 		fmt.Println("06-apache")
 		fmt.Println("07-redirect")
-		fmt.Println("08-unbound")
 
 		fmt.Println("10-email")
 		fmt.Println("11-postfix")
@@ -80,7 +77,6 @@ var Command = &cli.Command{
 		fmt.Println("13-auth")
 		fmt.Println("14-accounts")
 		fmt.Println("15-roundcube")
-		// fmt.Println("16-rspamd")
 
 		fmt.Println("20-nextcloud")
 		ncList, err := agent.LoadNextcloudList(nil)
@@ -167,11 +163,6 @@ func Run(c *cli.Context) error {
 			return err
 		}
 	}
-	if ShouldRun(args, "00-system", "00", "08-unbound", "08") {
-		if err := cfg.DeployUnbound(); err != nil {
-			return err
-		}
-	}
 
 	if ShouldRun(args, "10-email", "10", "11-postfix", "11") {
 		if err := cfg.DeployPostfix(); err != nil {
@@ -198,13 +189,6 @@ func Run(c *cli.Context) error {
 			return err
 		}
 	}
-	/* TODO keep rspamd?
-	if ShouldRun(args, "10-email", "10", "16-rspamd", "16") {
-		if err := cfg.DeployRspamd(); err != nil {
-			return err
-		}
-	}
-	*/
 
 	ncList, err := agent.LoadNextcloudList(nil)
 	if err != nil {

@@ -76,12 +76,10 @@ opendkim
 opendkim-tools
 dbconfig-no-thanks
 opendmarc
-rspamd
 
 # System security
 fail2ban
 ufw
-unbound
 
 # Backup
 borgbackup

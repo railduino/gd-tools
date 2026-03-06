@@ -48,7 +48,7 @@ var Command = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
-			Usage: "DMARC value (p=none, rua=mailto:<admin>)",
+			Usage: "DMARC value (v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>)",
 		},
 		&cli.StringFlag{
 			Name:  "company",
@@ -116,7 +116,7 @@ func Run(c *cli.Context) error {
 	configPath := filepath.Join(fqdn, config.ConfigName)
 
 	if cfg.DMARC == "" {
-		cfg.DMARC = fmt.Sprintf("v=DMARC1; p=none; rua=mailto:%s", cfg.SysAdmin)
+		cfg.DMARC = fmt.Sprintf("v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:%s", cfg.SysAdmin)
 	}
 
 	if cfg.Company == "" {

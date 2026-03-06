@@ -27,7 +27,7 @@ var DeployCommand = &cli.Command{
 			Usage: "reverse user passwords for admin access",
 		},
 	},
-	ArgsUsage: "[DOMAIN ...]",
+	ArgsUsage: "[<domain> ...]",
 	BashComplete: func(c *cli.Context) {
 		dl, _, err := email.GetDomains(nil)
 		if err != nil {

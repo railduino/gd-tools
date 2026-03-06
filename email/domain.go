@@ -255,6 +255,7 @@ func (dom *Domain) AddSPF(sender string) {
 	}
 
 	dom.SPFs = append(dom.SPFs, sender)
+	sort.Strings(dom.SPFs)
 }
 
 func (dom *Domain) DeleteSPF(sender string) {
@@ -264,15 +265,19 @@ func (dom *Domain) DeleteSPF(sender string) {
 			break
 		}
 	}
+	sort.Strings(dom.SPFs)
 }
 
 func (dom *Domain) GetSPF(args ...string) string {
 	text := "v=spf1 mx"
+
 	for _, arg := range args {
 		text += " " + arg
 	}
+
 	for _, inc := range dom.SPFs {
 		text += " " + inc
 	}
+
 	return text + " -all"
 }

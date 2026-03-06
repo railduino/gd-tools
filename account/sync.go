@@ -22,16 +22,29 @@ var SyncCommand = &cli.Command{
 			Usage: "add new domain, update existing if not given",
 		},
 		&cli.BoolFlag{
+			Name:  "all",
+			Usage: "update all existing domains",
+		},
+		&cli.BoolFlag{
 			Name:  "dkim",
 			Usage: "replace the local DKIM signature",
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
-			Usage: "specific DMARC value (Brevo will override)",
+			Usage: "DMARC value (empty to use basics default)",
 		},
 	},
-	ArgsUsage: "<domain>",
-	Action:    SyncRun,
+	ArgsUsage: "<domain> or --all",
+	BashComplete: func(c *cli.Context) {
+		dl, _, err := email.GetDomains(nil)
+		if err != nil {
+			return
+		}
+		for _, d := range dl.Domains {
+			fmt.Fprintln(c.App.Writer, d.Name)
+		}
+	},
+	Action: SyncRun,
 }
 
 func SyncRun(c *cli.Context) error {
@@ -40,61 +53,77 @@ func SyncRun(c *cli.Context) error {
 		return err
 	}
 
-	if c.NArg() != 1 {
-		return fmt.Errorf("missing domain to add or update")
-	}
-	domainName := c.Args().Get(0)
-
 	emailList, emailMap, err := email.GetDomains(nil)
 	if err != nil {
 		return err
 	}
 
-	domain, ok := emailMap[domainName]
-	if ok {
-		cfg.Sayf("✅ domain %s is managed by this server", domain.Name)
-	} else if c.Bool("add") {
-		cfg.Sayf("adding domain %s to this server", domainName)
-		domain = &email.Domain{Name: domainName}
-		emailList.Domains = append(emailList.Domains, domain)
-		emailMap[domain.Name] = domain
-		cfg.Force = true
+	var nameList []string
+	if c.Bool("all") {
+		if c.Bool("add") || c.NArg() != 0 {
+			return fmt.Errorf("cannot use --all with --add or domain")
+		}
+		for _, domain := range emailList.Domains {
+			nameList = append(nameList, domain.Name)
+		}
 	} else {
-		return fmt.Errorf("domain %s neither found nor added", domainName)
-	}
-	if !cfg.Force {
-		return nil
-	}
-
-	if _, err := domain.EnsureLocalDKIM(c.Bool("dkim")); err != nil {
-		return fmt.Errorf("failed to generate DKIM for %s: %w", domain.Name, err)
+		if c.NArg() != 1 {
+			return fmt.Errorf("missing domain to add or update")
+		}
+		nameList = append(nameList, c.Args().Get(0))
 	}
 
-	if c.IsSet("dmarc") {
-		domain.DMARC = c.String("dmarc")
-	} else if domain.DMARC == "" {
-		domain.DMARC = cfg.DMARC
-	}
+	var updateList []*email.Domain
+	for _, domainName := range nameList {
+		domain, ok := emailMap[domainName]
+		if ok {
+			cfg.Sayf("✅ domain %s is managed by this server", domain.Name)
+		} else if c.Bool("add") {
+			cfg.Sayf("adding domain %s to this server", domainName)
+			domain = &email.Domain{Name: domainName}
+			emailList.Domains = append(emailList.Domains, domain)
+			emailMap[domain.Name] = domain
+			cfg.Force = true
+		} else {
+			return fmt.Errorf("domain %s neither found nor added", domainName)
+		}
+		if !cfg.Force && !c.Bool("all") {
+			return nil
+		}
+		updateList = append(updateList, domain)
 
-	brevo, err := email.GetBrevo()
-	if err != nil {
-		return err
-	}
-	if brevo != nil && brevo.API_Key != "" {
-		enabled, err := domain.BrevoUpdate(brevo.API_Key)
+		if _, err := domain.EnsureLocalDKIM(c.Bool("dkim")); err != nil {
+			return fmt.Errorf("failed to generate DKIM for %s: %w", domain.Name, err)
+		}
+
+		// There must always be a DMARC value
+		if c.IsSet("dmarc") {
+			domain.DMARC = c.String("dmarc")
+		}
+		if domain.DMARC == "" {
+			domain.DMARC = cfg.DMARC
+		}
+
+		brevo, err := email.GetBrevo()
 		if err != nil {
 			return err
 		}
-		if !enabled {
-			return fmt.Errorf("domain %s is missing in Brevo", domain.Name)
+		if brevo != nil && brevo.API_Key != "" {
+			enabled, err := domain.BrevoUpdate(brevo.API_Key)
+			if err != nil {
+				return err
+			}
+			if !enabled {
+				return fmt.Errorf("domain %s is missing in Brevo", domain.Name)
+			}
 		}
-	}
 
-	if cfg.Spambarrier != "" {
-		domain.AddSpamBarrier()
-	} else {
-		domain.MXs = []email.MX{
-			{FQDN: cfg.FQDN(), Prio: 10},
+		if cfg.Spambarrier != "" {
+			domain.AddSpamBarrier()
+		} else {
+			domain.MXs = []email.MX{
+				{FQDN: cfg.FQDN(), Prio: 10},
+			}
 		}
 	}
 
@@ -102,10 +131,12 @@ func SyncRun(c *cli.Context) error {
 		return err
 	}
 
-	if status, err := cfg.UpdateDomainDNS(domain); err != nil {
-		return err
-	} else if len(status) > 0 {
-		cfg.Say(status)
+	for _, domain := range updateList {
+		if status, err := cfg.UpdateDomainDNS(domain); err != nil {
+			return err
+		} else if len(status) > 0 {
+			cfg.Say(status)
+		}
 	}
 
 	return nil

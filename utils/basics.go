@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/ini.v1"
 )
@@ -16,6 +17,7 @@ const (
 	DefaultTimeZone = "Europe/Berlin"
 	DefaultCompany  = "My Company"
 	DefaultRegTTL   = 3600
+	DefaultDMARC    = "v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>"
 )
 
 type Basics struct {
@@ -26,6 +28,7 @@ type Basics struct {
 	Region   string `json:"region"`
 	RegTTL   int    `json:"reg_ttl"`
 	HelpURL  string `json:"help_url"`
+	DMARC    string `json:"dmarc"`
 }
 
 func (basics *Basics) Locale() string {
@@ -50,6 +53,10 @@ func ReadBasics() (*Basics, error) {
 		return nil, fmt.Errorf("%s has default values - please edit", BasicsName)
 	}
 
+	if basics.DMARC == "" {
+		basics.DMARC = GetDMARC()
+	}
+
 	return &basics, nil
 }
 
@@ -64,6 +71,10 @@ func GetBasics() (*Basics, error) {
 	var basics Basics
 	if err := json.Unmarshal(content, &basics); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal %s: %w", path, err)
+	}
+
+	if basics.DMARC == "" {
+		basics.DMARC = GetDMARC()
 	}
 
 	return &basics, nil
@@ -110,4 +121,8 @@ func GetSysAdmin() string {
 	}
 
 	return "admin@" + DefaultCompany
+}
+
+func GetDMARC() string {
+	return strings.ReplaceAll(DefaultDMARC, "<admin>", GetSysAdmin())
 }

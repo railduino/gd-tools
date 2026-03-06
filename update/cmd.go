@@ -29,7 +29,7 @@ var Command = &cli.Command{
 		config.FlagDry,
 		&cli.BoolFlag{
 			Name:  "basics",
-			Usage: "update values from basics.json",
+			Usage: "update values from $(GD_TOOLS_BASE)/basics.json",
 		},
 		&cli.BoolFlag{
 			Name:  "downloads",
@@ -41,7 +41,7 @@ var Command = &cli.Command{
 		},
 		&cli.StringFlag{
 			Name:  "dmarc",
-			Usage: "DMARC value (p=none, rua=mailto:<admin>)",
+			Usage: "DMARC value (v=DMARC1; p=quarantine; adkim=s; aspf=s; pct=100; rua=mailto:<admin>)",
 		},
 		&cli.StringFlag{
 			Name:  "company",
@@ -77,7 +77,7 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	// Update from basics.json if requested
+	// Update from basics.json if requested (except company)
 	if c.Bool("basics") {
 		basics, err := utils.GetBasics()
 		if err != nil {
@@ -88,6 +88,7 @@ func Run(c *cli.Context) error {
 		cfg.Region = basics.Region
 		cfg.RegTTL = basics.RegTTL
 		cfg.SysAdmin = basics.SysAdmin
+		cfg.DMARC = basics.DMARC
 	}
 
 	// Update downloads.json if requested
@@ -114,10 +115,15 @@ func Run(c *cli.Context) error {
 		}
 	}
 
-	// Use IsSet so values can be explicitly cleared with --company "" etc.
+	// There must always be a DMARC value
 	if c.IsSet("dmarc") {
 		cfg.DMARC = c.String("dmarc")
 	}
+	if cfg.DMARC == "" {
+		cfg.DMARC = utils.GetDMARC()
+	}
+
+	// Use IsSet so values can be explicitly cleared with --company "" etc.
 	if c.IsSet("company") {
 		cfg.Company = c.String("company")
 	}

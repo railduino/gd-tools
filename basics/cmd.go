@@ -56,6 +56,10 @@ var Command = &cli.Command{
 			Usage: "Regular Time-To-Live, cache-time for DNS",
 			Value: utils.DefaultRegTTL,
 		},
+		&cli.StringFlag{
+			Name:  "dmarc",
+			Usage: "Standard DMARC value",
+		},
 	},
 	Action: Run,
 }
@@ -101,6 +105,7 @@ func Run(c *cli.Context) error {
 				Language: agent.GetLanguage(),
 				Region:   agent.GetRegion(),
 				RegTTL:   utils.DefaultRegTTL,
+				DMARC:    utils.GetDMARC(),
 			}
 		} else {
 			return fmt.Errorf("failed to read %s: %w", utils.BasicsName, err)
@@ -116,26 +121,34 @@ func Run(c *cli.Context) error {
 		return nil
 	}
 
-	if value := c.String("company"); value != "" {
-		basics.Company = value
+	if c.IsSet("company") {
+		basics.Company = c.String("company")
 	}
-	if value := c.String("sysadmin"); value != "" {
-		basics.SysAdmin = value
+	if c.IsSet("sysadmin") {
+		basics.SysAdmin = c.String("sysadmin")
 	}
-	if value := c.String("help-url"); value != "" {
-		basics.HelpURL = value
+	if c.IsSet("help-url") {
+		basics.HelpURL = c.String("help-url")
 	}
-	if value := c.String("timezone"); value != "" {
-		basics.TimeZone = value
+	if c.IsSet("timezone") {
+		basics.TimeZone = c.String("timezone")
 	}
-	if value := c.String("language"); value != "" {
-		basics.Language = value
+	if c.IsSet("language") {
+		basics.Language = c.String("language")
 	}
-	if value := c.String("region"); value != "" {
-		basics.Region = value
+	if c.IsSet("region") {
+		basics.Region = c.String("region")
 	}
-	if secs := c.Int("reg-ttl"); secs != utils.DefaultRegTTL {
-		basics.RegTTL = secs
+	if c.IsSet("reg-ttl") {
+		basics.RegTTL = c.Int("reg-ttl")
+	}
+
+	// There must always be a DMARC value
+	if c.IsSet("dmarc") {
+		basics.DMARC = c.String("dmarc")
+	}
+	if basics.DMARC == "" {
+		basics.DMARC = utils.GetDMARC()
 	}
 
 	if err := basics.Save(); err != nil {
@@ -146,13 +159,14 @@ func Run(c *cli.Context) error {
 }
 
 func basicsHasChanges(c *cli.Context) bool {
-	return c.String("company") != "" ||
-		c.String("sysadmin") != "" ||
-		c.String("help-url") != "" ||
-		c.String("timezone") != "" ||
-		c.String("language") != "" ||
-		c.String("region") != "" ||
-		c.Int("reg-ttl") != utils.DefaultRegTTL
+	return c.IsSet("company") ||
+		c.IsSet("sysadmin") ||
+		c.IsSet("help-url") ||
+		c.IsSet("timezone") ||
+		c.IsSet("language") ||
+		c.IsSet("region") ||
+		c.IsSet("reg-ttl") ||
+		c.IsSet("dmarc")
 }
 
 func printBasics(b utils.Basics) {
@@ -166,4 +180,5 @@ func printBasics(b utils.Basics) {
 	fmt.Printf("%-12s  %s\n", "Language", b.Language)
 	fmt.Printf("%-12s  %s\n", "Region", b.Region)
 	fmt.Printf("%-12s  %d\n", "RegTTL", b.RegTTL)
+	fmt.Printf("%-12s  %s\n", "DMARC", b.DMARC)
 }

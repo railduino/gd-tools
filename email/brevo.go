@@ -179,9 +179,11 @@ func (dom *Domain) BrevoUpdate(apiKey string) (bool, error) {
 		dom.BrevoCode = code.Value
 	}
 
+	/* TODO leave DMARC alone
 	if dmarc := data.DNSRecords.DMARCRecord; dmarc != nil && dmarc.Value != "" {
 		dom.DMARC = dmarc.Value
 	}
+	*/
 
 	// Helper: extract DKIM selector from "<selector>._domainkey"
 	addDKIM := func(rec *BrevoRec) {
