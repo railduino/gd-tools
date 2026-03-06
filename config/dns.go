@@ -281,7 +281,7 @@ func (cfg *Config) SetDKIM(ctx context.Context, p dns.DNSProvider, domain *email
 	if dkim.PubValue != "" {
 		// Classic DKIM via TXT record (public key)
 		rrType = dns.RR_TXT
-		rrValue = "v=DKIM1; k=rsa; s=email; t=s; p=" + dkim.PubValue
+		rrValue = "v=DKIM1; k=rsa; p=" + dkim.PubValue
 	} else if dkim.CNAME != "" {
 		// Provider-managed DKIM via CNAME delegation
 		rrType = dns.RR_CNAME

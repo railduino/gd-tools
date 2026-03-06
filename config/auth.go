@@ -69,7 +69,7 @@ func (cfg *Config) OpenDKIM() error {
 		return err
 	}
 	for _, dom := range domains {
-		dkim, err := dom.EnsureLocalDKIM()
+		dkim, err := dom.EnsureLocalDKIM(false)
 		if err != nil {
 			return fmt.Errorf("opendkim: failed to ensure DKIM for %s: %w", dom.Name, err)
 		}

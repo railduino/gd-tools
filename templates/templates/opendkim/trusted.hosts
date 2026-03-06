@@ -1,4 +1,6 @@
 127.0.0.1
 localhost
 ::1
+{{.IPv4Addr}}
+{{.IPv6Addr}}
 

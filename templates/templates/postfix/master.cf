@@ -4,17 +4,13 @@
 # ==========================================================================
 
 smtp      inet  n       -       y       -       -       smtpd
-{{- if eq "" .MilterIn}}
-  -o smtpd_milters=
+  -o smtpd_milters=inet:localhost:8891
   -o milter_default_action=accept
-{{- end}}
 
 # Port 587: Submission (moderne Clientverbindung mit STARTTLS)
 submission inet n       -       y       -       -       smtpd
-{{- if eq "" .MilterIn}}
-  -o smtpd_milters=
+  -o smtpd_milters=inet:localhost:8891
   -o milter_default_action=accept
-{{- end}}
   -o syslog_name=postfix/submission
   -o smtpd_tls_security_level=encrypt
   -o smtpd_sasl_auth_enable=yes
@@ -25,10 +21,8 @@ submission inet n       -       y       -       -       smtpd
 
 # Port 465 (RFC 8314 konform): submissions (gleich wie smtps)
 submissions inet n      -       y       -       -       smtpd
-{{- if eq "" .MilterIn}}
-  -o smtpd_milters=
+  -o smtpd_milters=inet:localhost:8891
   -o milter_default_action=accept
-{{- end}}
   -o syslog_name=postfix/submissions
   -o smtpd_tls_wrappermode=yes
   -o smtpd_sasl_auth_enable=yes

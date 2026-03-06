@@ -21,6 +21,10 @@ var SyncCommand = &cli.Command{
 			Name:  "add",
 			Usage: "add new domain, update existing if not given",
 		},
+		&cli.BoolFlag{
+			Name:  "dkim",
+			Usage: "replace the local DKIM signature",
+		},
 		&cli.StringFlag{
 			Name:  "dmarc",
 			Usage: "specific DMARC value (Brevo will override)",
@@ -62,7 +66,7 @@ func SyncRun(c *cli.Context) error {
 		return nil
 	}
 
-	if _, err := domain.EnsureLocalDKIM(); err != nil {
+	if _, err := domain.EnsureLocalDKIM(c.Bool("dkim")); err != nil {
 		return fmt.Errorf("failed to generate DKIM for %s: %w", domain.Name, err)
 	}
 

@@ -48,7 +48,7 @@ func (cfg *Config) DeployRspamd() error {
 	req.AddFile(&dkimMkdir)
 
 	for _, domain := range domainList.Domains {
-		dkim, err := domain.EnsureLocalDKIM()
+		dkim, err := domain.EnsureLocalDKIM(false)
 		if err != nil {
 			return err
 		}

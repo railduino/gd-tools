@@ -80,11 +80,15 @@ func (dom *Domain) AddDKIM(dkim DKIM) {
 	dom.DKIMs = append(dom.DKIMs, dkim)
 }
 
-func (dom *Domain) EnsureLocalDKIM() (*DKIM, error) {
-	for _, dkim := range dom.DKIMs {
+func (dom *Domain) EnsureLocalDKIM(replace bool) (*DKIM, error) {
+	for index, dkim := range dom.DKIMs {
 		if dkim.Selector == DKIM_Selector {
-			return &dkim, nil
+			if !replace {
+				return &dom.DKIMs[index], nil
+			}
 		}
+		dom.DKIMs = append(dom.DKIMs[:index], dom.DKIMs[index+1:]...)
+		break
 	}
 
 	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -107,9 +111,9 @@ func (dom *Domain) EnsureLocalDKIM() (*DKIM, error) {
 		PrivKey:  privValue,
 		PubValue: pubValue,
 	}
-	dom.DKIMs = append(dom.DKIMs, dkim)
+	dom.DKIMs = append([]DKIM{dkim}, dom.DKIMs...)
 
-	return &dkim, nil
+	return &dom.DKIMs[0], nil
 }
 
 func GetDomains(sel map[string]bool) (*DomainList, map[string]*Domain, error) {
@@ -173,7 +177,7 @@ func (list *DomainList) GetDKIMs(root string) []string {
 	dkimList := []string{}
 
 	for _, domain := range list.Domains {
-		dkim, err := domain.EnsureLocalDKIM()
+		dkim, err := domain.EnsureLocalDKIM(false)
 		if err != nil {
 			continue
 		}
