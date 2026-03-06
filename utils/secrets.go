@@ -142,23 +142,6 @@ func (list *SecretList) SetMailUser(address, password string) (string, string, e
 	return password, output, nil
 }
 
-func (list *SecretList) SetRspamdPassword(password string) (string, string, error) {
-	if password == "" {
-		password, _ = CreatePassword(20)
-	}
-
-	output, err := GenerateSecret(password, "pbkdf2")
-	if err != nil {
-		return "", "", err
-	}
-
-	if err := list.Set("rspamd", "password", password, output); err != nil {
-		return "", "", err
-	}
-
-	return password, output, nil
-}
-
 func (list *SecretList) Set(domain, user, input, output string) error {
 	if entry := list.Get(domain, user); entry != nil {
 		if entry.Input != input {

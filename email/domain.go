@@ -60,15 +60,6 @@ func (dom *Domain) NameDot() string {
 	return dom.Name + "."
 }
 
-func (dom *Domain) DKIM_File() string {
-	for _, dkim := range dom.DKIMs {
-		if dkim.Selector == DKIM_Selector {
-			return dom.Name + "." + dkim.Selector + ".key"
-		}
-	}
-	return dom.Name + "." + DKIM_Selector + ".key"
-}
-
 func (dom *Domain) AddDKIM(dkim DKIM) {
 	for index, check := range dom.DKIMs {
 		if check.Selector == dkim.Selector {
@@ -171,26 +162,6 @@ func GetDomainSANs() []string {
 	}
 
 	return sanList
-}
-
-func (list *DomainList) GetDKIMs(root string) []string {
-	dkimList := []string{}
-
-	for _, domain := range list.Domains {
-		dkim, err := domain.EnsureLocalDKIM(false)
-		if err != nil {
-			continue
-		}
-		dkimList = append(dkimList,
-			fmt.Sprintf("  %s {", domain.Name),
-			fmt.Sprintf(`    selector = "%s";`, dkim.Selector),
-			fmt.Sprintf(`    path = "%s/%s";`, root, domain.DKIM_File()),
-			fmt.Sprintf(`    sign_authenticated = true;`),
-			fmt.Sprintf("  }"),
-		)
-	}
-
-	return dkimList
 }
 
 func (list *DomainList) Save() error {
