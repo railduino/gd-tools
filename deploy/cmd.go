@@ -24,7 +24,7 @@ Valid arguments are:
   - 10-email (includes dovecot ... roundcube)
   - 11-postfix
   - 12-dovecot
-  - 13-auth (OpenDKIM, OpenDMARC)
+  - 13-opendkim
   - 14-accounts
   - 15-roundcube
 
@@ -74,7 +74,7 @@ var Command = &cli.Command{
 		fmt.Println("10-email")
 		fmt.Println("11-postfix")
 		fmt.Println("12-dovecot")
-		fmt.Println("13-auth")
+		fmt.Println("13-opendkim")
 		fmt.Println("14-accounts")
 		fmt.Println("15-roundcube")
 
@@ -174,8 +174,8 @@ func Run(c *cli.Context) error {
 			return err
 		}
 	}
-	if ShouldRun(args, "10-email", "10", "13-auth", "13") {
-		if err := cfg.DeployAuth(); err != nil {
+	if ShouldRun(args, "10-email", "10", "13-opendkim", "13") {
+		if err := cfg.DeployOpenDKIM(); err != nil {
 			return err
 		}
 	}

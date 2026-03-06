@@ -13,26 +13,55 @@ mynetworks = 127.0.0.0/8, 172.16.0.0/16, [::1]/128
 inet_interfaces = all
 inet_protocols = all
 
+# Disable unnecessary information leakage
+disable_vrfy_command = yes
+
+# Let Postfix evaluate restrictions at RCPT time
+smtpd_delay_reject = yes
+
+# Enforce stricter SMTP envelope syntax
+strict_rfc821_envelopes = yes
+
 # TLS configuration for incoming SMTP (ports 25/587)
 smtpd_tls_cert_file = {{.CertDir}}/fullchain.pem
 smtpd_tls_key_file = {{.CertDir}}/privkey.pem
 smtpd_use_tls = yes
 smtpd_tls_auth_only = yes
-smtpd_helo_required = yes
 smtpd_tls_security_level = may
 smtpd_tls_loglevel = 1
 tls_preempt_cipherlist = yes
+
+# SMTP session checks
+smtpd_helo_required = yes
+smtpd_helo_restrictions =
+    reject_invalid_helo_hostname,
+    reject_non_fqdn_helo_hostname
+
+# MAIL FROM checks
+smtpd_sender_restrictions =
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain
+
+# Relay protection (modern Postfix)
+smtpd_relay_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+# RCPT TO checks
+smtpd_recipient_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_non_fqdn_recipient,
+    reject_unknown_recipient_domain,
+    reject_unlisted_recipient,
+    reject_unauth_destination,
+    reject_unauth_pipelining
 
 # SASL authentication for incoming SMTP clients
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_auth_enable = yes
-smtpd_recipient_restrictions =
-    permit_sasl_authenticated,
-    permit_mynetworks,
-    reject_non_fqdn_sender,
-    reject_unauth_destination,
-    reject_unauth_pipelining
 
 # Virtual mailbox configuration
 # See: https://www.postfix.org/MYSQL_README.html
@@ -82,11 +111,9 @@ queue_run_delay = 5m
 alias_maps =
 alias_database =
 
-# OpenDKIM / OpenDMARC milter configuration
+# OpenDKIM milter configuration
 milter_default_action = accept
 milter_protocol = 6
 smtpd_milters = inet:localhost:8891
 non_smtpd_milters = inet:localhost:8891
-# smtpd_milters = inet:localhost:8891, inet:localhost:8893
-# non_smtpd_milters = inet:localhost:8891, inet:localhost:8893
 

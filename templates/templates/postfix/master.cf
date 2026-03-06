@@ -4,8 +4,6 @@
 # ==========================================================================
 
 smtp      inet  n       -       y       -       -       smtpd
-  -o smtpd_milters=inet:localhost:8891
-  -o milter_default_action=accept
 
 # Port 587: Submission (moderne Clientverbindung mit STARTTLS)
 submission inet n       -       y       -       -       smtpd

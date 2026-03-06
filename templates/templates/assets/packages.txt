@@ -74,8 +74,6 @@ dovecot-mysql
 mailutils
 opendkim
 opendkim-tools
-dbconfig-no-thanks
-opendmarc
 
 # System security
 fail2ban

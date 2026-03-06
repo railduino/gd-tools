@@ -11,34 +11,16 @@ import (
 )
 
 const (
-	OpenDKIMPort  = 8891
-	OpenDMARCPort = 8893
+	OpenDKIMPort = 8891
 )
 
 func (cfg *Config) OpenDKIMPort() int {
 	return OpenDKIMPort
 }
 
-func (cfg *Config) OpenDMARCPort() int {
-	return OpenDMARCPort
-}
+func (cfg *Config) DeployOpenDKIM() error {
+	cfg.Debug("Enter config/opendkim.go")
 
-func (cfg *Config) DeployAuth() error {
-	cfg.Debug("Enter config/auth.go")
-
-	if err := cfg.OpenDKIM(); err != nil {
-		return err
-	}
-
-	if err := cfg.OpenDMARC(); err != nil {
-		return err
-	}
-
-	cfg.Debug("Leave config/auth.go")
-	return nil
-}
-
-func (cfg *Config) OpenDKIM() error {
 	req := cfg.NewRequest()
 
 	dkimDir := agent.GetToolsDir("data", "opendkim")
@@ -173,9 +155,6 @@ func (cfg *Config) OpenDKIM() error {
 		return err
 	}
 
-	return nil
-}
-
-func (cfg *Config) OpenDMARC() error {
+	cfg.Debug("Leave config/opendkim.go")
 	return nil
 }
