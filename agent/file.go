@@ -92,6 +92,20 @@ func GetToolsDir(paths ...string) string {
 	return filepath.Join(append([]string{ToolsDir}, paths...)...)
 }
 
+func SieveBefore(path string) string {
+	if path != "" {
+		return GetToolsDir("data", "sieve_before", path)
+	}
+	return GetToolsDir("data", "sieve_before")
+}
+
+func SieveAfter(path string) string {
+	if path != "" {
+		return GetToolsDir("data", "sieve_after", path)
+	}
+	return GetToolsDir("data", "sieve_after")
+}
+
 func SetEtcDir(path string) {
 	if path == "" {
 		path = os.Getenv("GD_TOOLS_ETC_DIR")
@@ -166,8 +180,8 @@ func FilesHandler(req *Request, resp *Response) error {
 			result, err = file.Process(resp)
 		case "postmap":
 			result, err = file.Postmap(resp)
-		case "validity":
-			result, err = file.Validity(resp)
+		case "cleanup":
+			result, err = file.Cleanup(resp)
 		default:
 			return fmt.Errorf("unknown task '%s' for %s", file.Task, file.Path)
 		}
@@ -399,23 +413,38 @@ func (file *File) Postmap(resp *Response) (string, error) {
 	return fmt.Sprintf("✅ %s postmapped", file.Path), nil
 }
 
-func (file *File) Validity(resp *Response) (string, error) {
+func (file *File) Cleanup(resp *Response) (string, error) {
 	if stat, err := os.Stat(file.Path); err != nil || !stat.IsDir() {
 		return "", fmt.Errorf("missing dir to validate: %s", file.Path)
 	}
 	if file.Target == "" {
 		return "", fmt.Errorf("missing pattern for validate: %s", file.Path)
 	}
+	validFiles := strings.Split(string(file.Content), "\n")
 
-	validFiles := strings.Split(file.Target, "\n")
-	resp.Sayf("Validity: sparing %d valid files", len(validFiles))
-
-	/* do the killing
-	if err := os.Remove(file.Path); err != nil {
-		return "", fmt.Errorf("failed to delete %s: %w", file.Path, err)
+	dirPath := filepath.Join(file.Path, file.Target)
+	dirFiles, err := filepath.Glob(dirPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to glob %s: %w", dirPath, err)
 	}
-	return fmt.Sprintf("✅ deleted: %s", file.Path), nil
-	*/
+
+	for _, name := range dirFiles {
+		keep := false
+		for _, check := range validFiles {
+			if strings.HasSuffix(name, check) {
+				keep = true
+				break
+			}
+		}
+		if keep {
+			resp.Sayf("✅ keeping %s", name)
+			continue
+		}
+		if err := os.Remove(name); err != nil {
+			return "", fmt.Errorf("failed to delete %s: %w", name, err)
+		}
+		resp.Sayf("✅ deleted %s", name)
+	}
 
 	return "", nil
 }

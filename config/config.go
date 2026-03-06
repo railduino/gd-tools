@@ -132,6 +132,14 @@ func (cfg *Config) DotFQDN() string {
 	return "." + cfg.HostName + "." + cfg.DomainName
 }
 
+func (cfg *Config) SieveBefore() string {
+	return agent.SieveBefore("")
+}
+
+func (cfg *Config) SieveAfter() string {
+	return agent.SieveAfter("")
+}
+
 func (cfg *Config) RsyncFlags() string {
 	if cfg.Verbose {
 		return "-avz"

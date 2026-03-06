@@ -95,7 +95,10 @@ func (dom *Domain) EnsureLocalDKIM() (*DKIM, error) {
 	privBlk := &pem.Block{Type: "RSA PRIVATE KEY", Bytes: privData}
 	privValue := string(pem.EncodeToMemory(privBlk))
 
-	pubDER := x509.MarshalPKCS1PublicKey(&privKey.PublicKey)
+	pubDER, err := x509.MarshalPKIXPublicKey(&privKey.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal public key for %s: %w", dom.Name, err)
+	}
 	pubValue := base64.StdEncoding.EncodeToString(pubDER)
 
 	dkim := DKIM{

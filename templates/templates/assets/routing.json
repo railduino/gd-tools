@@ -1,0 +1,43 @@
+{
+  "relay_domains": [
+    {
+      "domain": "icloud.com",
+      "relay": "brevo"
+    },
+    {
+      "domain": "me.com",
+      "relay": "brevo"
+    },
+    {
+      "domain": "mac.com",
+      "relay": "brevo"
+    }
+  ],
+  "policy_domains": [
+    {
+      "domain": "gmail.com",
+      "policy": "encrypt"
+    },
+    {
+      "domain": "outlook.com",
+      "policy": "encrypt"
+    },
+    {
+      "domain": "hotmail.com",
+      "policy": "encrypt"
+    },
+    {
+      "domain": "live.com",
+      "policy": "encrypt"
+    },
+    {
+      "domain": "msn.com",
+      "policy": "encrypt"
+    },
+    {
+      "domain": "icloud.com",
+      "policy": "encrypt"
+    }
+  ]
+}
+

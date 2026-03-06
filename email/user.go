@@ -58,13 +58,6 @@ func (u User) HasForwards() bool {
 	return len(u.Forwards) > 0
 }
 
-func (u User) KeepLocal() bool {
-	if !u.HasForwards() {
-		return true
-	}
-	return !u.Dismiss
-}
-
 func (u *User) AddForward(addr string) error {
 	parsed, err := mail.ParseAddress(strings.TrimSpace(addr))
 	if err != nil {

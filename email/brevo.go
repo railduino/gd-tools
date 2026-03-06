@@ -64,6 +64,40 @@ func GetBrevo() (*Brevo, error) {
 	return &brv, nil
 }
 
+func BrevoSASL() (string, error) {
+	brevo, err := GetBrevo()
+	if err != nil || brevo == nil {
+		return "", err
+	}
+
+	if brevo.Server == "" || brevo.Port == 0 {
+		return "", fmt.Errorf("Brevo is missing target info")
+	}
+	if brevo.SMTP_ID == "" || brevo.SMTP_Key == "" {
+		return "", fmt.Errorf("Brevo is missing SMTP credentials")
+	}
+
+	return fmt.Sprintf("[%s]:%d %s:%s",
+		brevo.Server,
+		brevo.Port,
+		brevo.SMTP_ID,
+		brevo.SMTP_Key,
+	), nil
+}
+
+func BrevoTarget() (string, int, error) {
+	brevo, err := GetBrevo()
+	if err != nil || brevo == nil {
+		return "", 0, err
+	}
+
+	if brevo.Server == "" || brevo.Port == 0 {
+		return "", 0, fmt.Errorf("Brevo is missing target info")
+	}
+
+	return brevo.Server, brevo.Port, nil
+}
+
 func ReadBrevo(c *cli.Context) (*Brevo, error) {
 	content, err := os.ReadFile(BrevoName)
 	if err != nil {

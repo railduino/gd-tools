@@ -25,9 +25,10 @@ Valid arguments are:
   - 10-email (includes dovecot ... roundcube)
   - 11-postfix
   - 12-dovecot
-  - 13-rspamd
+  - 13-auth (OpenDKIM, OpenDMARC)
   - 14-accounts
   - 15-roundcube
+  - TODO 16-rspamd
 
   - 20      nextcloud (all)
   - 21...24 nextcloud (individual)
@@ -76,9 +77,10 @@ var Command = &cli.Command{
 		fmt.Println("10-email")
 		fmt.Println("11-postfix")
 		fmt.Println("12-dovecot")
-		fmt.Println("13-rspamd")
+		fmt.Println("13-auth")
 		fmt.Println("14-accounts")
 		fmt.Println("15-roundcube")
+		// fmt.Println("16-rspamd")
 
 		fmt.Println("20-nextcloud")
 		ncList, err := agent.LoadNextcloudList(nil)
@@ -181,8 +183,8 @@ func Run(c *cli.Context) error {
 			return err
 		}
 	}
-	if ShouldRun(args, "10-email", "10", "13-rspamd", "13") {
-		if err := cfg.DeployRspamd(); err != nil {
+	if ShouldRun(args, "10-email", "10", "13-auth", "13") {
+		if err := cfg.DeployAuth(); err != nil {
 			return err
 		}
 	}
@@ -196,6 +198,13 @@ func Run(c *cli.Context) error {
 			return err
 		}
 	}
+	/* TODO keep rspamd?
+	if ShouldRun(args, "10-email", "10", "16-rspamd", "16") {
+		if err := cfg.DeployRspamd(); err != nil {
+			return err
+		}
+	}
+	*/
 
 	ncList, err := agent.LoadNextcloudList(nil)
 	if err != nil {

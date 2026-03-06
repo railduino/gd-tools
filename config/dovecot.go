@@ -4,12 +4,22 @@ import (
 	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/email"
 	"github.com/railduino/gd-tools/templates"
 	"github.com/railduino/gd-tools/utils"
 )
 
+func (cfg *Config) Domains() ([]*email.Domain, error) {
+	domainList, _, err := email.GetDomains(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return domainList.Domains, nil
+}
+
 func (cfg *Config) DeployDovecot() error {
-	cfg.Debug("Enter pkg/config/dovecot.go")
+	cfg.Debug("Enter config/dovecot.go")
 
 	// the Mailer is defined in pkg/config/accounts.go
 	mailer, err := LoadMailer()
@@ -42,7 +52,7 @@ func (cfg *Config) DeployDovecot() error {
 		return err
 	}
 
-	cfg.Debug("Leave pkg/config/dovecot.go")
+	cfg.Debug("Leave config/dovecot.go")
 	return nil
 }
 
@@ -67,20 +77,12 @@ func (cfg *Config) DovecotTables() error {
 	return nil
 }
 
-func (cfg *Config) SieveBefore() string {
-	return agent.GetToolsDir("data", "sieve_before")
-}
-
-func (cfg *Config) SieveAfter() string {
-	return agent.GetToolsDir("data", "sieve_after")
-}
-
 func (cfg *Config) DovecotFiles() error {
 	req := cfg.NewRequest()
 
 	beforeMkdir := agent.File{
 		Task:  "mkdir",
-		Path:  cfg.SieveBefore(),
+		Path:  agent.SieveBefore(""),
 		Mode:  "0755",
 		User:  "vmail",
 		Group: "vmail",
@@ -89,7 +91,7 @@ func (cfg *Config) DovecotFiles() error {
 
 	afterMkdir := agent.File{
 		Task:  "mkdir",
-		Path:  cfg.SieveAfter(),
+		Path:  agent.SieveAfter(""),
 		Mode:  "0755",
 		User:  "vmail",
 		Group: "vmail",
@@ -97,16 +99,16 @@ func (cfg *Config) DovecotFiles() error {
 	req.AddFile(&afterMkdir)
 
 	if cfg.Spambarrier != "" {
-		sieveName := "10-spambarrier.sieve"
-		sieveTmpl := filepath.Join("dovecot/sieve_before", sieveName)
-		content, err := templates.Parse(sieveTmpl, cfg.Verbose, cfg)
+		spamName := "10-spambarrier.sieve"
+		spamTmpl := filepath.Join("dovecot/sieve_before", spamName)
+		spamData, err := templates.Parse(spamTmpl, cfg.Verbose, cfg)
 		if err != nil {
 			return err
 		}
 		req.AddFile(&agent.File{
 			Task:    "write",
-			Path:    filepath.Join(cfg.SieveBefore(), sieveName),
-			Content: content,
+			Path:    agent.SieveBefore(spamName),
+			Content: spamData,
 			Mode:    "0644",
 			User:    "vmail",
 			Group:   "vmail",
@@ -114,7 +116,21 @@ func (cfg *Config) DovecotFiles() error {
 		})
 	}
 
-	// TODO compile sieve_after
+	forwardName := "20-forward.sieve"
+	forwardTmpl := filepath.Join("dovecot/sieve_after", forwardName)
+	forwardData, err := templates.Parse(forwardTmpl, cfg.Verbose, cfg)
+	if err != nil {
+		return err
+	}
+	req.AddFile(&agent.File{
+		Task:    "write",
+		Path:    agent.SieveAfter(forwardName),
+		Content: forwardData,
+		Mode:    "0644",
+		User:    "vmail",
+		Group:   "vmail",
+		Service: "dovecot",
+	})
 
 	files := []string{
 		"conf.d/10-auth.conf",

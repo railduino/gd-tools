@@ -35,6 +35,10 @@ var Command = &cli.Command{
 			Name:  "downloads",
 			Usage: "update downloads.json from server root directory",
 		},
+		&cli.BoolFlag{
+			Name:  "routing",
+			Usage: "update routing.json from server root directory",
+		},
 		&cli.StringFlag{
 			Name:  "dmarc",
 			Usage: "DMARC value (p=none, rua=mailto:<admin>)",
@@ -95,6 +99,18 @@ func Run(c *cli.Context) error {
 		}
 		if err := os.WriteFile(agent.DownloadsName, content, 0644); err != nil {
 			return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
+		}
+	}
+
+	// Update routing.json if requested
+	if c.Bool("routing") {
+		path := filepath.Join("..", config.RoutingName)
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read %s: %w", config.RoutingName, err)
+		}
+		if err := os.WriteFile(config.RoutingName, content, 0644); err != nil {
+			return fmt.Errorf("failed to write %s: %w", config.RoutingName, err)
 		}
 	}
 

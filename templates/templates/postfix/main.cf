@@ -1,10 +1,10 @@
-# Warnungen abschalten
+# Disable compatibility warnings
 compatibility_level = 3.6
 
-# Größe der Nachrichten
+# Maximum message size
 message_size_limit = 52428800
 
-# Host und Netzwerk
+# Host and network configuration
 myhostname = {{.HostName}}
 mydomain = {{.DomainName}}
 myorigin = $mydomain
@@ -13,9 +13,9 @@ mynetworks = 127.0.0.0/8, 172.16.0.0/16, [::1]/128
 inet_interfaces = all
 inet_protocols = all
 
-# TLS für eingehende Verbindungen (Port 25/587)
-smtpd_tls_cert_file={{.CertDir}}/fullchain.pem
-smtpd_tls_key_file={{.CertDir}}/privkey.pem
+# TLS configuration for incoming SMTP (ports 25/587)
+smtpd_tls_cert_file = {{.CertDir}}/fullchain.pem
+smtpd_tls_key_file = {{.CertDir}}/privkey.pem
 smtpd_use_tls = yes
 smtpd_tls_auth_only = yes
 smtpd_helo_required = yes
@@ -23,7 +23,7 @@ smtpd_tls_security_level = may
 smtpd_tls_loglevel = 1
 tls_preempt_cipherlist = yes
 
-# SASL für eingehende SMTP
+# SASL authentication for incoming SMTP clients
 smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_auth_enable = yes
@@ -34,7 +34,8 @@ smtpd_recipient_restrictions =
     reject_unauth_destination,
     reject_unauth_pipelining
 
-# Virtual Mail Setup (see: https://www.postfix.org/MYSQL_README.html)
+# Virtual mailbox configuration
+# See: https://www.postfix.org/MYSQL_README.html
 virtual_mailbox_base = {{.MailPath}}
 virtual_mailbox_domains = mysql:/etc/postfix/mailbox-domains.cf
 virtual_mailbox_maps = mysql:/etc/postfix/mailbox-maps.cf
@@ -42,37 +43,50 @@ virtual_alias_maps = mysql:/etc/postfix/alias-maps.cf
 virtual_uid_maps = static:{{.VmailUID}}
 virtual_gid_maps = static:{{.VmailGID}}
 virtual_transport = lmtp:unix:private/dovecot-lmtp
-{{ if .RelayHost }}
-# Outbound via relay
-relayhost = [{{ .RelayHost }}]:{{ .RelayPort }}
-smtp_helo_name = $myhostname
+
+# Per-domain outbound routing
+# Domains listed in /etc/postfix/transport will be routed via the specified transport.
+# All other domains will be delivered directly via DNS/MX (see relayhost below).
+transport_maps = hash:/etc/postfix/transport
+
+# Per-domain outbound TLS policy
+# Example: "gmail.com encrypt" in /etc/postfix/tls_policy
+smtp_tls_policy_maps = hash:/etc/postfix/tls_policy
+
+# No global relayhost (direct delivery by default)
+relayhost =
+
+# Outbound SMTP TLS settings (direct delivery)
+smtp_use_tls = yes
+smtp_tls_security_level = may
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+smtp_tls_loglevel = 1
+
+# SMTP authentication settings for relay transports (e.g. Brevo/Mailjet)
+# These settings are harmless for direct delivery; they are only used when the
+# chosen transport connects to a relay that requires authentication.
 smtp_sasl_auth_enable = yes
 smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtp_sasl_security_options = noanonymous
 smtp_sasl_mechanism_filter = plain, login
-smtp_tls_security_level = encrypt
-smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
-smtp_tls_loglevel = 1
+
+# Recommended: avoid leaking credentials via verbose authentication logs
+smtp_sasl_tls_security_options = noanonymous
+
+# Optional: keep retry timings sane (helps when large providers defer temporarily)
 minimal_backoff_time = 2m
 maximal_backoff_time = 10m
 queue_run_delay = 5m
-{{ else }}
-# Direct send (no relayhost)
-relayhost =
-smtp_use_tls = yes
-smtp_tls_security_level = may
-{{ end }}
-# Weitere Einstellungen
+
+# Disable local aliases (managed externally)
 alias_maps =
 alias_database =
 
-# Milter für Spamfilter (rspamd)
+# OpenDKIM / OpenDMARC milter configuration
 milter_default_action = accept
 milter_protocol = 6
-{{- if .MilterIn }}
-smtpd_milters = {{ .MilterIn }}
-{{- else }}
-# inbound filtering is handled externally (e.g. SpamBarrier), no smtpd_milters
-{{- end }}
-non_smtpd_milters = inet:localhost:11332
+smtpd_milters = inet:localhost:8891
+non_smtpd_milters = inet:localhost:8891
+# smtpd_milters = inet:localhost:8891, inet:localhost:8893
+# non_smtpd_milters = inet:localhost:8891, inet:localhost:8893
 

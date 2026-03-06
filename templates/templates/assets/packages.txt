@@ -72,9 +72,13 @@ dovecot-managesieved
 dovecot-sieve
 dovecot-mysql
 mailutils
+opendkim
+opendkim-tools
+dbconfig-no-thanks
+opendmarc
+rspamd
 
 # System security
-rspamd
 fail2ban
 ufw
 unbound
