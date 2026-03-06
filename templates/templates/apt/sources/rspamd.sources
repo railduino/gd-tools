@@ -1,6 +1,0 @@
-Types: deb
-URIs: https://rspamd.com/apt-stable/
-Suites: noble
-Components: main
-Signed-By: /etc/apt/keyrings/rspamd.gpg
-

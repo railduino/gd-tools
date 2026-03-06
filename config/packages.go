@@ -43,7 +43,6 @@ func (cfg *Config) PackagesRepos() error {
 		"collaboraonline",
 		"docker",
 		"dovecot",
-		"rspamd",
 	}
 
 	for _, name := range repos {
