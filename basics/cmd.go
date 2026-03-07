@@ -20,10 +20,6 @@ var Command = &cli.Command{
 		config.FlagVerbose,
 		config.FlagDry,
 		&cli.BoolFlag{
-			Name:  "downloads",
-			Usage: "update downloads.json from repository",
-		},
-		&cli.BoolFlag{
 			Name:  "routing",
 			Usage: "update routing.json from repository",
 		},
@@ -67,18 +63,6 @@ var Command = &cli.Command{
 func Run(c *cli.Context) error {
 	if err := utils.EnsureBaseDir(); err != nil {
 		return err
-	}
-
-	if _, err := os.Stat(agent.DownloadsName); err != nil || c.Bool("downloads") {
-		tmpl := filepath.Join("assets", agent.DownloadsName)
-		content, err := templates.Load(tmpl, false)
-		if err != nil {
-			return fmt.Errorf("failed to load %s: %w", agent.DownloadsName, err)
-		}
-		if err := os.WriteFile(agent.DownloadsName, content, 0644); err != nil {
-			return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
-		}
-		fmt.Println("created/updated downloads from repository")
 	}
 
 	if _, err := os.Stat(config.RoutingName); err != nil || c.Bool("routing") {

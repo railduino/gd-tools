@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/config"
 	"github.com/railduino/gd-tools/email"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/utils"
 	"github.com/urfave/cli/v2"
 )
@@ -80,22 +80,24 @@ func Run(c *cli.Context) error {
 	aliases := c.StringSlice("alias")
 	sort.Strings(aliases)
 
-	download, err := agent.GetDownload("wbce")
+	cat, err := releases.Load(cfg.Verbose)
 	if err != nil {
 		return err
 	}
-	if download.Directory == "" {
-		return fmt.Errorf("missing Directory in wbce download")
+	pr, rel, err := cat.Get("wbce", "")
+	if err != nil {
+		return err
 	}
 
 	entry := config.CMS{
 		HostName:   host,
 		DomainName: domain,
 		Product:    "wbce",
+		Version:    pr.Default,
 		Language:   cfg.Language,
 		Region:     cfg.Region,
 		Password:   c.String("password"),
-		DirName:    download.Directory,
+		DirName:    rel.Download.Directory,
 		Salt:       c.String("salt"),
 		AdminName:  c.String("admin-name"),
 		AdminEmail: c.String("admin-email"),

@@ -33,6 +33,12 @@ type MX struct {
 	Prio int    `json:"prio"`
 }
 
+type CAA struct {
+	Flag  int    `json:"flag"`  // usually 0
+	Tag   string `json:"tag"`   // issue, issuewild, iodef
+	Value string `json:"value"` // letsencrypt.org
+}
+
 type Domain struct {
 	Name    string   `json:"name"`              // The domain name (e.g. example.com)
 	DKIMs   []DKIM   `json:"dkims,omitempty"`   // DKIM record value(s)
@@ -40,6 +46,7 @@ type Domain struct {
 	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
 	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
 	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)
+	CAAs    []string `json:"caas,omitempty"`    // Authorized CAA's, like Let's Encrypt
 
 	SpamBarrier string `json:"spam_barrier,omitempty"` // Verification for SpamBarrier (inbound)
 	BrevoCode   string `json:"brevo_code,omitempty"`   // Verification for Brevo (outbound)

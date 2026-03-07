@@ -170,11 +170,7 @@ func Run(c *cli.Context) error {
 		return err
 	}
 
-	// read default downloads, postfix-routing and known_hosts
-	downloads, err := os.ReadFile(agent.DownloadsName)
-	if err != nil {
-		return fmt.Errorf("failed to read %s: %w", agent.DownloadsName, err)
-	}
+	// read default postfix-routing and known_hosts
 	routing, err := os.ReadFile(config.RoutingName)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %w", config.RoutingName, err)
@@ -225,10 +221,6 @@ func Run(c *cli.Context) error {
 
 	if err := cfg.SetupCA(); err != nil {
 		return err
-	}
-
-	if err := os.WriteFile(agent.DownloadsName, downloads, 0644); err != nil {
-		return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
 	}
 
 	if err := os.WriteFile(config.RoutingName, routing, 0644); err != nil {

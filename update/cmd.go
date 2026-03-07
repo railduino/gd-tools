@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/config"
 	"github.com/railduino/gd-tools/setup"
 	"github.com/railduino/gd-tools/utils"
@@ -31,10 +30,6 @@ var Command = &cli.Command{
 		&cli.BoolFlag{
 			Name:  "basics",
 			Usage: "update values from $(GD_TOOLS_BASE)/basics.json",
-		},
-		&cli.BoolFlag{
-			Name:  "downloads",
-			Usage: "update downloads.json from server root directory",
 		},
 		&cli.BoolFlag{
 			Name:  "routing",
@@ -69,18 +64,6 @@ func Run(c *cli.Context) error {
 		cfg.Region = basics.Region
 		cfg.RegTTL = basics.RegTTL
 		cfg.DMARC = basics.DMARC
-	}
-
-	// Update downloads.json if requested
-	if c.Bool("downloads") {
-		path := filepath.Join("..", agent.DownloadsName)
-		content, err := os.ReadFile(path)
-		if err != nil {
-			return fmt.Errorf("failed to read %s: %w", agent.DownloadsName, err)
-		}
-		if err := os.WriteFile(agent.DownloadsName, content, 0644); err != nil {
-			return fmt.Errorf("failed to write %s: %w", agent.DownloadsName, err)
-		}
 	}
 
 	// Update routing.json if requested

@@ -5,31 +5,20 @@ import (
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-const (
-	DownloadsName = "downloads.json"
-)
-
 type Download struct {
-	Name        string `json:"name"`
-	Releases    string `json:"releases"`
 	DownloadURL string `json:"download_url"`
+	Filename    string `json:"filename"`
 	MD5         string `json:"md5"`
 	SHA256      string `json:"sha256"`
 	SHA512      string `json:"sha512"`
-	Filename    string `json:"filename"`
 	Directory   string `json:"directory"`
 	Binary      string `json:"binary"`
-}
-
-type DownloadList struct {
-	Downloads []*Download
 }
 
 var (
@@ -51,40 +40,6 @@ func GetDownloadsDir(name string) string {
 		return DownloadsDir
 	}
 	return filepath.Join(DownloadsDir, name)
-}
-
-// This part is running on Dev
-func Get_Download(name string) (*Download, error) {
-	download, err := LoadDownload(name)
-	if err != nil {
-		return nil, err
-	}
-
-	if download.MD5 == "" && download.SHA256 == "" && download.SHA512 == "" {
-		return nil, fmt.Errorf("unable to verify %s integrity", name)
-	}
-
-	return download, nil
-}
-
-func LoadDownload(name string) (*Download, error) {
-	content, err := os.ReadFile(DownloadsName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read %s file (%s): %w", DownloadsName, name, err)
-	}
-
-	var downloadList DownloadList
-	if err := json.Unmarshal(content, &downloadList); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal %s: %w", name, err)
-	}
-
-	for _, download := range downloadList.Downloads {
-		if download.Name == name {
-			return download, nil
-		}
-	}
-
-	return nil, fmt.Errorf("failed to locate %s download", name)
 }
 
 // DownloadsTest checks if there is work to be done
@@ -112,7 +67,7 @@ func DownloadsHandler(req *Request, resp *Response) error {
 			if _, err := RunCommand("curl", "-fsSL", "-o", path, dwn.DownloadURL); err != nil {
 				return err
 			}
-			status = fmt.Sprintf("download %s was successful", dwn.Name)
+			status = fmt.Sprintf("download %s was successful", dwn.Filename)
 		}
 
 		md5sum, sha256sum, sha512sum, err := computeHashes(path)
