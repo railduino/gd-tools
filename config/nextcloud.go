@@ -7,6 +7,7 @@ import (
 
 	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/php"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/templates"
 )
 
@@ -15,13 +16,26 @@ func (cfg *Config) DeployNextcloud() error {
 	if nc == nil {
 		return fmt.Errorf("missing Nextcloud pointer")
 	}
-	cfg.Debugf("Enter pkg/config/nextcloud.go (%s)", nc.FQDN())
+	cfg.Debugf("Enter config/nextcloud.go (%s)", nc.FQDN())
+
+	cat, err := releases.Load(cfg.Verbose)
+	if err != nil {
+		return err
+	}
+	_, rel, err := cat.Get("nextcloud", nc.Version)
+	if err != nil {
+		return err
+	}
+	if rel.Download.Directory == "" {
+		return fmt.Errorf("missing Directory in Nextcloud download")
+	}
+	nc.Download = &rel.Download
 
 	if nc.FQDN() == cfg.FQDN() {
 		return fmt.Errorf("cannot use the server name for Nextcloud")
 	}
 
-	if err := cfg.NextcloudDownload(); err != nil {
+	if err := cfg.NextcloudDownload(nc); err != nil {
 		return err
 	}
 	if err := cfg.NextcloudExtract(nc); err != nil {
@@ -86,22 +100,14 @@ func (cfg *Config) DeployNextcloud() error {
 		return fmt.Errorf("failed to install %s: %w", occDst, err)
 	}
 
-	cfg.Debugf("Leave pkg/config/nextcloud.go (%s)", nc.FQDN())
+	cfg.Debugf("Leave config/nextcloud.go (%s)", nc.FQDN())
 	return nil
 }
 
-func (cfg *Config) NextcloudDownload() error {
+func (cfg *Config) NextcloudDownload(nc *agent.Nextcloud) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload("nextcloud")
-	if err != nil {
-		return err
-	}
-	if download.DirName == "" {
-		return fmt.Errorf("missing DirName in Nextcloud download")
-	}
-
-	req.Downloads = append(req.Downloads, download)
+	req.Downloads = append(req.Downloads, nc.Download)
 
 	if err := req.Send(); err != nil {
 		return err
@@ -113,14 +119,9 @@ func (cfg *Config) NextcloudDownload() error {
 func (cfg *Config) NextcloudExtract(nc *agent.Nextcloud) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload("nextcloud")
-	if err != nil {
-		return err
-	}
-
 	extract := agent.File{
 		Task:   "extract",
-		Path:   agent.GetDownloadsDir(download.FileName),
+		Path:   agent.GetDownloadsDir(nc.Download.Filename),
 		Target: nc.RootDir(),
 		Mode:   "0755",
 		User:   "root",

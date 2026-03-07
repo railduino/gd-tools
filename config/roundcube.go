@@ -7,6 +7,7 @@ import (
 	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/email"
 	"github.com/railduino/gd-tools/php"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/templates"
 	"github.com/railduino/gd-tools/utils"
 )
@@ -20,6 +21,7 @@ type Roundcube struct {
 	Password   string
 	DesKey     string
 	DirName    string
+	Download   *agent.Download
 }
 
 func (rc *Roundcube) WebMail() string {
@@ -77,7 +79,19 @@ func (cfg *Config) DeployRoundcubeMap(sel map[string]bool) error {
 }
 
 func (cfg *Config) DeployRoundcubeDomain(domain *email.Domain) error {
-	cfg.Debugf("Enter pkg/config/roundcube.go (%s)", domain.Name)
+	cfg.Debugf("Enter config/roundcube.go (%s)", domain.Name)
+
+	cat, err := releases.Load(cfg.Verbose)
+	if err != nil {
+		return err
+	}
+	_, rel, err := cat.Get("roundcube", cfg.Roundcube)
+	if err != nil {
+		return err
+	}
+	if rel.Download.Directory == "" {
+		return fmt.Errorf("missing Directory in Roundcube download")
+	}
 
 	rc := &Roundcube{
 		DomainName: domain.Name,
@@ -85,16 +99,9 @@ func (cfg *Config) DeployRoundcubeDomain(domain *email.Domain) error {
 		FQDN:       cfg.FQDN(), // for Postfix / Dovecot access
 		SysAdmin:   cfg.SysAdmin,
 		Locale:     cfg.Locale(),
+		DirName:    rel.Download.Directory,
+		Download:   &rel.Download,
 	}
-
-	download, err := agent.GetDownload("roundcube")
-	if err != nil {
-		return err
-	}
-	if download.DirName == "" {
-		return fmt.Errorf("missing DirName in Roundcube download")
-	}
-	rc.DirName = download.DirName
 
 	rc.Password, err = utils.FetchPassword(20, "vmail", "db_password")
 	if err != nil {
@@ -106,7 +113,7 @@ func (cfg *Config) DeployRoundcubeDomain(domain *email.Domain) error {
 		return err
 	}
 
-	if err := cfg.RoundcubeDownload(); err != nil {
+	if err := cfg.RoundcubeDownload(rc); err != nil {
 		return err
 	}
 
@@ -146,19 +153,14 @@ func (cfg *Config) DeployRoundcubeDomain(domain *email.Domain) error {
 		cfg.Say(status)
 	}
 
-	cfg.Debugf("Leave pkg/config/roundcube.go (%s)", domain.Name)
+	cfg.Debugf("Leave config/roundcube.go (%s)", domain.Name)
 	return nil
 }
 
-func (cfg *Config) RoundcubeDownload() error {
+func (cfg *Config) RoundcubeDownload(rc *Roundcube) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload("roundcube")
-	if err != nil {
-		return err
-	}
-
-	req.Downloads = append(req.Downloads, download)
+	req.Downloads = append(req.Downloads, rc.Download)
 
 	if err := req.Send(); err != nil {
 		return err
@@ -170,14 +172,9 @@ func (cfg *Config) RoundcubeDownload() error {
 func (cfg *Config) RoundcubeExtract(rc *Roundcube) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload("roundcube")
-	if err != nil {
-		return err
-	}
-
 	extract := agent.File{
 		Task:   "extract",
-		Path:   agent.GetDownloadsDir(download.FileName),
+		Path:   agent.GetDownloadsDir(rc.Download.Filename),
 		Target: rc.RootDir(),
 		Mode:   "0755",
 		User:   "root",

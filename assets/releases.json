@@ -1,0 +1,148 @@
+{
+  "products": [
+    {
+      "name": "mediawiki",
+      "source_url": "https://www.mediawiki.org/wiki/Download",
+      "default": "1.45.1",
+      "directory": "mediawiki",
+      "versions": [
+        {
+          "key": "1.45.1",
+          "number": "1.45.1",
+          "series": "1.45",
+          "download": {
+            "download_url": "https://releases.wikimedia.org/mediawiki/1.45/mediawiki-1.45.1.tar.gz",
+            "filename": "mediawiki-1.45.1.tar.gz",
+            "sha256": "e2f126b19aec422051a0a50e0c6ab7e904f33b3988a47b9da8afbfd0c0a252cc"
+          }
+        }
+      ]
+    },
+    {
+      "name": "nextcloud",
+      "source_url": "https://download.nextcloud.com/server/releases/",
+      "default": "32.0.2",
+      "directory": "nextcloud",
+      "versions": [
+        {
+          "key": "32.0.2",
+          "number": "32.0.2",
+          "series": "32",
+          "download": {
+            "download_url": "https://download.nextcloud.com/server/releases/nextcloud-32.0.2.tar.bz2",
+            "filename": "nextcloud-32.0.2.tar.bz2",
+            "sha256": "15ede19ad88ec724834dfad7fae306a72f932fd042f36b333fe2418155a937c5"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ocis",
+      "source_url": "https://download.owncloud.com/ocis/ocis/stable/",
+      "default": "7.2.0",
+      "binary": "ocis",
+      "versions": [
+        {
+          "key": "7.2.0",
+          "number": "7.2.0",
+          "series": "7",
+          "download": {
+            "download_url": "https://download.owncloud.com/ocis/ocis/stable/7.2.0/ocis-7.2.0-linux-amd64",
+            "filename": "ocis-7.2.0-linux-amd64",
+            "sha256": "48f9d3f0eac471897f32552197b8670e5d5264717e595ffe0f7ddb7e715b4a86"
+          }
+        }
+      ]
+    },
+    {
+      "name": "roundcube",
+      "source_url": "https://github.com/roundcube/roundcubemail/releases",
+      "default": "1.6.11",
+      "versions": [
+        {
+          "key": "1.6.11",
+          "number": "1.6.11",
+          "series": "1.6",
+          "download": {
+            "download_url": "https://github.com/roundcube/roundcubemail/releases/download/1.6.11/roundcubemail-1.6.11-complete.tar.gz",
+            "filename": "roundcubemail-1.6.11-complete.tar.gz",
+            "directory": "roundcubemail-1.6.11",
+            "sha256": "a230e432065555bfa27bea3fcf4ac672f2359ef28ad84f5945ea3ccf702e7466"
+          }
+        }
+      ]
+    },
+    {
+      "name": "rustdesk",
+      "source_url": "https://github.com/rustdesk/rustdesk-server/releases",
+      "default": "1.1.15",
+      "versions": [
+        {
+          "key": "1.1.15",
+          "number": "1.1.15",
+          "series": "1.1",
+          "download": {
+            "download_url": "https://github.com/rustdesk/rustdesk-server/releases/download/1.1.15/rustdesk-server-linux-amd64.zip",
+            "filename": "rustdesk-server-linux-amd64.zip",
+            "directory": "rustdesk-server-linux-amd64",
+            "sha256": "c553972fd844c0224bc18eb3776f48ee5e018c6d4748729e1cfb14d32a46b394"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wbce",
+      "source_url": "https://github.com/WBCE/WBCE_CMS/releases",
+      "default": "1.6.3",
+      "versions": [
+        {
+          "key": "1.6.3",
+          "number": "1.6.3",
+          "series": "1.6",
+          "download": {
+            "download_url": "https://github.com/WBCE/WBCE_CMS/archive/refs/tags/1.6.3.tar.gz",
+            "filename": "wbce_cms-1.6.3.tar.gz",
+            "directory": "WBCE_CMS-1.6.3/wbce",
+            "sha256": "de9cb220218be77346c0aa008ff4235757f8c9506d21dde8d1b092328890f9db"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wordpress",
+      "source_url": "https://wordpress.org/download/releases/",
+      "default": "6.8.1",
+      "directory": "wordpress",
+      "versions": [
+        {
+          "key": "6.8.1",
+          "number": "6.8.1",
+          "series": "6",
+          "download": {
+            "download_url": "https://wordpress.org/wordpress-6.8.1.tar.gz",
+            "filename": "wordpress-6.8.1.tar.gz",
+            "md5": "1bfd868dd21ff736e94307f2c9828c7a"
+          }
+        }
+      ]
+    },
+    {
+      "name": "wp-cli",
+      "source_url": "https://github.com/wp-cli/wp-cli/releases",
+      "default": "2.12.0",
+      "binary": "wp-cli",
+      "versions": [
+        {
+          "key": "2.12.0",
+          "number": "2.12.0",
+          "series": "2",
+          "download": {
+            "download_url": "https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar",
+            "filename": "wp-cli-2.12.0.phar",
+            "sha256": "ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c"
+          }
+        }
+      ]
+    }
+  ]
+}

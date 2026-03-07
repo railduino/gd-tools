@@ -82,8 +82,8 @@ func Run(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if download.DirName == "" {
-		return fmt.Errorf("missing DirName in wordpress download")
+	if download.Directory == "" {
+		return fmt.Errorf("missing Directory in wordpress download")
 	}
 
 	entry := config.CMS{
@@ -93,7 +93,7 @@ func Run(c *cli.Context) error {
 		Language:   cfg.Language,
 		Region:     cfg.Region,
 		Password:   c.String("password"),
-		DirName:    download.DirName,
+		DirName:    download.Directory,
 		Salt:       c.String("salt"),
 		AdminName:  c.String("admin-name"),
 		AdminEmail: c.String("admin-email"),

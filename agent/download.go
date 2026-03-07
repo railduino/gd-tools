@@ -17,15 +17,15 @@ const (
 )
 
 type Download struct {
-	Name     string `json:"name"`
-	Releases string `json:"releases"`
-	URL      string `json:"url"`
-	MD5      string `json:"md5"`
-	SHA256   string `json:"sha256"`
-	SHA512   string `json:"sha512"`
-	FileName string `json:"file_name"`
-	DirName  string `json:"dir_name"`
-	Binary   string `json:"binary"`
+	Name        string `json:"name"`
+	Releases    string `json:"releases"`
+	DownloadURL string `json:"download_url"`
+	MD5         string `json:"md5"`
+	SHA256      string `json:"sha256"`
+	SHA512      string `json:"sha512"`
+	Filename    string `json:"filename"`
+	Directory   string `json:"directory"`
+	Binary      string `json:"binary"`
 }
 
 type DownloadList struct {
@@ -54,7 +54,7 @@ func GetDownloadsDir(name string) string {
 }
 
 // This part is running on Dev
-func GetDownload(name string) (*Download, error) {
+func Get_Download(name string) (*Download, error) {
 	download, err := LoadDownload(name)
 	if err != nil {
 		return nil, err
@@ -103,13 +103,13 @@ func DownloadsHandler(req *Request, resp *Response) error {
 	}
 
 	for _, dwn := range req.Downloads {
-		path := filepath.Join(downloadsRoot, dwn.FileName)
+		path := filepath.Join(downloadsRoot, dwn.Filename)
 		status := fmt.Sprintf("✅ download %s", path)
 		if _, err := os.Stat(path); err != nil {
 			if !os.IsNotExist(err) {
 				return err
 			}
-			if _, err := RunCommand("curl", "-fsSL", "-o", path, dwn.URL); err != nil {
+			if _, err := RunCommand("curl", "-fsSL", "-o", path, dwn.DownloadURL); err != nil {
 				return err
 			}
 			status = fmt.Sprintf("download %s was successful", dwn.Name)
@@ -121,13 +121,13 @@ func DownloadsHandler(req *Request, resp *Response) error {
 		}
 
 		if dwn.MD5 != "" && dwn.MD5 != md5sum {
-			return fmt.Errorf("MD5 mismatch for %s", dwn.FileName)
+			return fmt.Errorf("MD5 mismatch for %s", dwn.Filename)
 		}
 		if dwn.SHA256 != "" && dwn.SHA256 != sha256sum {
-			return fmt.Errorf("SHA256 mismatch for %s", dwn.FileName)
+			return fmt.Errorf("SHA256 mismatch for %s", dwn.Filename)
 		}
 		if dwn.SHA512 != "" && dwn.SHA512 != sha512sum {
-			return fmt.Errorf("SHA512 mismatch for %s", dwn.FileName)
+			return fmt.Errorf("SHA512 mismatch for %s", dwn.Filename)
 		}
 		resp.Say(status)
 

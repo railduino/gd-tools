@@ -11,6 +11,7 @@ import (
 
 	"github.com/railduino/gd-tools/agent"
 	"github.com/railduino/gd-tools/php"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/templates"
 )
 
@@ -25,6 +26,7 @@ type CMS struct {
 	Product    string   `json:"product"`
 	HostName   string   `json:"host_name"`
 	DomainName string   `json:"domain_name"`
+	Version    string   `json:"version"`
 	Aliases    []string `json:"aliases"`
 	Language   string   `json:"language"`
 	Region     string   `json:"region"`
@@ -35,7 +37,8 @@ type CMS struct {
 	AdminPswd  string   `json:"admin_pswd"`
 
 	// for WordPress
-	Salt string `json:"salt,omitempty"`
+	Salt         string `json:"salt,omitempty"`
+	WpCliVersion string `json:"wp_cli_version"`
 
 	// for MediaWiki
 	Title string `json:"title,omitempty"`
@@ -270,7 +273,7 @@ func (cfg *Config) DeployCMS() error {
 	if cms == nil {
 		return fmt.Errorf("missing CMS pointer")
 	}
-	cfg.Debugf("Enter pkg/config/cms.go (%s: %s)", cms.FQDN(), cms.Product)
+	cfg.Debugf("Enter onfig/cms.go (%s: %s)", cms.FQDN(), cms.Product)
 
 	if cms.FQDN() == cfg.FQDN() {
 		return fmt.Errorf("cannot use the server name for CMS")
@@ -316,25 +319,36 @@ func (cfg *Config) DeployCMS() error {
 		}
 	}
 
-	cfg.Debugf("Leave pkg/config/cms.go (%s: %s)", cms.FQDN(), cms.Product)
+	cfg.Debugf("Leave onfig/cms.go (%s: %s)", cms.FQDN(), cms.Product)
 	return nil
 }
 
 func (cfg *Config) CMSDownload(cms *CMS) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload(cms.Product)
+	cat, err := releases.Load(cfg.Verbose)
 	if err != nil {
 		return err
 	}
-	req.Downloads = append(req.Downloads, download)
+	_, rel, err := cat.Get(cms.Product, cms.Version)
+	if err != nil {
+		return err
+	}
+	if rel.Download.Directory == "" {
+		return fmt.Errorf("missing Directory in %s download", cms.Product)
+	}
+
+	req.Downloads = append(req.Downloads, &rel.Download)
 
 	if cms.Product == "wordpress" {
-		wp_cli, err := agent.GetDownload("wp-cli")
+		_, rel, err := cat.Get("wp-cli", cms.WpCliVersion)
 		if err != nil {
 			return err
 		}
-		req.Downloads = append(req.Downloads, wp_cli)
+		if rel.Download.Binary == "" {
+			return fmt.Errorf("missing Binary in wp-cli download")
+		}
+		req.Downloads = append(req.Downloads, &rel.Download)
 	}
 
 	if err := req.Send(); err != nil {
@@ -347,17 +361,19 @@ func (cfg *Config) CMSDownload(cms *CMS) error {
 func (cfg *Config) CMSExtract(cms *CMS) error {
 	req := cfg.NewRequest()
 
-	download, err := agent.GetDownload(cms.Product)
+	cat, err := releases.Load(cfg.Verbose)
 	if err != nil {
 		return err
 	}
-	if download.DirName == "" {
-		return fmt.Errorf("missing DirName in %s download", cms.Product)
+	_, rel, err := cat.Get(cms.Product, cms.Version)
+	if err != nil {
+		return err
 	}
 
+	downloadDir := agent.GetDownloadsDir(rel.Download.Filename)
 	extract := agent.File{
 		Task:   "extract",
-		Path:   agent.GetDownloadsDir(download.FileName),
+		Path:   downloadDir,
 		Target: cms.RootDir(),
 		Mode:   "0755",
 		User:   "root",

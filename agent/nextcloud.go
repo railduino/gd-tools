@@ -25,6 +25,7 @@ type Nextcloud struct {
 	Region     string   `json:"region"`
 	HostName   string   `json:"host_name"`
 	DomainName string   `json:"domain_name"`
+	Version    string   `json:"version"`
 	ServerFQDN string   `json:"server_fqdn"`
 	Subdir     string   `json:"subdir"`
 	Password   string   `json:"password"`
@@ -33,6 +34,8 @@ type Nextcloud struct {
 	Secret     string   `json:"secret"`
 	AdminEmail string   `json:"admin_email"`
 	AppList    []string `json:"app_list,omitempty"`
+
+	Download *Download `json:"-"`
 }
 
 type NextcloudList struct {

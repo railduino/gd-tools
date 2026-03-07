@@ -19,9 +19,12 @@ const (
 type RustDesk struct {
 	HostName   string `json:"host_name,omitempty"`
 	DomainName string `json:"domain_name,omitempty"`
+	Version    string `json:"version"`
 
 	PrivateB64 string `json:"private_b64,omitempty"`
 	PublicKey  string `json:"public_key,omitempty"`
+
+	Download *Download `json:"-"`
 }
 
 func (rd *RustDesk) FQDN() string {

@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/templates"
 )
 
 func (cfg *Config) DeployRustDesk() error {
-	cfg.Debug("Enter pkg/config/rustdesk.go")
+	cfg.Debug("Enter config/rustdesk.go")
 
 	content, err := os.ReadFile(agent.RustDeskName)
 	if err != nil {
@@ -22,29 +23,41 @@ func (cfg *Config) DeployRustDesk() error {
 	if err := json.Unmarshal(content, &rd); err != nil {
 		return fmt.Errorf("failed to unmarshal %s: %w", agent.RustDeskName, err)
 	}
-	cfg.RustDesk = &rd
 
-	if err := cfg.RustDeskUser(); err != nil {
+	cat, err := releases.Load(cfg.Verbose)
+	if err != nil {
+		return err
+	}
+	_, rel, err := cat.Get("rustdesk", rd.Version)
+	if err != nil {
+		return err
+	}
+	if rel.Download.Directory == "" {
+		return fmt.Errorf("missing Directory in RustDesk download")
+	}
+	rd.Download = &rel.Download
+
+	if err := cfg.RustDeskUser(&rd); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskDownload(); err != nil {
+	if err := cfg.RustDeskDownload(&rd); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskExtract(); err != nil {
+	if err := cfg.RustDeskExtract(&rd); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskService(); err != nil {
+	if err := cfg.RustDeskService(&rd); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskKeys(); err != nil {
+	if err := cfg.RustDeskKeys(&rd); err != nil {
 		return err
 	}
 
-	if err := cfg.RustDeskFirewall(); err != nil {
+	if err := cfg.RustDeskFirewall(&rd); err != nil {
 		return err
 	}
 
@@ -54,13 +67,12 @@ func (cfg *Config) DeployRustDesk() error {
 		cfg.Say(status)
 	}
 
-	cfg.Debug("Leave pkg/config/rustdesk.go")
+	cfg.Debug("Leave config/rustdesk.go")
 	return nil
 }
 
-func (cfg *Config) RustDeskUser() error {
+func (cfg *Config) RustDeskUser(rd *agent.RustDesk) error {
 	req := cfg.NewRequest()
-	rd := cfg.RustDesk
 
 	rustdeskUser := agent.User{
 		Name:    "rustdesk",
@@ -95,14 +107,10 @@ func (cfg *Config) RustDeskUser() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskDownload() error {
+func (cfg *Config) RustDeskDownload(rd *agent.RustDesk) error {
 	req := cfg.NewRequest()
 
-	zip, err := agent.GetDownload("rustdesk")
-	if err != nil {
-		return err
-	}
-	req.Downloads = append(req.Downloads, zip)
+	req.Downloads = append(req.Downloads, rd.Download)
 
 	if err := req.Send(); err != nil {
 		return err
@@ -110,18 +118,12 @@ func (cfg *Config) RustDeskDownload() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskExtract() error {
+func (cfg *Config) RustDeskExtract(rd *agent.RustDesk) error {
 	req := cfg.NewRequest()
-	rd := cfg.RustDesk
-
-	download, err := agent.GetDownload("rustdesk")
-	if err != nil {
-		return err
-	}
 
 	extract := agent.File{
 		Task:   "extract",
-		Path:   agent.GetDownloadsDir(download.FileName),
+		Path:   agent.GetDownloadsDir(rd.Download.Filename),
 		Target: rd.DataDir(),
 		Mode:   "0750",
 		User:   "rustdesk",
@@ -136,13 +138,13 @@ func (cfg *Config) RustDeskExtract() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskService() error {
+func (cfg *Config) RustDeskService(rd *agent.RustDesk) error {
 	req := cfg.NewRequest()
 
 	// hbbs unit
 	{
 		path := filepath.Join("rustdesk", "hbbs.service")
-		content, err := templates.Parse(path, cfg.Verbose, cfg.RustDesk)
+		content, err := templates.Parse(path, cfg.Verbose, rd)
 		if err != nil {
 			return err
 		}
@@ -159,7 +161,7 @@ func (cfg *Config) RustDeskService() error {
 	// hbbr unit
 	{
 		path := filepath.Join("rustdesk", "hbbr.service")
-		content, err := templates.Parse(path, cfg.Verbose, cfg.RustDesk)
+		content, err := templates.Parse(path, cfg.Verbose, rd)
 		if err != nil {
 			return err
 		}
@@ -180,10 +182,11 @@ func (cfg *Config) RustDeskService() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskKeys() error {
+func (cfg *Config) RustDeskKeys(rd *agent.RustDesk) error {
 	req := cfg.NewRequest()
 
-	req.RustDesk = cfg.RustDesk
+	req.RustDesk = rd
+
 	if err := req.Send(); err != nil {
 		return err
 	}
@@ -191,7 +194,7 @@ func (cfg *Config) RustDeskKeys() error {
 	return nil
 }
 
-func (cfg *Config) RustDeskFirewall() error {
+func (cfg *Config) RustDeskFirewall(rd *agent.RustDesk) error {
 	cfg.AddFirewall("21115/tcp")
 	cfg.AddFirewall("21116/tcp")
 	cfg.AddFirewall("21116/udp")

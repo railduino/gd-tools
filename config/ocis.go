@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/releases"
 	"github.com/railduino/gd-tools/templates"
 )
 
@@ -24,6 +25,7 @@ type OCIS struct {
 	Password   string `json:"password"`
 	Language   string `json:"language"`
 	LogLevel   string `json:"log_level"`
+	Version    string `json:"version"`
 }
 
 func (oc *OCIS) FQDN() string {
@@ -89,7 +91,7 @@ func (oc *OCIS) Save() error {
 }
 
 func (cfg *Config) DeployOCIS() error {
-	cfg.Debug("Enter pkg/config/ocis.go")
+	cfg.Debug("Enter config/ocis.go")
 
 	content, err := os.ReadFile(OCISName)
 	if err != nil {
@@ -136,18 +138,26 @@ func (cfg *Config) DeployOCIS() error {
 		cfg.Say(status)
 	}
 
-	cfg.Debug("Leave pkg/config/ocis.go")
+	cfg.Debug("Leave config/ocis.go")
 	return nil
 }
 
 func (cfg *Config) OCISDownload() error {
 	req := cfg.NewRequest()
 
-	ocisBin, err := agent.GetDownload("ocis")
+	cat, err := releases.Load(cfg.Verbose)
 	if err != nil {
 		return err
 	}
-	req.Downloads = append(req.Downloads, ocisBin)
+	_, rel, err := cat.Get("ocis", cfg.OCIS.Version)
+	if err != nil {
+		return err
+	}
+	if rel.Download.Binary == "" {
+		return fmt.Errorf("missing Binary in OCIS download")
+	}
+
+	req.Downloads = append(req.Downloads, &rel.Download)
 
 	if err := req.Send(); err != nil {
 		return err

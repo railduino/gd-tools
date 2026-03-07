@@ -42,7 +42,6 @@ type Config struct {
 	Nextcloud *agent.Nextcloud `json:"-"`
 	OCIS      *OCIS            `json:"-"`
 	CMS       *CMS             `json:"-"`
-	RustDesk  *agent.RustDesk  `json:"-"`
 	Password  string           `json:"-"`
 	RootDir   string           `json:"-"`
 	BaseDir   string           `json:"-"`
@@ -67,6 +66,9 @@ type Config struct {
 	Packages   []string       `json:"packages"`    // required DEB packages
 	Mounts     []*agent.Mount `json:"mounts"`      // mounted filesystem (which can grow)
 	Firewall   []string       `json:"firewall"`    // ufw ports to open, e.g. 22/tcp
+
+	// System software versions
+	Roundcube string `json:"roundcube"`
 
 	Spambarrier string `json:"spambarrier"` // spambarrier.de API key (see https://www.spambarrier.de/)
 	UbuntuPro   string `json:"ubuntu_pro"`  // Ubuntu Pro Key (see https://ubuntu.com/pro)
