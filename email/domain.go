@@ -17,6 +17,8 @@ const (
 	AccountsName  = "accounts.json"
 	DKIM_Selector = "gd-tools"
 
+	DefaultCAA = "letsencrypt.org"
+
 	SpamBarrier1 = "mx1.spambarrier.de"
 	SpamBarrier2 = "mx2.spambarrier.de"
 )
@@ -33,12 +35,6 @@ type MX struct {
 	Prio int    `json:"prio"`
 }
 
-type CAA struct {
-	Flag  int    `json:"flag"`  // usually 0
-	Tag   string `json:"tag"`   // issue, issuewild, iodef
-	Value string `json:"value"` // letsencrypt.org
-}
-
 type Domain struct {
 	Name    string   `json:"name"`              // The domain name (e.g. example.com)
 	DKIMs   []DKIM   `json:"dkims,omitempty"`   // DKIM record value(s)
@@ -46,7 +42,7 @@ type Domain struct {
 	MXs     []MX     `json:"mxs,omitempty"`     // (external) MX records
 	Aliases []string `json:"aliases,omitempty"` // alias name(s) - mainly for legacy
 	SPFs    []string `json:"spfs,omitempty"`    // SPF additions (ip4:... or include:...)
-	CAAs    []string `json:"caas,omitempty"`    // Authorized CAA's, like Let's Encrypt
+	CAAs    []string `json:"caas,omitempty"`    // letsencrypt.org, sectigo.com
 
 	SpamBarrier string `json:"spam_barrier,omitempty"` // Verification for SpamBarrier (inbound)
 	BrevoCode   string `json:"brevo_code,omitempty"`   // Verification for Brevo (outbound)
@@ -172,9 +168,14 @@ func GetDomainSANs() []string {
 }
 
 func (list *DomainList) Save() error {
-	for _, domain := range list.Domains {
-		sort.Slice(domain.UserList, func(i, j int) bool {
-			return domain.UserList[i].Local < domain.UserList[j].Local
+	for _, dom := range list.Domains {
+		if len(dom.CAAs) == 0 {
+			dom.CAAs = append(dom.CAAs, DefaultCAA)
+		} else {
+			sort.Strings(dom.CAAs)
+		}
+		sort.Slice(dom.UserList, func(i, j int) bool {
+			return dom.UserList[i].Local < dom.UserList[j].Local
 		})
 	}
 
@@ -220,6 +221,25 @@ func (dom *Domain) DeleteAlias(alias string) {
 	for i, current := range dom.Aliases {
 		if current == alias {
 			dom.Aliases = append(dom.Aliases[:i], dom.Aliases[i+1:]...)
+			break
+		}
+	}
+}
+
+func (dom *Domain) AddCAA(auth string) {
+	for _, current := range dom.CAAs {
+		if current == auth {
+			return
+		}
+	}
+
+	dom.CAAs = append(dom.CAAs, auth)
+}
+
+func (dom *Domain) DeleteCAA(auth string) {
+	for i, current := range dom.CAAs {
+		if current == auth {
+			dom.CAAs = append(dom.CAAs[:i], dom.CAAs[i+1:]...)
 			break
 		}
 	}

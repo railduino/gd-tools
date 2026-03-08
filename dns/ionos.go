@@ -105,8 +105,8 @@ func (p *IonosProvider) UpsertRRSet(ctx context.Context, zone string, rrIn RRSet
 	}
 	var result []string
 
-	// Delete existing records (except TXT for Apex)
-	if rr.Type != RR_TXT || rr.Name != "@" {
+	// Delete existing records (except TXT for Apex and CAA)
+	if (rr.Type != RR_TXT && rr.Type != RR_CAA) || rr.Name != "@" {
 		for i := range theZone.Records {
 			url := IonosBaseURL + "/zones/" + theZone.ID + "/records/" + theZone.Records[i].ID
 			if _, err := p.sendToAPI(ctx, "DELETE", url, nil); err != nil {

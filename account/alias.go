@@ -10,7 +10,7 @@ import (
 
 var AliasCommand = &cli.Command{
 	Name:  "alias",
-	Usage: "add or delete alias names for email",
+	Usage: "add or delete alias name for domain",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,

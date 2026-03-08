@@ -10,7 +10,7 @@ import (
 
 var SPFCommand = &cli.Command{
 	Name:  "spf",
-	Usage: "add or delete SPF includes for domain",
+	Usage: "add or delete SPF include for domain",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,

@@ -205,6 +205,13 @@ func (cfg *Config) UpdateDomainDNS(domain *email.Domain) ([]string, error) {
 		result = append(result, status)
 	}
 
+	// CAA
+	if status, err := cfg.SetCAA(ctx, p, domain); err != nil {
+		return nil, fmt.Errorf("[dns] failed to set CAA: %w", err)
+	} else if status != "" {
+		result = append(result, status)
+	}
+
 	return result, nil
 }
 
@@ -377,6 +384,33 @@ func (cfg *Config) SetMX(ctx context.Context, p dns.DNSProvider, domain *email.D
 	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
 		Name:    "@",
 		Type:    dns.RR_MX,
+		TTL:     cfg.RegTTL,
+		Records: records,
+	})
+}
+
+func (cfg *Config) SetCAA(ctx context.Context, p dns.DNSProvider, domain *email.Domain) (string, error) {
+	// Build <0 issue "name"> list
+	var records []dns.RRecord
+	for _, ca := range domain.CAAs {
+		record := dns.RRecord{
+			Prio:  0,
+			Value: fmt.Sprintf(`0 issue "%s"`, ca),
+		}
+		records = append(records, record)
+	}
+
+	msg := fmt.Sprintf("SetCAA %s -> %v (ttl=%d)", domain.Name, records, cfg.RegTTL)
+	if cfg.Verbose {
+		cfg.Debug(msg)
+	} else if cfg.Dry {
+		cfg.Say(msg)
+		return "", nil
+	}
+
+	return p.UpsertRRSet(ctx, domain.Name, dns.RRSet{
+		Name:    "@",
+		Type:    dns.RR_CAA,
 		TTL:     cfg.RegTTL,
 		Records: records,
 	})

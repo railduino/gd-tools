@@ -19,6 +19,7 @@ var Command = &cli.Command{
 		AddCommand,
 		AliasCommand,
 		BrevoCommand,
+		CAACommand,
 		DeployCommand,
 		ForwardCommand,
 		ListCommand,
