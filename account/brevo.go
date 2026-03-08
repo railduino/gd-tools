@@ -1,7 +1,7 @@
 package account
 
 import (
-	// "fmt"
+	"fmt"
 
 	"github.com/railduino/gd-tools/config"
 	"github.com/railduino/gd-tools/email"
@@ -27,7 +27,7 @@ var BrevoCommand = &cli.Command{
 			Value: 587,
 		},
 		&cli.StringFlag{
-			Name:  "api (admin access)",
+			Name:  "api",
 			Usage: "API key",
 		},
 		&cli.StringFlag{
@@ -53,37 +53,30 @@ func BrevoRun(c *cli.Context) error {
 		return nil
 	}
 
-	brevo, err := email.ReadBrevo(c)
+	brv, err := email.ReadBrevo(c)
 	if err != nil {
 		return err
 	}
 
-	updated := false
 	if c.IsSet("server") {
-		brevo.Server = c.String("server")
-		updated = true
+		brv.Server = c.String("server")
 	}
 	if c.IsSet("port") {
-		brevo.Port = c.Int("port")
-		updated = true
+		brv.Port = c.Int("port")
 	}
 	if c.IsSet("api") {
-		brevo.API_Key = c.String("api")
-		updated = true
+		brv.API_Key = c.String("api")
 	}
 	if c.IsSet("id") {
-		brevo.SMTP_ID = c.String("id")
-		updated = true
+		brv.SMTP_ID = c.String("id")
 	}
 	if c.IsSet("key") {
-		brevo.SMTP_Key = c.String("key")
-		updated = true
+		brv.SMTP_Key = c.String("key")
 	}
+	fmt.Printf("Brevo: '%v'\n", brv)
 
-	if updated {
-		if err := brevo.Save(); err != nil {
-			return err
-		}
+	if err := brv.Save(); err != nil {
+		return err
 	}
 
 	return nil

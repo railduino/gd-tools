@@ -90,6 +90,7 @@ smtp_use_tls = yes
 smtp_tls_security_level = may
 smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
 smtp_tls_loglevel = 1
+smtp_helo_name = {{.HostName}}
 
 # SMTP authentication settings for relay transports (e.g. Brevo/Mailjet)
 # These settings are harmless for direct delivery; they are only used when the
