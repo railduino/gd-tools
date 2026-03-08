@@ -10,6 +10,7 @@ import (
 	"github.com/railduino/gd-tools/basics"
 	"github.com/railduino/gd-tools/cert"
 	"github.com/railduino/gd-tools/deploy"
+	"github.com/railduino/gd-tools/domain"
 	"github.com/railduino/gd-tools/hello"
 	"github.com/railduino/gd-tools/install"
 	"github.com/railduino/gd-tools/login"
@@ -50,6 +51,7 @@ func main() {
 			fmt.Println("basics")
 			fmt.Println("cert")
 			fmt.Println("deploy")
+			fmt.Println("domain")
 			fmt.Println("hello")
 			fmt.Println("install")
 			fmt.Println("login")
@@ -82,6 +84,7 @@ func getCommands() []*cli.Command {
 		basics.Command,
 		cert.Command,
 		deploy.Command,
+		domain.Command,
 		hello.Command,
 		install.Command,
 		login.Command,
