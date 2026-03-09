@@ -11,7 +11,6 @@ import (
 	"os/exec"
 	"sort"
 
-	"github.com/railduino/gd-tools/email"
 	"github.com/tv42/zbase32"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/blake2b"
@@ -19,7 +18,8 @@ import (
 )
 
 const (
-	SecretsName = "secrets.json"
+	SecretsName  = "secrets.json"
+	MailUserName = "mailuser"
 )
 
 type Secret struct {
@@ -135,7 +135,7 @@ func (list *SecretList) SetMailUser(address, password string) (string, string, e
 		return "", "", err
 	}
 
-	if err := list.Set(email.SecretDomain, address, password, output); err != nil {
+	if err := list.Set(MailUserName, address, password, output); err != nil {
 		return "", "", err
 	}
 

@@ -1,6 +1,8 @@
 package releases
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Validate checks the complete release catalog.
 func (c *Catalog) Validate() error {

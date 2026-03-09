@@ -1,4 +1,4 @@
-package account
+package domain
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var CAACommand = &cli.Command{
 	Name:  "caa",
-	Usage: "add or delete CAA record for domain",
+	Usage: "add or delete CAA records for domain",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,

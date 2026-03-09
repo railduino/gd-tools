@@ -219,11 +219,11 @@ func (dom *Domain) BrevoUpdate(apiKey string) (bool, error) {
 	return true, nil
 }
 
-func (dom *Domain) BrevoStatus(apiKey string) (string, bool, error) {
+func (dom *Domain) GetBrevoStatus(apiKey string) (string, error) {
 	path := BrevoBaseURL + url.PathEscape(dom.Name)
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
-		return "", false, err
+		return "", err
 	}
 	req.Header.Set("accept", "application/json")
 	req.Header.Set("api-key", apiKey)
@@ -233,17 +233,17 @@ func (dom *Domain) BrevoStatus(apiKey string) (string, bool, error) {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", false, err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode == http.StatusNotFound {
-		return "   --- Brevo:missing", false, nil
+		return "missing", nil
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", false, fmt.Errorf("brevo: status=%d body=%s",
+		return "", fmt.Errorf("brevo: status=%d body=%s",
 			resp.StatusCode,
 			strings.TrimSpace(string(body)),
 		)
@@ -251,54 +251,16 @@ func (dom *Domain) BrevoStatus(apiKey string) (string, bool, error) {
 
 	var data BrevoData
 	if err := json.Unmarshal(body, &data); err != nil {
-		return "", false, fmt.Errorf("brevo: parse failed: %w body=%s", err, strings.TrimSpace(string(body)))
+		return "", fmt.Errorf("brevo: parse failed: %w body=%s", err, strings.TrimSpace(string(body)))
 	}
 
 	if data.Authenticated {
-		return "   +++ Brevo:Authenticated", true, nil
+		return "authenticated", nil
 	}
 
 	if data.Verified {
-		return "   *** Brevo:Verified", false, nil
+		return "verified", nil
 	}
 
-	return "   ??? Brevo:Pending", false, nil
-}
-
-func CheckBrevo() (*Brevo, error) {
-	brevo, err := GetBrevo()
-	if err != nil {
-		return nil, err
-	}
-	if brevo == nil || brevo.API_Key == "" {
-		return nil, nil
-	}
-	if brevo.SMTP_ID == "" || brevo.SMTP_Key == "" {
-		return nil, nil
-	}
-	if brevo.Server == "" || brevo.Port == 0 {
-		return nil, nil
-	}
-
-	domainList, _, err := GetDomains(nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var brevoMissing []string
-	for _, dom := range domainList.Domains {
-		_, valid, err := dom.BrevoStatus(brevo.API_Key)
-		if err != nil {
-			return nil, err
-		}
-		if !valid {
-			brevoMissing = append(brevoMissing, dom.Name)
-		}
-	}
-
-	if len(brevoMissing) > 0 {
-		return nil, fmt.Errorf("missing Brevo domains: %s", strings.Join(brevoMissing, ", "))
-	}
-
-	return brevo, nil
+	return "pending", nil
 }

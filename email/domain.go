@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"sort"
+
+	"github.com/railduino/gd-tools/utils"
 )
 
 const (
@@ -278,4 +280,42 @@ func (dom *Domain) GetSPF(args ...string) string {
 	}
 
 	return text + " -all"
+}
+
+func (dom *Domain) Info() (string, error) {
+	var lb utils.LineBuffer
+
+	lb.Addf("Domain ...........: %s", dom.Name)
+	lb.Addf("    Registrar ....: %s", "TODO")
+	lb.Addf("    Expires ......: %s", "TODO")
+
+	brevo, err := GetBrevo()
+	if err != nil {
+		return "", err
+	}
+	if brevo != nil && brevo.API_Key != "" {
+		status, err := dom.GetBrevoStatus(brevo.API_Key)
+		if err != nil {
+			return "", err
+		}
+		lb.Addf("    Brevo ........: %s", status)
+	}
+
+	for _, user := range dom.UserList {
+		lb.Addf("  User ...........: %s", user.Email())
+		for _, alias := range user.Aliases {
+			lb.Addf("                    Alias: %s", alias)
+		}
+		if len(user.Forwards) > 0 {
+			label := "Forward"
+			if user.Dismiss {
+				label = "Forward-Only"
+			}
+			for _, forward := range user.Forwards {
+				lb.Addf("                 %s: %s", label, forward)
+			}
+		}
+	}
+
+	return lb.Text(), nil
 }

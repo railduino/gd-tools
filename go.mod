@@ -5,6 +5,7 @@ go 1.25
 toolchain go1.25.4
 
 require (
+	github.com/cloudflare/cloudflare-go/v6 v6.8.0
 	github.com/go-acme/lego/v4 v4.30.1
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/hetznercloud/hcloud-go/v2 v2.33.0
@@ -29,6 +30,10 @@ require (
 	github.com/prometheus/common v0.66.1 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	golang.org/x/mod v0.30.0 // indirect

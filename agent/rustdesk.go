@@ -97,7 +97,7 @@ func (rd *RustDesk) Save() error {
 	return nil
 }
 
-// The following functions are used on the production host
+// The following functions are used on the production server
 func RustDeskTest(req *Request) bool {
 	return req != nil && req.RustDesk != nil
 }

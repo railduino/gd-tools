@@ -1,4 +1,4 @@
-package account
+package domain
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var SyncCommand = &cli.Command{
 	Name:  "sync",
-	Usage: "add or update an email domain",
+	Usage: "synchronize an email domain with the production server",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,

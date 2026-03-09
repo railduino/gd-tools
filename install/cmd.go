@@ -28,7 +28,7 @@ client certificate.`
 
 var Command = &cli.Command{
 	Name:        "install",
-	Usage:       "Turn a server into a gd-tools production server",
+	Usage:       "Create or update a gd-tools production server",
 	Description: Describe,
 	Flags: []cli.Flag{
 		config.FlagVerbose,

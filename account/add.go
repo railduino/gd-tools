@@ -112,7 +112,7 @@ func AddRun(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	oldSecret := secrets.Get(email.SecretDomain, oldUser.Email())
+	oldSecret := secrets.Get(utils.MailUserName, oldUser.Email())
 
 	if password != "" || oldSecret == nil || oldSecret.Output == "" {
 		_, oldUser.Password, err = secrets.SetMailUser(oldUser.Email(), password)

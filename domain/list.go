@@ -2,7 +2,6 @@ package domain
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/railduino/gd-tools/config"
 	"github.com/railduino/gd-tools/email"
@@ -11,7 +10,7 @@ import (
 
 var ListCommand = &cli.Command{
 	Name:  "list",
-	Usage: "list existing email domains (incl. accounts)",
+	Usage: "list existing Email/DNS domains (incl. accounts)",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,
@@ -24,12 +23,6 @@ func ListRun(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
-	brevo, err := email.GetBrevo()
-	if err != nil {
-		return err
-	}
-	var brevoMissing []string
 
 	domainList, _, err := email.GetDomains(nil)
 	if err != nil {
@@ -46,44 +39,24 @@ func ListRun(c *cli.Context) error {
 		}
 	}
 
+	space := false
 	for _, name := range names {
 		for _, dom := range domainList.Domains {
 			if dom.Name == name {
-				status := ""
-				valid := false
-				if brevo != nil && brevo.API_Key != "" {
-					status, valid, err = dom.BrevoStatus(brevo.API_Key)
-					if err != nil {
-						return err
-					}
-					if !valid {
-						brevoMissing = append(brevoMissing, dom.Name)
-					}
+				lines, err := dom.Info()
+				if err != nil {
+					return err
 				}
-				fmt.Printf("Domain ........: %-24s%s\n", dom.Name, status)
-				for _, user := range dom.UserList {
-					fmt.Printf("  User ........: %s\n", user.Email())
-					for _, alias := range user.Aliases {
-						fmt.Printf("                 Alias: %s\n", alias)
-					}
-					if len(user.Forwards) > 0 {
-						label := "Forward"
-						if user.Dismiss {
-							label = "Forward-Only"
-						}
-						for _, forward := range user.Forwards {
-							fmt.Printf("                 %s: %s\n", label, forward)
-						}
-					}
+				for _, line := range lines {
+					fmt.Println(line)
 				}
-				fmt.Println()
+				if space {
+					fmt.Println("")
+				}
+				space = true
 				break
 			}
 		}
-	}
-
-	if len(brevoMissing) > 0 {
-		fmt.Printf("################ Missing in Brevo: %s\n", strings.Join(brevoMissing, ", "))
 	}
 
 	return nil

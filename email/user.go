@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-const (
-	SecretDomain = "mailuser"
-)
-
 type User struct {
 	Local    string   `json:"local"`    // Local part of the email address
 	Domain   string   `json:"domain"`   // Domain part of the email address

@@ -1,4 +1,4 @@
-package account
+package domain
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 var AliasCommand = &cli.Command{
 	Name:  "alias",
-	Usage: "add or delete alias name for domain",
+	Usage: "add or delete alias names for domain",
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,

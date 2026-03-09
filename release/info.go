@@ -64,9 +64,7 @@ func InfoRun(c *cli.Context) error {
 		}
 		space = true
 
-		for _, line := range pr.Info() {
-			fmt.Println(line)
-		}
+		fmt.Print(pr.Info())
 	}
 
 	return nil

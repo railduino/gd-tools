@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/railduino/gd-tools/agent"
+	"github.com/railduino/gd-tools/utils"
 )
 
 // Release describes one concrete release entry in the catalog.
@@ -71,26 +72,9 @@ func (pr *Product) Get(num string) (*Release, error) {
 	return nil, fmt.Errorf("release %q not found for product %q", num, pr.Name)
 }
 
-// Helper function to collect lines
-type LineBuffer struct {
-	lines []string
-}
-
-func (lb *LineBuffer) Add(line string) {
-	lb.lines = append(lb.lines, line)
-}
-
-func (lb *LineBuffer) Addf(format string, args ...any) {
-	lb.lines = append(lb.lines, fmt.Sprintf(format, args...))
-}
-
-func (lb *LineBuffer) Lines() []string {
-	return lb.lines
-}
-
 // Return info for the given product
-func (pr *Product) Info() []string {
-	var lb LineBuffer
+func (pr *Product) Info() string {
+	var lb utils.LineBuffer
 
 	lb.Addf("Product:    %s", pr.Name)
 	if pr.SourceURL != "" {
@@ -142,5 +126,5 @@ func (pr *Product) Info() []string {
 		lb.Addf("    URL:        %s", rel.Download.DownloadURL)
 	}
 
-	return lb.Lines()
+	return lb.Text()
 }

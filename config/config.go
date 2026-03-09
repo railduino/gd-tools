@@ -70,11 +70,13 @@ type Config struct {
 	// System software versions
 	Roundcube string `json:"roundcube"`
 
-	Spambarrier string `json:"spambarrier"` // spambarrier.de API key (see https://www.spambarrier.de/)
-	UbuntuPro   string `json:"ubuntu_pro"`  // Ubuntu Pro Key (see https://ubuntu.com/pro)
+	// External credentials
+	Spambarrier string `json:"spambarrier,omitempty"` // spambarrier.de API key (see https://www.spambarrier.de/)
+	UbuntuPro   string `json:"ubuntu_pro,omitempty"`  // Ubuntu Pro Key (see https://ubuntu.com/pro)
 
-	HetznerToken string `json:"hetzner_token"` // Token for Hetzner Cloud API
-	IonosToken   string `json:"ionos_token"`   // Token for IONOS Cloud API
+	HetznerToken    string `json:"hetzner_token,omitempty"`    // Token for Hetzner Cloud API
+	IonosToken      string `json:"ionos_token,omitempty"`      // Token for IONOS Cloud API
+	CloudflareToken string `json:"cloudflare_token,omitempty"` // Token for Cloudflare Cloud API
 	// add more provider token here
 }
 

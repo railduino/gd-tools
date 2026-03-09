@@ -9,20 +9,20 @@ var Describe = `The domain command handles email domains.`
 
 var Command = &cli.Command{
 	Name:        "domain",
-	Usage:       "Handle email domains",
+	Usage:       "Handle email domains (see 'account' for email users)",
 	Description: Describe,
 	Flags: []cli.Flag{
 		config.FlagVerbose,
 		config.FlagDry,
 	},
 	Subcommands: []*cli.Command{
-		// AliasCommand,
+		AliasCommand,
 		// BrevoCommand,
-		// CAACommand,
+		CAACommand,
 		// DeployCommand,
 		ListCommand,
-		// SPFCommand,
-		// SyncCommand,
+		SPFCommand,
+		SyncCommand,
 	},
 	Action: ListRun,
 }
