@@ -16,12 +16,12 @@ import (
 
 const (
 	BrevoName    = "brevo.json"
+	BrevoServer  = "smtp-relay.brevo.com"
+	BrevoPort    = 587
 	BrevoBaseURL = "https://api.brevo.com/v3/senders/domains/"
 )
 
 type Brevo struct {
-	Server   string `json:"server"`
-	Port     int    `json:"port"`
 	API_Key  string `json:"api_key"`
 	SMTP_ID  string `json:"smtp_id"`
 	SMTP_Key string `json:"smtp_key"`
@@ -65,37 +65,25 @@ func GetBrevo() (*Brevo, error) {
 }
 
 func BrevoSASL() (string, error) {
-	brevo, err := GetBrevo()
-	if err != nil || brevo == nil {
+	brv, err := GetBrevo()
+	if err != nil || brv == nil {
 		return "", err
 	}
 
-	if brevo.Server == "" || brevo.Port == 0 {
-		return "", fmt.Errorf("Brevo is missing target info")
-	}
-	if brevo.SMTP_ID == "" || brevo.SMTP_Key == "" {
+	if brv.SMTP_ID == "" || brv.SMTP_Key == "" {
 		return "", fmt.Errorf("Brevo is missing SMTP credentials")
 	}
 
 	return fmt.Sprintf("[%s]:%d %s:%s",
-		brevo.Server,
-		brevo.Port,
-		brevo.SMTP_ID,
-		brevo.SMTP_Key,
+		BrevoServer,
+		BrevoPort,
+		brv.SMTP_ID,
+		brv.SMTP_Key,
 	), nil
 }
 
-func BrevoTarget() (string, int, error) {
-	brevo, err := GetBrevo()
-	if err != nil || brevo == nil {
-		return "", 0, err
-	}
-
-	if brevo.Server == "" || brevo.Port == 0 {
-		return "", 0, fmt.Errorf("Brevo is missing target info")
-	}
-
-	return brevo.Server, brevo.Port, nil
+func BrevoTarget() (string, int) {
+	return BrevoServer, BrevoPort
 }
 
 func ReadBrevo(c *cli.Context) (*Brevo, error) {
@@ -103,8 +91,6 @@ func ReadBrevo(c *cli.Context) (*Brevo, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			brv := Brevo{
-				Server:   c.String("server"),
-				Port:     c.Int("port"),
 				API_Key:  c.String("api"),
 				SMTP_ID:  c.String("id"),
 				SMTP_Key: c.String("key"),
