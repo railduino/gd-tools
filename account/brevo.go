@@ -17,16 +17,6 @@ var BrevoCommand = &cli.Command{
 		config.FlagDelete,
 		config.FlagForce,
 		&cli.StringFlag{
-			Name:  "server",
-			Usage: "SMTP server",
-			Value: "smtp-relay.brevo.com",
-		},
-		&cli.IntFlag{
-			Name:  "port",
-			Usage: "SMTP port",
-			Value: 587,
-		},
-		&cli.StringFlag{
 			Name:  "api",
 			Usage: "API key",
 		},
@@ -58,12 +48,6 @@ func BrevoRun(c *cli.Context) error {
 		return err
 	}
 
-	if c.IsSet("server") {
-		brv.Server = c.String("server")
-	}
-	if c.IsSet("port") {
-		brv.Port = c.Int("port")
-	}
 	if c.IsSet("api") {
 		brv.API_Key = c.String("api")
 	}
@@ -73,6 +57,7 @@ func BrevoRun(c *cli.Context) error {
 	if c.IsSet("key") {
 		brv.SMTP_Key = c.String("key")
 	}
+
 	fmt.Printf("Brevo: '%v'\n", brv)
 
 	if err := brv.Save(); err != nil {

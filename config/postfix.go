@@ -201,7 +201,7 @@ func (cfg *Config) PostfixMaps() error {
 	for _, transport := range routing.RelayDomains {
 		switch transport.Relay {
 		case "brevo":
-			server, port, err := email.BrevoTarget()
+			server, port := email.BrevoTarget()
 			if err != nil {
 				return err
 			}
