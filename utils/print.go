@@ -37,6 +37,6 @@ func (lb *LineBuffer) Lines() []string {
 	return lb.lines
 }
 
-func (lb *LineBuffer) Text() string {
+func (lb *LineBuffer) Text_() string {
 	return strings.Join(lb.lines, "\n") + "\n"
 }

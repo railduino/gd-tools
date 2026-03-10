@@ -73,7 +73,7 @@ func (pr *Product) Get(num string) (*Release, error) {
 }
 
 // Return info for the given product
-func (pr *Product) Info() string {
+func (pr *Product) Info() []string {
 	var lb utils.LineBuffer
 
 	lb.Addf("Product:    %s", pr.Name)
@@ -126,5 +126,5 @@ func (pr *Product) Info() string {
 		lb.Addf("    URL:        %s", rel.Download.DownloadURL)
 	}
 
-	return lb.Text()
+	return lb.Lines()
 }

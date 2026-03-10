@@ -282,7 +282,7 @@ func (dom *Domain) GetSPF(args ...string) string {
 	return text + " -all"
 }
 
-func (dom *Domain) Info() (string, error) {
+func (dom *Domain) Info() ([]string, error) {
 	var lb utils.LineBuffer
 
 	lb.Addf("Domain ...........: %s", dom.Name)
@@ -291,12 +291,12 @@ func (dom *Domain) Info() (string, error) {
 
 	brevo, err := GetBrevo()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if brevo != nil && brevo.API_Key != "" {
 		status, err := dom.GetBrevoStatus(brevo.API_Key)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		lb.Addf("    Brevo ........: %s", status)
 	}
@@ -317,5 +317,5 @@ func (dom *Domain) Info() (string, error) {
 		}
 	}
 
-	return lb.Text(), nil
+	return lb.Lines(), nil
 }
