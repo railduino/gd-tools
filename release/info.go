@@ -54,17 +54,16 @@ func InfoRun(c *cli.Context) error {
 		name = c.Args().First()
 	}
 
-	space := false
 	for _, pr := range catalog.Products {
 		if name != "" && name != pr.Name {
 			continue
 		}
-		if space {
-			fmt.Println()
-		}
-		space = true
 
-		fmt.Print(pr.Info())
+		lines := pr.Info()
+		for _, line := range lines {
+			fmt.Println(line)
+		}
+		fmt.Println()
 	}
 
 	return nil

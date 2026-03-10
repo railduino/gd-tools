@@ -43,6 +43,11 @@ func ListRun(c *cli.Context) error {
 	for _, name := range names {
 		for _, dom := range domainList.Domains {
 			if dom.Name == name {
+				if space {
+					fmt.Println()
+				}
+				space = true
+
 				lines, err := dom.Info()
 				if err != nil {
 					return err
@@ -50,10 +55,6 @@ func ListRun(c *cli.Context) error {
 				for _, line := range lines {
 					fmt.Println(line)
 				}
-				if space {
-					fmt.Println("")
-				}
-				space = true
 				break
 			}
 		}
