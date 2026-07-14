@@ -63,6 +63,7 @@ apache2
 
 # Mail server
 postfix
+postsrsd
 postfix-mysql
 libsasl2-modules
 dovecot-core

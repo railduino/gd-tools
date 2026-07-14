@@ -34,8 +34,7 @@ tls_preempt_cipherlist = yes
 # SMTP session checks
 smtpd_helo_required = yes
 smtpd_helo_restrictions =
-    reject_invalid_helo_hostname,
-    reject_non_fqdn_helo_hostname
+    reject_invalid_helo_hostname
 
 # MAIL FROM checks
 smtpd_sender_restrictions =
